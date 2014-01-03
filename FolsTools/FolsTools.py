@@ -80,28 +80,33 @@ class CopyBuild(object):
         file = os.path.join(self.srcPath, build)
         desfile = os.path.join(self.desPath, build)
         print("Copying {} to {} ...".format(build, self.desPath))
-        shutil.copytree(file, desfile)
-        print("Done{}\n".format(exclamination))
-
-        with zipfile.ZipFile(os.path.join(self.desZipPath, build) + '.zip', 'w') as myzip:
-            print("Zipping {} to {} ...".format(file, self.desZipPath))
-            for ff in os.listdir(file):
-                myzip.write(os.path.join(file, ff), ff, zipfile.ZIP_DEFLATED)
+        try:
+            shutil.copytree(file, desfile)
             print("Done{}\n".format(exclamination))
 
-        return True
+            with zipfile.ZipFile(os.path.join(self.desZipPath, build) + '.zip', 'w') as myzip:
+                print("Zipping {} to {} ...".format(file, self.desZipPath))
+                for ff in os.listdir(file):
+                    myzip.write(os.path.join(file, ff), ff, zipfile.ZIP_DEFLATED)
+                print("Done{}\n".format(exclamination))
+
+            return True
+        except FileNotFoundError:
+            print("{} does not exist, fail to copy to {}".format(file, desfile))
 
         return False
 
      
 from ftplib import FTP
+import subprocess
 
 class GetBuildFromFTP(object):
-    def __init__(self, key1, key2, srcpath, despath, ftpsite = ''):
+    def __init__(self, key1, key2, srcpath, despath, flashget, ftpsite = ''):
         self.key1 = key1
         self.key2 = key2
         self.srcpath = srcpath
         self.despath = despath
+        self.flashget = flashget
         if len(ftpsite) == 0:
             ftpsite = '207.180.39.173' #nd2
             #self.fptsite = '98.118.55.12' #nd1
@@ -153,12 +158,15 @@ class GetBuildFromFTP(object):
     def do(self):
         file = self.fetch()
         if file:
-            cmd = r'flashget ftp://{}:{}@{}/"{}"{} {}'\
-                  .format(self.username(), self.password(), self.ftpsite, self.srcpath, file, os.path.join(self.despath, file))
-            print(cmd)
-            print()
+            # cmd = r'"D:\FlashGet\flashget.exe" ftp://{}:{}@{}/"{}"{} {}'\
+            #       .format(self.username(), self.password(), self.ftpsite, self.srcpath, file, os.path.join(self.despath, file))
+            # print(cmd)
+            # print()
             print('Downloading {}'.format(file))
-            os.system(cmd)
+            # os.system(cmd)
+            subprocess.check_call([self.flashget,
+                'ftp://{}:{}@{}/{}{}'.format(self.username(), self.password(), self.ftpsite, self.srcpath, file),
+                os.path.join(self.despath, file)])
             print('Downloaded{}\n'.format(exclamination))
             return file
 
