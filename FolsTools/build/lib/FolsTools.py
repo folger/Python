@@ -1,21 +1,25 @@
 import re
 import os
+import subprocess
 
 class XFGUI:
-    def __init__(self):
-        self.path = r"c:\xfgui"
+    def __init__(self, filepath = r"c:\xfgui", reportpath = r"d:\report.txt"):
+        self.filepath = filepath
+        self.reportpath = reportpath
     
     def GUI2XF(self):
-        script = ""
-        for file in os.listdir(self.path):
+        scripts = []
+        for file in os.listdir(self.filepath):
             m = self.Match(r"(.)XFGUI_(.*)\.xml", file)
             if m:
-                script += ("gui2xf %s l:=%s;" % (m.group(2), m.group(1)))
+                scripts.append("gui2xf %s l:=%s;" % (m.group(2), m.group(1)))
 ##        print(script)
-        self.Run(script)
+        self.Run(''.join(scripts))
+        return scripts
 
     def XF2GUI(self):
-        with open(r"d:\report.txt", "r") as fr:
+        xfs = []
+        with open(self.reportpath, "r") as fr:
             script = ""
             for line in fr:
                 m1 = self.Match(r".*\\(.*)\.oxf", line)
@@ -23,20 +27,23 @@ class XFGUI:
                 m3 = self.Match(r"(.*)\.oxf", line)
                 m = m1 if m1 else (m2 if m2 else m3)
                 if m:
-                    print(m.group(1))
+                    # print(m.group(1))
+                    xfs.append(m.group(1))
                     for c in "JG":
                         script += ("xf2gui %s l:=%s;" % (m.group(1),c))
             self.Run(script)
+        return xfs
 
     def Clear(self):
-        for file in os.listdir(self.path):
+        for file in os.listdir(self.filepath):
             m = self.Match(r".XFGUI_.*\.xml", file)
             if m:
-                os.remove(os.path.join(self.path, file))
+                os.remove(os.path.join(self.filepath, file))
 
     def Run(self, script):
         if len(script) != 0:
             os.system(r"G:\F_C_VC32\origin9 -h -rs %s;exit;" % script)
+            # subprocess.check_call([r"G:\F_C_VC32\origin9.exe", "-h", "-rs", '"%s;exit;"' % script])
 
     def Match(self, pattern, string):
         return re.match(pattern, string, re.I)
@@ -80,16 +87,19 @@ class CopyBuild(object):
         file = os.path.join(self.srcPath, build)
         desfile = os.path.join(self.desPath, build)
         print("Copying {} to {} ...".format(build, self.desPath))
-        shutil.copytree(file, desfile)
-        print("Done{}\n".format(exclamination))
-
-        with zipfile.ZipFile(os.path.join(self.desZipPath, build) + '.zip', 'w') as myzip:
-            print("Zipping {} to {} ...".format(file, self.desZipPath))
-            for ff in os.listdir(file):
-                myzip.write(os.path.join(file, ff), ff, zipfile.ZIP_DEFLATED)
+        try:
+            shutil.copytree(file, desfile)
             print("Done{}\n".format(exclamination))
 
-        return True
+            with zipfile.ZipFile(os.path.join(self.desZipPath, build) + '.zip', 'w') as myzip:
+                print("Zipping {} to {} ...".format(file, self.desZipPath))
+                for ff in os.listdir(file):
+                    myzip.write(os.path.join(file, ff), ff, zipfile.ZIP_DEFLATED)
+                print("Done{}\n".format(exclamination))
+
+            return True
+        except FileNotFoundError:
+            print("{} does not exist, fail to copy to {}".format(file, desfile))
 
         return False
 
@@ -97,11 +107,12 @@ class CopyBuild(object):
 from ftplib import FTP
 
 class GetBuildFromFTP(object):
-    def __init__(self, key1, key2, srcpath, despath, ftpsite = ''):
+    def __init__(self, key1, key2, srcpath, despath, flashget, ftpsite = ''):
         self.key1 = key1
         self.key2 = key2
         self.srcpath = srcpath
         self.despath = despath
+        self.flashget = flashget
         if len(ftpsite) == 0:
             ftpsite = '207.180.39.173' #nd2
             #self.fptsite = '98.118.55.12' #nd1
@@ -153,12 +164,15 @@ class GetBuildFromFTP(object):
     def do(self):
         file = self.fetch()
         if file:
-            cmd = r'flashget ftp://{}:{}@{}/"{}"{} {}'\
-                  .format(self.username(), self.password(), self.ftpsite, self.srcpath, file, os.path.join(self.despath, file))
-            print(cmd)
-            print()
+            # cmd = r'"D:\FlashGet\flashget.exe" ftp://{}:{}@{}/"{}"{} {}'\
+            #       .format(self.username(), self.password(), self.ftpsite, self.srcpath, file, os.path.join(self.despath, file))
+            # print(cmd)
+            # print()
             print('Downloading {}'.format(file))
-            os.system(cmd)
+            # os.system(cmd)
+            subprocess.check_call([self.flashget,
+                'ftp://{}:{}@{}/{}{}'.format(self.username(), self.password(), self.ftpsite, self.srcpath, file),
+                os.path.join(self.despath, file)])
             print('Downloaded{}\n'.format(exclamination))
             return file
 
