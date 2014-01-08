@@ -6,6 +6,69 @@ from functools import partial
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import FolsTools
+import threading
+
+class GetOneBuild(QDialog):
+  def __init__(self, parent, ftp, ver):
+    super(GetOneBuild, self).__init__(parent, Qt.FramelessWindowHint)
+
+    self.ftp = ftp
+    self.ver = ver
+
+    # self.setWindowTitle("%s build from %s" % (ver, ftp))
+
+    self.browser = QTextBrowser()
+    self.btnOK = QPushButton("OK")
+
+    layBtn = QHBoxLayout()
+    layBtn.addStretch()
+    layBtn.addWidget(self.btnOK)
+    layBtn.addStretch()
+
+    layout = QVBoxLayout()
+    layout.addWidget(self.browser)
+    layout.addLayout(layBtn)
+    self.setLayout(layout)
+
+    self.connect(self.btnOK, SIGNAL("clicked()"), self.accept)
+
+  def output(self, s):
+    self.browser.append(s)
+
+  def do(self):
+    try:
+      print(self.ver)
+      print(self.ftp)
+
+      localpath = r'D:\Builds'
+               
+      gb = FolsTools.GetBuildFromFTP(self.ver, self.ver,
+                       'Builds/{}/I/'.format(self.ver),
+                       localpath,
+                       'C:/Dropbox/Windows/FlashGet/flashget.exe',
+                       self.ftp
+                       )
+      build = gb.do(self.output)
+
+      if build:
+        cb = FolsTools.CopyBuild(self.ver, self.ver,
+                         localpath,
+                         r'\\fs1\Builds\{}'.format(self.ver),
+                         r'\\fs1\Builds\Zip Builds\{}'.format(self.ver)
+                         )
+        cb.do(build, self.output)
+    except Exception as e:
+      self.output("Failed to download: %s" % e)
+    finally:
+      self.btnOK.setEnabled(True)
+
+  def showEvent(self, event):
+    super(GetOneBuild, self).showEvent(event)
+
+    self.btnOK.setEnabled(False)
+    self.my_thread = threading.Thread(None, self.do)
+    self.my_thread.setDaemon(True)
+    self.my_thread.start()
 
 class GetBuild(QDialog):
   def __init__(self, parent=None):
@@ -35,8 +98,8 @@ class GetBuild(QDialog):
     self.connect(btn92nd2, SIGNAL("clicked()"), partial(self.do, nd2, '92'))
 
   def do(self, ftp, ver):
-    print(ftp)
-    print(ver)
+    onebuild = GetOneBuild(self, ftp, ver)
+    onebuild.exec_()
 
 app = QApplication(sys.argv)
 getbuild = GetBuild()

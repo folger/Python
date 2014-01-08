@@ -75,31 +75,30 @@ class CopyBuild(object):
   def pattern(self):
     return CopyBuild.pattern1(self.key1, self.key2)
 
-  def do(self, build = ""):
-    if len(build) == 0:
-      for f in os.listdir(self.srcPath):
-        file = os.path.join(self.srcPath, f)
+  def do(self, build, output):
+    # if len(build) == 0:
+    #   for f in os.listdir(self.srcPath):
+    #     file = os.path.join(self.srcPath, f)
 
-        if os.path.isdir(file) and re.match(self.pattern(), f, re.I):
-          build = f
-          break
-
+    #     if os.path.isdir(file) and re.match(self.pattern(), f, re.I):
+    #       build = f
+    #       break
     file = os.path.join(self.srcPath, build)
     desfile = os.path.join(self.desPath, build)
-    print("Copying {} to {} ...".format(build, self.desPath))
+    output("Copying {} to {} ...".format(build, self.desPath))
     try:
       shutil.copytree(file, desfile)
-      print("Done{}\n".format(exclamination))
+      output("Done{}\n".format(exclamination))
 
       with zipfile.ZipFile(os.path.join(self.desZipPath, build) + '.zip', 'w') as myzip:
-        print("Zipping {} to {} ...".format(file, self.desZipPath))
+        output("Zipping {} to {} ...".format(file, self.desZipPath))
         for ff in os.listdir(file):
           myzip.write(os.path.join(file, ff), ff, zipfile.ZIP_DEFLATED)
-        print("Done{}\n".format(exclamination))
+        output("Done{}\n".format(exclamination))
 
       return True
     except FileNotFoundError:
-      print("{} does not exist, fail to copy to {}".format(file, desfile))
+      output("{} does not exist, fail to copy to {}".format(file, desfile))
 
     return False
 
@@ -127,13 +126,14 @@ class GetBuildFromFTP(object):
   def password(self):
     return 'labtalk'
 
-  def fetch(self):
+  def fetch(self, output):
+    output("Connecting %s ..." % self.ftpsite)
     with FTP(self.ftpsite, self.username(), self.password()) as ftp:
       try:
         ftp.set_pasv(False)
         ftp.cwd(self.srcpath)
       except:
-        print("Build directory changed{}\n".format(exclamination))
+        output("Build directory changed{}\n".format(exclamination))
         return None
 
       build = []
@@ -143,7 +143,7 @@ class GetBuildFromFTP(object):
           build.append(match.group(0))
 
       def build_comp(build):
-##        print(build, end='\t')
+##        output(build, end='\t')
         extra = 0
         while build[-1].isalpha() or build[-1] == '_':
           extra = ord(build[-1].lower()) - ord('a')
@@ -153,7 +153,7 @@ class GetBuildFromFTP(object):
         if n < 0:
           n = build.find('_')
         num = int(build[n-1]) * 10000 + int(build[n+1:]) * 100 + extra
-##        print(num)
+##        output(num)
         return num
 
       ftp.dir(get)
@@ -161,19 +161,19 @@ class GetBuildFromFTP(object):
         build.sort(reverse=True, key=build_comp)
         return build[0]
 
-  def do(self):
-    file = self.fetch()
+  def do(self, output):
+    file = self.fetch(output)
     if file:
       # cmd = r'"D:\FlashGet\flashget.exe" ftp://{}:{}@{}/"{}"{} {}'\
       #    .format(self.username(), self.password(), self.ftpsite, self.srcpath, file, os.path.join(self.despath, file))
-      # print(cmd)
-      # print()
-      print('Downloading {}'.format(file))
+      # output(cmd)
+      # output()
+      output('Downloading {}'.format(file))
       # os.system(cmd)
       subprocess.check_call([self.flashget,
         'ftp://{}:{}@{}/{}{}'.format(self.username(), self.password(), self.ftpsite, self.srcpath, file),
         os.path.join(self.despath, file)])
-      print('Downloaded{}\n'.format(exclamination))
+      output('Downloaded{}\n'.format(exclamination))
       return file
 
 
