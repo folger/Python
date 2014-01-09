@@ -7,7 +7,6 @@ import os
 import fnmatch
 from functools import partial
 
-
 class BuildProjDlg(QDialog):
   def __init__(self, parent=None):
     super(BuildProjDlg, self).__init__(parent)
@@ -53,7 +52,7 @@ class BuildProjDlg(QDialog):
     self.connect(cleanBtn, SIGNAL("clicked()"), partial(self.build, "/t:clean"))
 
   def get_projects(self):
-    path = r'D:\Develop\Source'
+    path = os.path.join(os.environ["develop"], 'Source')
     projects = {}
     for dirpath, dirnames, files in os.walk(path):
       all = fnmatch.filter(files, '*.vcxproj')
