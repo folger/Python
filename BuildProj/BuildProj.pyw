@@ -25,7 +25,7 @@ class BuildProjDlg(QDialog):
     platformLabel.setBuddy(self.platformCombo)
     self.platformCombo.addItems(["Win32", "x64"])
 
-    configLabel = QLabel("configuration")
+    configLabel = QLabel("Configuration")
     self.configCombo = QComboBox()
     configLabel.setBuddy(self.configCombo)
     self.configCombo.addItems(["Debug", "Release"])
