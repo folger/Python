@@ -1,10 +1,11 @@
 #! /usr/bin/python
 
-import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+import sys
 import os
 import fnmatch
+from functools import partial
 
 
 class BuildProjDlg(QDialog):
@@ -49,10 +50,10 @@ class BuildProjDlg(QDialog):
     self.setLayout(layout)
 
     self.connect(buildBtn, SIGNAL("clicked()"), self.build)
-    self.connect(cleanBtn, SIGNAL("clicked()"), self.clean)
+    self.connect(cleanBtn, SIGNAL("clicked()"), partial(self.build, "/t:clean"))
 
   def get_projects(self):
-    path = r'G:\Develop\Source'
+    path = r'D:\Develop\Source'
     projects = {}
     for dirpath, dirnames, files in os.walk(path):
       all = fnmatch.filter(files, '*.vcxproj')
@@ -61,18 +62,12 @@ class BuildProjDlg(QDialog):
         projects[f] = os.path.join(dirpath, f)
     return projects
 
-  def build(self):
-    self.buildimpl("")
-
-  def clean(self):
-    self.buildimpl("/t:clean")
-
-  def buildimpl(self, extra_args):
+  def build(self, extra_args = ""):
     args = []
     args.append('"%s"' % self.projects[self.projectsCombo.currentText()])
     args.append('"/p:platform=%s"' % self.platformCombo.currentText())
     args.append('"/p:configuration=%s"' % self.configCombo.currentText())
-    if ( extra_args ):
+    if extra_args:
       args.extend(['"%s"' % arg for arg in extra_args.split(' ')])
 
     cmd = "Build.bat %s" % ' '.join(args)
