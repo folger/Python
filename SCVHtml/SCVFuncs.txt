@@ -1,0 +1,303 @@
+String
+Char(number)$
+Code(str$)
+Compare(str1$,str2$[,b])
+Exact(str1$,str2$)
+Find(str1$,str2$[,n])
+Format(d[,str$])$
+Left(str$, n)$
+Len(str$)
+Lower(str$)$
+MakeCSV(str1$[, n1, n2, str2$])$
+MatchBegin(str1$,str2$[,n,b])
+MatchEnd(str1$,str2$[n,b])
+Mid(str$,n1,n2)$
+Replace(str1$,n1,n2,str2$)$
+Right(str$,n)$
+Search(str1$,str2$[,n])
+Substitute(str1$,str2$,str3$[,n])$
+Token(str$,n1[,n2])$
+Trim(str$[, n])$
+Upper(str$)$
+Value(str$)
+
+Math
+abs(x)
+beta(a, b)
+Combine(n1,n2)
+Derivative(vd[,n])
+DerivativeXY(vx,vy[,n])
+Distance(px1,py1,px2,py2)
+Distance3D(px1,py1,pz1,px2,py2,pz2)
+exp(x)
+fact(n)
+factdouble(n)
+incbeta(x, a, b)
+incf(x, m, n)
+incgamma(x, a)
+int(x)
+Integrate(vd)
+IntegrateXY(vx,vy)
+inverf(x)
+j0(x)
+j1(x)
+jn(x, n)
+ln(x)
+log(x)
+mod(n, m)
+nint(x)
+prec(x, n)
+rmod(x, y)
+round(x, n)
+sign(x)
+sqrt(x)
+y0(x)
+y1(x)
+yn(x, n)
+
+Trigonometric/Hyperbolic
+acos(x)
+acosh(x)
+acot(x)
+acoth(x)
+acsc(x)
+acsch(x)
+angle(x, y)
+Angleint1(px1,py1,px2,py2[,unit,direction])
+Angleint2(px1,py1,px2,py2,px3,py3,px4,py4[,unit,direction])
+asec(x)
+asech(x)
+asin(x)
+asinh(x)
+atan(x)
+atan2(x, y)
+atanh(x)
+cos(x)
+cosh(x)
+cot(x)
+coth(x)
+csc(x)
+csch(x)
+Degrees(x)
+Radians(x)
+secant(x)
+sech(x)
+sin(x)
+sinh(x)
+tan(x)
+tanh(x)
+
+Date and Time
+Date(MM/dd/yy[, format])
+Date(yy,mm,dd)
+Date2str(d,format$)$
+Day(d[,n])
+Hour(d)
+Minute(d)
+Month(d)
+MonthName(d[,n])$
+Now()
+Quarter(d)
+Second(d[,b])
+Time(HH,mm,ss)
+Time(HH:mm:ss)
+Time2str(d,format$)$
+Today()
+WeekDay(d[,n])
+WeekDayName(d[,n1,n2])$
+WeekNum(d[,n])
+Year(d)
+YearName(d[,n])$
+
+Statistics
+Count(vd[,n])
+cov(vx, vy, avex, avey)
+Max(vd)
+Mean(vd)
+Median(vd[,n])
+Min(vd)
+rms(vd)
+ss(vd [, ref])
+StdDev(vd)
+StdDevP(vd)
+Total(vd)
+ave(vd, n)
+diff(vd)
+sum(vd)
+Confidence(alpha,std,n)
+histogram(vd, inc, min, max)
+Kurt(vd)
+percentile(vx, vy)
+qcd2(n)
+qcd3(n)
+qcd4(n)
+Skew(vd)
+Emovavg(vd,n[,method])
+Mmovavg(vd,n)
+Movavg(vd,back,forward)
+Movslope(vx,vy[,n])
+Tmovavg(vd,n)
+Wmovavg(vd,vw)
+
+Distributions - CDF
+betacdf(x,a,b)
+binocdf(k,n,p)
+bivarnormcdf(x,y,corre)
+chi2cdf(x,df)
+fcdf(f,ndf,fdf)
+gamcdf(g,a,b)
+hygecdf(k,m,n,l)
+ncbetacdf(x,a,b,lambda)
+ncchi2cdf(x,f,lambda)
+ncfcdf(x,df1,df2,lambda)
+nctcdf(x,df,delta,maxiter)
+normcdf(x)
+poisscdf(k,lambda)
+srangecdf(q,v,group)
+tcdf(t,df)
+wblcdf(x,a,b)
+
+Distributions - PDF
+betapdf(x,a,b)
+cauchypdf(x,a,b)
+exppdf(x,mu)
+gampdf(x,a,b)
+lappdf(x,mu,b)
+lognpdf(x,mu,sigma)
+normpdf(x,mu,sigma)
+poisspdf(x,lambda)
+wblpdf(x,a,b)
+
+Distributions - INV
+betainv(p,a,b)
+chi2inv(p,df)
+finv(p,df1,df2)
+gaminv(p,a,b)
+norminv(p)
+srangeinv(p,v,ir)
+tinv(p,df)
+wblinv(p,a,b)
+
+Data Generation
+Data(x1, x2, inc)
+grnd()
+normal(npts, seed)
+poisson(n, mean[, seed])
+ran(seed)
+rnd(seed)
+uniform(npts, seed)
+
+Dataset Information
+Errof(vd)
+Findmasks(vd)
+hasx(vd)
+Index(d,vd[,n])
+IsMasked(n, vd)
+List(val, vd)
+Xindex(x, vd)
+Xof(vd)
+Xvalue(n, vd)
+
+Data Manipulation
+asc(str$)
+corr(vx, vy, k[, n])
+peaks(vd, width, minht)
+sort(vd)
+tReplace(vd, val1, val2[, cnd])
+
+NAG Special - Airy
+airy_ai(x)
+airy_ai_deriv(x)
+airy_bi(x)
+airy_bi_deriv(x)
+
+NAG Special - Bessel
+bessel_i_nu(x,nu)
+bessel_i_nu_scaled(x,nu)
+bessel_i0(x)
+bessel_i0_scaled(x)
+bessel_i1(x)
+bessel_i1_scaled(x)
+bessel_j0(x)
+bessel_j1(x)
+bessel_k_nu(x,nu)
+bessel_k_nu_scaled(x,nu)
+bessel_k0(x)
+bessel_k0_scaled(x)
+bessel_k1(x)
+bessel_k1_scaled(x)
+bessel_y0(x)
+bessel_y1(x)
+
+NAG Special - Error
+erfcx(x)
+erfinv(dy)
+erfc(x)
+erf(x)
+erfcinv(dy)
+
+NAG Special - Gamma
+log_gamma(x)
+real_polygamma(x,k)
+gamma(x)
+incomplete_gamma(a,x)
+
+NAG Special - Integral
+elliptic_integral_rj(x,y,z,r)
+elliptic_integral_rf(x,y,z)
+elliptic_integral_rd(x,y,z)
+exp_integral(x)
+fresnel_c(x)
+fresnel_s(x)
+elliptic_integral_rc(x,y)
+cumul_normal_complem(x)
+cumul_normal(x)
+sin_integral(x)
+cos_integral(x)
+
+NAG Special - Kelvin
+kelvin_bei(x)
+kelvin_ker(x)
+kelvin_kei(x)
+kelvin_ber(x)
+
+NAG Special - Miscellaneous
+lambertW(x,branch,offset)
+jacobian_theta(k,x,q)
+
+Engineering
+Bin2Dec(str$)
+Convert(d,str1$,str2$)
+Dec2Bin(n)$
+Dec2Hex(n)$
+Hex2Dec(str$)
+
+Complex
+Imabs(c)
+Imaginary(c)
+Imargument(c)
+Imconjugate(c)
+Imcos(c)
+Imdiv(c1,c2)
+Imexp(c)
+Imln(c)
+Imlog10(c)
+Imlog2(c)
+ImPower(c,d)
+Improduct(c1,c2)
+ImReal(c)
+Imsin(c)
+Imsqrt(c)
+ImSub(c1,c2)
+ImSum(c1,c2)
+Real2Complex(real,imag)
+
+Miscellaneous
+BitAND(n1,n2)
+BitOR(n1,n2)
+BitXOR(n1,n2)
+ISNA(d)
+isText(s$)
+NA()
+xf_get_last_error_code()
+xf_get_last_error_message()$
