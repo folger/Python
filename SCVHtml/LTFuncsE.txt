@@ -1,4 +1,4 @@
-Ave(ds, n)										 Breaks dataset into groups of size <i >n</i>, finds the average for each group, and returns a range containing these values.
+﻿Ave(ds, n)										 Breaks dataset into groups of size <i >n</i>, finds the average for each group, and returns a range containing these values.
 Confidence(alpha, std, n)										 Returns the confidence interval for a population mean, with level <img src="/images/ltwiki/math/math-2c1743a391305fbf367df8e4f069f9f9.png" title="alpha" alt="alpha" class="tex"></img>, standard deviation <img src="/images/ltwiki/math/math-2c1743a391305fbf367df8e4f069f9f9.png" title="alpha" alt="alpha" class="tex"></img> and sample size <img src="/images/ltwiki/math/math-7b8b965ad4bca0e41ab51de7b31363a1.png" title="n" alt="n" class="tex"></img>.
 Count(v [,n])										 Counts elements in a vector <i >v</i>; <i >n</i> is an integer parameter specifying different options.
 Cov(ds1, ds2, ave1, ave2)										 Returns the covariance between two datasets, where <i >ave1</i> and <i >ave2</i> are the respective means of datasets <i >ds1</i> and <i >ds2</i>.

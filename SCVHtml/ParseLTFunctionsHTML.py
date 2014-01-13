@@ -63,7 +63,7 @@ with urlopen("http://wikis/ltwiki/index.php?title=Script:LabTalk-Supported_Funct
   # print(f.read().decode())
   parser = MyHTMLParser()
   parser.feed(r.read().decode())
-  with open(r'g:\CheckCode\Python\SCVHtml\LTFuncs.txt', 'w') as f:
+  with open(r'g:\CheckCode\Python\SCVHtml\LTFuncs.txt', 'w', encoding='utf-8-sig') as f:
     f.write('\n'.join(parser.results))
 
 

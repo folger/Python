@@ -1,0 +1,21 @@
+﻿String	String
+Math	Mathematik
+Trigonometric/Hyperbolic	Trigonometrisch/Hyperbolisch
+Date and Time	Datum und Zeit
+Statistics	Statistik
+Distributions - CDF	Verteilungen - CDF
+Distributions - PDF	Verteilungen - PDF
+Distributions - INV	Verteilungen - INV
+Data Generation	Datenerzeugung
+Dataset Information	Datensatzinformationen
+Data Manipulation	Datenmanipulation
+NAG Special - Airy	NAG Spezial - Airy
+NAG Special - Bessel	NAG Spezial - Bessel
+NAG Special - Error	NAG Spezial - Error
+NAG Special - Gamma	NAG Spezial - Gamma
+NAG Special - Integral	NAG Spezial - Integral
+NAG Special - Kelvin	NAG Spezial - Kelvin
+NAG Special - Miscellaneous	NAG Spezial - Sonstiges
+Engineering	Ingenieur
+Complex	Komplex
+Miscellaneous	Sonstiges

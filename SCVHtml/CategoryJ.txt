@@ -1,0 +1,21 @@
+﻿String	文字列
+Math	数学
+Trigonometric/Hyperbolic	三角関数/双曲線関数
+Date and Time	日付と時間
+Statistics	統計
+Distributions - CDF	分布関数 - CDF
+Distributions - PDF	分布関数 - PDF
+Distributions - INV	分布関数 - INV
+Data Generation	データ生成
+Dataset Information	データセット情報
+Data Manipulation	データ操作
+NAG Special - Airy	NAG特殊 - Airy
+NAG Special - Bessel	NAG特殊 - Bessel
+NAG Special - Error	NAG特殊 - Error
+NAG Special - Gamma	NAG特殊 - Gamma
+NAG Special - Integral	NAG特殊 - Integral
+NAG Special - Kelvin	NAG特殊 - Kelvin
+NAG Special - Miscellaneous	NAG特殊 - その他
+Engineering	エンジニアリング
+Complex	複素数
+Miscellaneous	その他

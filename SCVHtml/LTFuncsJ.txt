@@ -1,0 +1,220 @@
+﻿Ave(ds, n)										 Breaks dataset into groups of size <i >n</i>, finds the average for each group, and returns a range containing these values.
+Confidence(alpha, std, n)										 Returns the confidence interval for a population mean, with level <img src="/images/ltwiki/math/math-2c1743a391305fbf367df8e4f069f9f9.png" title="alpha" alt="alpha" class="tex"></img>, standard deviation <img src="/images/ltwiki/math/math-2c1743a391305fbf367df8e4f069f9f9.png" title="alpha" alt="alpha" class="tex"></img> and sample size <img src="/images/ltwiki/math/math-7b8b965ad4bca0e41ab51de7b31363a1.png" title="n" alt="n" class="tex"></img>.
+Count(v [,n])										 Counts elements in a vector <i >v</i>; <i >n</i> is an integer parameter specifying different options.
+Cov(ds1, ds2, ave1, ave2)										 Returns the covariance between two datasets, where <i >ave1</i> and <i >ave2</i> are the respective means of datasets <i >ds1</i> and <i >ds2</i>.
+Diff(ds)										 Returns a dataset that contains the difference between adjacent elements in <i >dataset</i>.
+Emovavg(vd,n)										 This function returns exponential moving averages of specified vector <img src="/images/ltwiki/math/math-8f7d15a8d28ec153835ef4bfc428d5e4.png" title="vd" alt="vd" class="tex"></img> with window width <img src="/images/ltwiki/math/math-7b8b965ad4bca0e41ab51de7b31363a1.png" title="n" alt="n" class="tex"></img>.
+Histogram(ds, inc, min, max)										 Generates data bins from <i >dataset</i> in the specified range from <i >min</i> to <i >max</i>.
+Kurt(ds)										 Returns the kurtosis of the specified dataset <img src="/images/ltwiki/math/math-522748524ad010358705b6852b81be4c.png" title="ds" alt="ds" class="tex"></img>.
+Max(v)										This function returns the maximum value from a set of values.
+Mean(v)										Returns the average of a vector.
+Median(v [,n])										This function is used to return median of vector <i >v</i>, with parameter <i >n</i> specifying the type of interpolation.
+Min(v)										This function is used to return the minimum value from a vector <i >v</i>.
+Mmovavg(vd,n)										 This function returns modified moving averages of specified vector <img src="/images/ltwiki/math/math-8f7d15a8d28ec153835ef4bfc428d5e4.png" title="vd" alt="vd" class="tex"></img> with window width <img src="/images/ltwiki/math/math-7b8b965ad4bca0e41ab51de7b31363a1.png" title="n" alt="n" class="tex"></img>.
+Movavg(vx,nb,nf)										This function returns the average of adjacent ranges on specified dataset <img src="/images/ltwiki/math/math-767fc73d92d26413d7f2a4b51088ccc5.png" title="vx" alt="vx" class="tex"></img> with backward width <img src="/images/ltwiki/math/math-9c59153d22d9f7cc021b17b425cc31c5.png" title="nb" alt="nb" class="tex"></img> and forward width <img src="/images/ltwiki/math/math-78d9238c1a217c8bbe8f6c26172fb12d.png" title="nf" alt="nf" class="tex"></img>.
+Movslope(vX,vY,n)										This function returns a vector to calculate the moving slope at each point with independent vector <img src="/images/ltwiki/math/math-2eac10d18d05a8c5af42301631028809.png" title="vX" alt="vX" class="tex"></img>, dependent vector <img src="/images/ltwiki/math/math-baace4203eac7c3f81f609e8549c199e.png" title="vY" alt="vY" class="tex"></img> and a window width of <img src="/images/ltwiki/math/math-7b8b965ad4bca0e41ab51de7b31363a1.png" title="n" alt="n" class="tex"></img>.
+Rms(v)										This function is used to return the root mean square of a vector.
+Percentile(ds1, ds2)										Returns a range comprised of the percentile values for <i >ds1</i> at each percent value specified in <i >ds2</i>.
+QCD2(n)										Returns Quality Control D2 Factor
+QCD3(n)										Returns Quality Control D3 Factor
+QCD4(n)										Returns Quality Control D4 Factor
+Skew(ds)										Returns the skewness of of the specified dataset <img src="/images/ltwiki/math/math-522748524ad010358705b6852b81be4c.png" title="ds" alt="ds" class="tex"></img>.
+Ss(ds [,ref])										 Returns the sum of the squares of dataset <i >ds</i>.  The optional <i >ref</i> defaults to the mean of <i >ds</i> as the reference value.
+StdDev(v)										Calculates the standard deviation based on a sample.
+StdDevP(v)										Return the standard deviation based on the entire population given as arguments.
+Sum(ds)										Returns a range whose <i ><b >i</b></i> th element is the sum of the first <i ><b >i</b></i> elements of the dataset dataset.
+Total(v)										Returns the sum of a vector.
+Tmovavg(vd,n)										 This function returns triangular moving averages of specified data vector <img src="/images/ltwiki/math/math-8f7d15a8d28ec153835ef4bfc428d5e4.png" title="vd" alt="vd" class="tex"></img> and timeperiod <img src="/images/ltwiki/math/math-7b8b965ad4bca0e41ab51de7b31363a1.png" title="n" alt="n" class="tex"></img>.
+Wmovavg(vd,vw)										 This function returns weighted moving averages of specified data vector <img src="/images/ltwiki/math/math-8f7d15a8d28ec153835ef4bfc428d5e4.png" title="vd" alt="vd" class="tex"></img> and weight vector <img src="/images/ltwiki/math/math-7336a2c49b0045fa1340bf899f785e70.png" title="vw" alt="vw" class="tex"></img>.
+Betacdf(x,a,b) 										Computes beta cumulative distribution function at <img src="/images/ltwiki/math/math-9dd4e461268c8034f5c8564e155c67a6.png" title="x" alt="x" class="tex"></img>, with parameters <img src="/images/ltwiki/math/math-0cc175b9c0f1b6a831c399e269772661.png" title="a" alt="a" class="tex"></img> and <img src="/images/ltwiki/math/math-92eb5ffee6ae2fec3ad71c777531578f.png" title="b" alt="b" class="tex"></img>.
+Erf(x) 										The error function (or normal error integral).
+InvF(value, m, n) 										The inverse F distribution function with m and n degrees of freedom.
+Ncchi2cdf(x,f,lambda) 										Computes the probability associated with the lower tail of the non-central <img src="/images/ltwiki/math/math-9ca61f458c78bb5591d04aaaa14da0e7.png" title="\chi^2" alt="\chi^2" class="tex"></img> distribution.
+Poisscdf(n,rlamda) 										Computes the lower tail probabilities in given value <img src="/images/ltwiki/math/math-8ce4b16b22b58894aa86c421e8759df3.png" title="k" alt="k" class="tex"></img>, associated with a Poisson distribution using the corresponding parameters in <img src="/images/ltwiki/math/math-c6a6eb61fd9c6c913da73b3642ca147d.png" title="\lambda" alt="\lambda" class="tex"></img>.
+Binocdf(m,n,p) 										Computes the lower tail, upper tail and point probabilities in given value <img src="/images/ltwiki/math/math-8ce4b16b22b58894aa86c421e8759df3.png" title="k" alt="k" class="tex"></img>, associated with a Binomial distribution using the corresponding parameters in <img src="/images/ltwiki/math/math-7b8b965ad4bca0e41ab51de7b31363a1.png" title="n" alt="n" class="tex"></img>, <img src="/images/ltwiki/math/math-83878c91171338902e0fe0fb97a8c47a.png" title="p" alt="p" class="tex"></img>.
+Fcdf(f,df1,df2) 										Computes <img src="/images/ltwiki/math/math-800618943025315f869e4e1f09471012.png" title="F" alt="F" class="tex"></img> cumulative distribution function at <img src="/images/ltwiki/math/math-9dd4e461268c8034f5c8564e155c67a6.png" title="x" alt="x" class="tex"></img>, with parameters <img src="/images/ltwiki/math/math-0cc175b9c0f1b6a831c399e269772661.png" title="a" alt="a" class="tex"></img> and <img src="/images/ltwiki/math/math-92eb5ffee6ae2fec3ad71c777531578f.png" title="b" alt="b" class="tex"></img>, and lower tail.
+Invprob(x)										The Inverse Probability Density function.
+Ncfcdf(f,df1,df2,lambda) 										Computes the probability associated with the lower tail of the non-central <img src="/images/ltwiki/math/math-bf64ba6aa4c2d7bb776f5b41188a0c1b.png" title="\digamma" alt="\digamma" class="tex"></img> or variance-ratio distribution.
+Srangecdf(q,v,n) 										Computes the probability associated with the lower tail of the distribution of the Studentized range statistic.
+Bivarnormcdf(x,y,rho) 										Computes the lower tail probability for the bivariate Normal distribution.
+Gamcdf(g,a,b) 										Computes the lower tail probability for the gamma distribution with real degrees of freedom, with parameters <img src="/images/ltwiki/math/math-7b7f9dbfea05c83784f8b85149852f08.png" title="\alpha" alt="\alpha" class="tex"></img> and <img src="/images/ltwiki/math/math-b0603860fcffe94e5b8eec59ed813421.png" title="\beta" alt="\beta" class="tex"></img> .
+Invt(value, n)										The inverse t distribution function with n degrees of freedom.
+Nctcdf(t,df,delta) 										Computes the lower tail probability for the non-central Student's t-distribution.
+Tcdf(t,df) 										Computes the cumulative distribution function of Student's t-distribution.
+Chi2cdf(x,df) 										Computes the lower tail probability for the <img src="/images/ltwiki/math/math-9ca61f458c78bb5591d04aaaa14da0e7.png" title="\chi^2" alt="\chi^2" class="tex"></img> distribution with real degrees of freedom.
+Hygecdf(m1, m2, n1, n2) 										Computes the lower tail probabilities in a given value, associated with a hypergeometric distribution using the corresponding parameters.
+Chi2inv(p,df)										Computes the inverse of the  <img src="/images/ltwiki/math/math-9ca61f458c78bb5591d04aaaa14da0e7.png" title="\chi^2" alt="\chi^2" class="tex"></img> cdf for the corresponding probabilities in <img src="/images/ltwiki/math/math-02129bb861061d1a052c592e2dc6b383.png" title="X" alt="X" class="tex"></img> with parameters specified by <img src="/images/ltwiki/math/math-4fdefba26320686bb2bd0579a0df421c.png" title="\nu" alt="\nu" class="tex"></img>.
+Ftable(x, m, n)										The F distribution function with m and n degrees of freedom.
+Finv(p,df1,df2)										Computes the inverse of <img src="/images/ltwiki/math/math-800618943025315f869e4e1f09471012.png" title="F" alt="F" class="tex"></img> cdf at <img src="/images/ltwiki/math/math-f6ad5d21eaa32e5b71fa58df6050314c.png" title=" x" alt=" x" class="tex"></img>, with parameters <img src="/images/ltwiki/math/math-ebfdd136331841a1b59f835c998ca593.png" title="\nu_1" alt="\nu_1" class="tex"></img> and <img src="/images/ltwiki/math/math-1ff7af9a810bd160a7334c3de425ed9d.png" title="\nu_2" alt="\nu_2" class="tex"></img> .
+Gaminv(p,a,b)										Computes the inverse of Gamma cdf at <img src="/images/ltwiki/math/math-376e32af2f5a6dc0d67450d303b4ade6.png" title="g_p" alt="g_p" class="tex"></img> , with parameters <img src="/images/ltwiki/math/math-0cc175b9c0f1b6a831c399e269772661.png" title="a" alt="a" class="tex"></img> and <img src="/images/ltwiki/math/math-92eb5ffee6ae2fec3ad71c777531578f.png" title="b" alt="b" class="tex"></img>.
+IncF(x, m, n)										The incomplete F-table function.
+Inverf(x)										Computes inverse error function fnction at x.
+Norminv(p)										Computes the deviate,<img src="/images/ltwiki/math/math-f5e81d79b535c85746763245f006f7b5.png" title="x_p" alt="x_p" class="tex"></img>, associated with the given lower tail probabilip,<img src="/images/ltwiki/math/math-83878c91171338902e0fe0fb97a8c47a.png" title="p" alt="p" class="tex"></img>, of the standardized normal distribution.
+Srangeinv(p,v,n)										Computes the deviate, <img src="/images/ltwiki/math/math-f5e81d79b535c85746763245f006f7b5.png" title="x_p" alt="x_p" class="tex"></img>, associated with the lower tail probability of the distribution of the Studentized range statistic.
+Ttable(x, n)										The Student's t distribution with n degrees of freedom.
+Tinv(p,df)										Computes the deviate associated with the lower tail probability of Student's t-distribution with real degrees of freedom.
+Wblinv(p,a,b)										Computes the inverse Weibull cumulative distribution function for the given probability using the parameters a and b.
+Betainv(p,a,b)										Returns the inverse of the cumulative distribution function for a specified beta distribution.
+Betapdf(x,a,b)										Returns the probability density function of the beta distribution with parameters <img src="/images/ltwiki/math/math-0cc175b9c0f1b6a831c399e269772661.png" title="a" alt="a" class="tex"></img> and <img src="/images/ltwiki/math/math-92eb5ffee6ae2fec3ad71c777531578f.png" title="b" alt="b" class="tex"></img>.
+Wblpdf(x,a,b)										Returns the probability density function of the Weibull distribution with parameters a and b.
+lognpdf(x,mu,sigma)										Returns values at X of the lognormal pdf with distribution parameters mu and sigma.
+normpdf(x,mu,sigma)										computes the pdf at each of the values in X using the normal distribution with mean mu and standard deviation sigma.
+poisspdf(x,lambda)										computes the Poisson pdf at each of the values in X using mean parameters in lambda.
+exppdf(x,lambda)										returns the pdf of the exponential distribution with mean parameter lambda, evaluated at the values in X.
+lappdf(x,a,b)										Laplace probability density function
+cauchypdf(x,a,b)										Cauchy probability density function (also called Lorentz distribution)
+gampdf(x,a,b)										Returns the Gamma probability density with parameters a and b.
+Abs(x)										Returns the absolute value of x
+Acos(x)										Returns the inverse of the corresponding trigonometric function.
+Acot(x)										Returns the inverse of the corresponding trigonometric function.
+Acoth(x)										Returns the inverse hyperbolic cotangent.
+Acsc(x)										Returns the inverse of the corresponding trigonometric function csc(x)=1/sin(x).
+Acsch(x)										Returns the inverse hyperbolic cosecant.
+Asec(x)										Returns the inverse of the corresponding trigonometric function sec(x)=1/cos(x).
+Asech(x)										Returns the inverse hyperbolic secant.
+Angle(x, y)										Returns the angle in radians measured between the positive X axis and the line joining the origin (0,0) with the point given by (x, y).
+Asin(x)										Returns the inverse of the corresponding trigonometric function.
+Atan(x)										Returns the inverse of the corresponding trigonometric function.
+Asinh(x)										Returns the inverse hyperbolic sine.
+Acosh(x)										Return the inverse hyperbolic cosin.
+Atanh(x)										Return the inverse hyperbolic tangent.
+Cos(x)										Return value of cosine for each value of the given x.
+Cosh(x)										Returns the hyperbolic form of cos(x) .
+Cot(x)										Returns value of cotangent for each value of the given x.
+Coth(x)										Returns value of the hyperbolic cotangent of x.
+Csc(x)										Returns value of cosecant for each value of the given x.
+Csch(x)										Returns value of hyperbolic cosecant of x.
+Degrees(angle)										Converts the radians into degrees.
+Derivative(vd[,n])										Returns the derivative of the data list in a given vector.
+Exp(x)										Returns the exponential value of x.
+Int(x)										Return the truncated integer of x.
+Ln(x)										Return the natural logarithm value of x.
+Log(x)										Return the base 10 logarithm value of x.
+Mod(n, m)										Return the integer modulus (the remainder from division) of integer x divided by integer y.
+Nint(x)										Return value of the nint(x) function is identical to round(x, 0).
+Prec(x, n)										Returns the input value <i >x</i> to <i >n</i> significant figures.
+Rmod(x, y)										Returns the real modulus (the remainder from division) of double x divided by double y.
+Round(x, n)										Returns the value (or dataset) <i >x</i> to <i >n</i> decimal places.
+Secant(x)										Returns value of secant for each value of the given x.
+Sech(x)										Returns hyperbolic secant of x.
+Sign(x)										Returns the sign of real number x.
+Sin(x)										Returns value of sine for each value of the given x.
+Sinh(x)										Returns the hyperbolic form of sin(x).
+Sqrt(x)										Returns the square root of x.
+Tan(x)										Returns value of tangent for each value of the given x.
+Tanh(x)										 Returns the hyperbolic form of and tan(x).
+Radians(angle)										 Returns radians given input <i >angle</i> in degrees.
+Distance(x1, y1, x2, y2)										 Returns the distance with two points.
+Distance3D(x1, y1, z1, x2, y2, z2)										 Returns the distance with two points in 3D.
+Angleint1(x1, y1, x2, y2 [, n, m])										 Returns the angle between a line with endpoints (x1, y1) and (x2, y2) and the X axis. Returns degrees if <i >n</i>=1 or radians if <i >n</i>=0, default is radians.  Constrains the returned angle value to the first (+x,+y) and fourth (+x,-y) quadrant if <i >m</i>=0.  If <i >m</i>=1, returns values from 02pi radians or 0360 degrees.
+Angleint2(x1, y1, x2, y2, x3, y3, x4, y4 [, n, m])										 Returns the angle between two lines with endpoints (x1, y1) and (x2, y2) for one line and (x3, y3) and (x4, y4) for the other. Returns degrees if <i >n</i>=1 or radians if <i >n</i>=0, default is radians.  Constrains the returned angle value to the first (+x,+y) and fourth (+x,-y) quadrant if <i >m</i>=0.  If <i >m</i>=1, returns values from 02pi radians or 0360 degrees.
+Boltzmann(x, A1, A2, x0, dx)										Boltzmann Function
+Dhyperbl(x, P1, P2, P3, P4, P5)										Double Rectangular Hyperbola Function
+ExpAssoc(x, y0, A1, t1, A2, t2)										Exponential Associate Function
+ExpDecay2(x, y0, x0, A1, t1, A2, t2)										Exponential Decay 2 with Offset Function
+ExpGrow2(x, y0, x0, A1, t1, A2, t2)										Exponential Growth 2 with Offset Function
+Gauss(x, y0, xc, w, A)										Gaussian Function
+Hyperbl(x, P1, P2)										Hyperbola Function
+Logistic(x, A1, A2, x0, p)										Logistic Dose Response Function
+Lorentz(x, y0, xc, w, A)										Lorentzian Function
+Poly(x, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9)										Polynomial Function
+Pulse(x, y0, x0, A, t1, P, t2)										Pulse Function
+grnd()										Returns a value from a normally (Gaussian) distributed sample,with zero mean and unit standard deviation.
+normal(npts, seed)										Returns a range with <b >npts</b> number of values.
+Poisson(n, mean [, seed])										Returns <i >n</i> random integers having a Poisson distribution with mean <i >mean</i>.  Optional <i >seed</i> provides a seed for the number generator.
+rnd()										ran()										Return a value between 0 and 1 from a uniformly distributed sample.
+uniform(npts, seed)										Returns a range with <b >npts</b> number of values.
+Jn(x, n)										 Bessel function of order <i >n</i>
+Yn(x, n)										Bessel Function of Second Kind
+J1(x)										First Order Bessel Function
+Y1(x)										First order Bessel function of second kind has the following form: Y1(x)
+J0(x)										Zero Order Bessel Function
+Y0(x)										Zero Order Bessel Function of Second Kind
+beta(a, b)										Beta Function with parameters <i >a</i> and <i >b</i>
+incbeta(x, a, b)										Incomplete Beta Function with parameters <i >x</i>, <i >a</i>, <i >b</i>
+incomplete_gamma(a, x)										Incomplete gamma functions
+gammaln(x)										Natural Log of the Gamma Function
+Incgamma
+bessel_i_nu(x,n)										Evaluates an approximation to the modified Bessel function of the first kind I<img src="/images/ltwiki/math/math-4fdefba26320686bb2bd0579a0df421c.png" title="\nu" alt="\nu" class="tex"></img>/4 (x)
+bessel_i_nu_scaled(x,n)										Evaluates an approximation to the modified Bessel function of the first kind  <img src="/images/ltwiki/math/math-d47ff7d464b7eda422ec4833219fad68.png" title="e^{-x}I_{\frac \nu 4}(x)" alt="e^{-x}I_{\frac \nu 4}(x)" class="tex"></img>
+bessel_i0(x)										Evaluates an approximation to the modified Bessel function of the first kind, I0(x).
+bessel_i0_scaled(x)										Evaluates an approximation to <img src="/images/ltwiki/math/math-b88e9c78c98f362fa286aa6b364fea68.png" title="e^{-|x|}I_0(x)" alt="e^{-|x|}I_0(x)" class="tex"></img>
+bessel_i1(x) 										Evaluates an approximation to the modified Bessel function of the first kind,<img src="/images/ltwiki/math/math-2f7828c97430a57b061a8d47864a43b2.png" title="I_1(x)" alt="I_1(x)" class="tex"></img>.
+bessel_i1_scaled(x) 										Evaluates an approximation to <img src="/images/ltwiki/math/math-5fa388e83e85c24c432475d72d26837e.png" title="e^{-|x|}I_1(x)" alt="e^{-|x|}I_1(x)" class="tex"></img>
+bessel_j0(x) 										Evaluates the Bessel function of the first kind,<img src="/images/ltwiki/math/math-33f1de5a9b0563fe0bda51fa6782c235.png" title="J_0(x)" alt="J_0(x)" class="tex"></img>
+bessel_j1(x) 										Evaluates an approximation to the Bessel function of the first kind <img src="/images/ltwiki/math/math-c9f382d6ab39f9514fc4481cf8faad1b.png" title="J_1(x)" alt="J_1(x)" class="tex"></img>
+bessel_k_nu(x,n) 										Evaluates an approximation to the modified Bessel function of the second kind <img src="/images/ltwiki/math/math-f77c69b6412962600258514eda766aeb.png" title="K_{\upsilon /4}(x)" alt="K_{\upsilon /4}(x)" class="tex"></img>
+bessel_k_nu_scaled(x,n) 										Evaluates an approximation to the modified Bessel function of the second kind  <img src="/images/ltwiki/math/math-79770b377be91d9a854cfd872b05ce15.png" title="e^{-x}K_{\upsilon /4}(x)" alt="e^{-x}K_{\upsilon /4}(x)" class="tex"></img>
+bessel_k0(x) 										Evaluates an approximation to the modified Bessel function of the second kind,<img src="/images/ltwiki/math/math-26a694e462007bb777ecf1e00f490491.png" title="K_0\left( x\right)" alt="K_0\left( x\right)" class="tex"></img>
+bessel_k0_scaled(x)										Evaluates an approximation to <img src="/images/ltwiki/math/math-688da9c55baae10b357eed9594da021e.png" title="e^xK_0\left( x\right)" alt="e^xK_0\left( x\right)" class="tex"></img>
+Bessel_k1(x) 										Evaluates an approximation to the modified Bessel function of the second kind,<img src="/images/ltwiki/math/math-f8ab25b3eec50dbafe9cac1854fa554f.png" title="K_1\left( x\right) " alt="K_1\left( x\right) " class="tex"></img>
+bessel_k1_scaled(x) 										Evaluates an approximation to <img src="/images/ltwiki/math/math-c76385186519c4591d3863ad97077bb0.png" title="e^xK_1\left( x\right)" alt="e^xK_1\left( x\right)" class="tex"></img>
+Gamma(x) 										Evaluates <img src="/images/ltwiki/math/math-25b11d6b4d5c2ce55b2311298c9c8077.png" title="\Gamma (x)=\int_0^\infty t^{x-1}e^{-t}dt" alt="\Gamma (x)=\int_0^\infty t^{x-1}e^{-t}dt" class="tex"></img>
+Cell(n,m)										Gets or sets values in the active worksheet or matrix. Indicate the row number <i >n</i> and column number <i >m</i> in parentheses.
+Col(ds)										Refers to the dataset in a worksheet column, to a cell in the column, or to the column headers.
+Wcol(ds)										Can be used either on the left side or on the right side of an assignment.
+Errof(ds)										Returns the dataset (error column) containing the error values of <i >dataset</i>.
+Findmasks(ds)										Returns a dataset that contains the indexes of the masked data points.
+hasx(ds)										Returns 1 if <i >dataset</i> is plotted against an X dataset in the active layer.  If not, this function returns 0.
+Index(d,vd[,n])										Returns the index of x, which is controlled by n, in a strictly monotonic dataset.
+IsMasked(n, ds)										Returns the number of masked points in <i >dataset</i> if <i >index</i> = 0.
+List(val, ds)										Returns the index number in dataset <i >ds</i> where value <i >val</i> first occurs.
+Xindex(x, ds)										Returns the index number of the cell in the X dataset associated with <i >dataset</i>, where the cell value is closest to x.
+Xof(ds)										Returns a string containing the X values of <i >dataset</i>.
+Xvalue(n, ds)										Returns the corresponding X value for <i >dataset</i> at row number <i >i</i> in the active worksheet.
+asc(str$)										Returns the ASCII value of the uppercase character in parentheses.
+corr(ds1, ds2, k [,n])										Returns the correlation between two datasets using a lag size <i >k</i> and an optional number of points <i >n</i>.
+peaks(ds, width, minht)										Returns a dataset containing indices of peaks found using <i >width</i> and <i >minHt</i> as a criteria.
+sort(ds)										Returns a dataset that contains <i >dataset</i>, sorted in ascending order.
+treplace(ds, val1, val2 [, cnd)]										Returns a dataset. Each value in dataset is compared to <i >value1</i> according to the condition <i >cnd</i>.
+Char(n)										Return the character specified by the code number.
+Code(str$)										Return a numeric code for the first character in input string.
+Compare(str1$, str2$ [, n])										Compare str1 with str2, identical will return 1.
+Exact(str1$, str2$)										Return TRUE if both strings are an exact match (case and length).
+Find(str1$, str2$ [, n])										Finds a string (<b >str2</b>) within another string (<b >str1</b>) starting from the specific positoin (<b >StartPos</b>), and returns the starting position of <b >str2</b> in <b >str1</b>.
+Format(data, str$)										Convert double to string with LabTalk formatting option.
+Left(str$, n)										Returns the leftmost <b >n</b> characters from the string.
+Len(str$)										Returns the number of characters of a string (<b >str</b>).
+Lower(str$)										Converts the string to lowercase.
+MakeCSV(str1$[,n1,n2,str2$])$										Converts a string which has an identical delimiter into CSV format.
+MatchBegin(str1$, str2$ [, n, m])										Finds a string pattern (<b >str2</b>) within another string <b >str1</b> starting from the specified positoin <b >StartPos</b>, and returns the starting position of <b >str2</b> in <b >str1</b>.
+MatchEnd(str1$, str2$ [, n, m)]										Finds a string pattern (<b >str2</b>) within another string <b >str1</b> from the specified positoin <b >StartPos</b>, and returns the ending position of <b >str2</b> in <b >str1</b>.
+Mid(str$, n1, n2)										Returns a specific number of characters (<b >n2</b>) from the string (<b >str</b>), starting at the specific position (<b >n1</b>).
+Replace(str1$, n1, n2, str2$)										Replace <b >n2</b> characters in string1 starting at <b >n1</b>th position with string2.
+Right(str$, n)										Returns the rightmost <b >n</b> characters from the string.
+Search(str1$, str2$ [, n])										Finds a string (<b >str2</b>) within another string (<b >str1</b>) starting from the specific positoin (<b >StartPos</b>), and returns the starting position of <b >str2</b> in <b >str1</b>.
+Substitute(str1$, str2$, str3$ [,n])										Substitute string3 with string2 when found in string1.
+Token(str$,n1[,n2])$										Get the Nth token using specified delimiter from a string.
+Trim(str$, n)										Removes spaces from string.
+Upper(str$)										Converts the string to uppercase.
+WeekDay(d, n)										Returns the day of the week according to calculate a date. By default, the day is ranging from 0 (Sunday) to 6 (Saturday).
+WeekNum(d, n)										Return a number that indicates the calendar week number of the year.
+Year(d)										Return the year as an integer in the range 0100-9999.
+Month(d)										Return the month as an integer from 1 (January) to 12 (December).
+MonthName(d, n)										Returns the Month name for specified month by index of 1 to 12, or as a Date value.
+YearName(d, n)										Returns the year in string form with input of year or date, with option n.
+Day(d, n)										Returns the day number of a given date.
+Hour(d), Hour(t)										Returns the hour as an integer, ranging from 0 (12:00 A.M.) to 23 (11:00 P.M.).
+Minute(d), Minute(t)										Returns the minutes as an integer, ranging from 0 to 59.
+Second(d), Second(t)										Returns the seconds as a real value in the range 0 (zero) to 59.9999...
+Now()										Returns the current date-time as a date(Julian days) value.
+Today()										Returns the current date as a date(Julian days) value.
+Quarter(date)										Returns current quarter of time.
+Date(MM/dd/yy HH:mm,[format])										Returns the Julian-day value which Origin uses internally to represent dates.
+Time(n1, n2, n3)										Returns the <b >Julian-day value</b> which Origin uses internally to represent time.
+WeekDayName(d[,n1,n2])$										Returns the name of the weekday according to index of the day of the week or date in Julian format.
+BitAND(n, m)										Returns bitwise AND operation of two intergers.
+BitOR(n, m)										Returns bitwise OR operation of two intergers.
+BitXOR(n, m)										Returns bitwise XOR operation of two intergers.
+colnum(colNameOrDs)										Returns the column position number of the column specified by colName.
+color(name)										Returns a number corresponding to the index in the color list of the color specified by the name or by the RGB value.
+color(name, 0)										Similar to color(name) which returns a number corresponding to the <i >zero-based index</i> in the color list.
+color(R, G, B)										Returns a integer color value. This value stores additional info in the highest byte. R, G, and B correspond to Red, Green, and Blue in RGB color scheme, and each component value ranges from 0 to 255.
+exist(name)										Returns a single value indicating what 'object type' the given name is associated with string value.
+font(name)										Returns a number corresponding to the font list index of the font specified by name.
+hex(str$)										Returns the base 10 equivalent to the hexadecimal value represented by the given string.
+ISNA(dd)										Determines whether the number is a NANUM.
+NA()										Returns NANUM.
+nlf_<i >name</i>(ds, p1, p2, ..., p<i >n</i>)										 Returns Y values using the user-defined fitting function <i >name</i>, using the dataset <b >ds</b> as X values, and the parameters <b >p1-p<i >n</i></b>.
+xf_get_last_error_code()										Get the last error code value of XFunction engine.
+xf_get_last_error_message()$										Get the last error string message of XFunction engine.
