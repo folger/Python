@@ -35,13 +35,13 @@ class BuildProjDlg(QDialog):
         self.compileFilesCombo = QComboBox()
         self.compileFilesLabel.setBuddy(self.compileFilesCombo)
 
-        compileBtn = QPushButton("Compile")
+        self.compileBtn = QPushButton("Compile")
         buildBtn = QPushButton("Build")
         cleanBtn = QPushButton("Clean")
 
         btnsLayout = QHBoxLayout()
         btnsLayout.addStretch()
-        btnsLayout.addWidget(compileBtn)
+        btnsLayout.addWidget(self.compileBtn)
         btnsLayout.addWidget(buildBtn)
         btnsLayout.addWidget(cleanBtn)
 
@@ -58,7 +58,7 @@ class BuildProjDlg(QDialog):
         self.setLayout(layout)
 
         self.connect(self.projectsCombo, SIGNAL("currentIndexChanged(int)"), self.projectChanged)
-        self.connect(compileBtn, SIGNAL("clicked()"), self.compile)
+        self.connect(self.compileBtn, SIGNAL("clicked()"), self.compile)
         self.connect(buildBtn, SIGNAL("clicked()"), self.build)
         self.connect(cleanBtn, SIGNAL("clicked()"), partial(self.build, "/t:clean"))
 
@@ -86,12 +86,14 @@ class BuildProjDlg(QDialog):
 
     def projectChanged(self, index):
         if self.projectsCombo.currentText().lower().endswith('.vcxproj'):
+            self.compileBtn.show()
             self.compileFilesLabel.show()
             self.compileFilesCombo.show()
 
             self.compileFilesCombo.clear()
             self.compileFilesCombo.addItems(self.get_project_files())
         else:
+            self.compileBtn.hide()
             self.compileFilesLabel.hide()
             self.compileFilesCombo.hide()
 
