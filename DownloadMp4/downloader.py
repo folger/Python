@@ -1,6 +1,6 @@
 from urllib.request import urlretrieve
 
-with open('OnePiece_2.txt') as f:
+with open('Now.txt') as f:
     album = ''
     part = 0
     for line in f:
