@@ -2,13 +2,12 @@ from selenium import webdriver
 import re
 from time import sleep
 
-driver = webdriver.Chrome(r'c:\dropbox\Windows\chromedriver.exe')
+driver = webdriver.Chrome(r'c:\box\Windows\chromedriver.exe')
 preSrc = re.compile("(http://tv.sohuxia.com/\d+/n\d+\.shtml)' >第(\d+)集")
 preDes = re.compile('http://\d+\.\d+\.\d+\.\d+[^"]+')
 
-# with open("OnePiece_341_350.txt", "w") as fw:
 with open("OnePieceAll.txt", "w") as fw:
-    with open("OnePieceAddrs.txt", encoding='utf-8') as f:
+    with open("Addrs.txt", encoding='utf-8') as f:
         for line in f:
             line = line.strip()
             m = preSrc.search(line)

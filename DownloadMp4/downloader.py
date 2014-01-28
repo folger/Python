@@ -14,7 +14,7 @@ with open('Now.txt') as f:
         else:
             filename = r"G:\OnePiece\海贼王第%s集.%03d.mp4" % (album, part)
             urlretrieve(line, filename)
-            print("Got %s" % filename)
+            print("%s.%03d" %(album, part))
 
             part += 1
 
