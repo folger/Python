@@ -6,7 +6,10 @@ driver = webdriver.Chrome(r'c:\box\Windows\chromedriver.exe')
 preSrc = re.compile("(http://tv.sohuxia.com/\d+/n\d+\.shtml)' >第(\d+)集")
 preDes = re.compile('http://\d+\.\d+\.\d+\.\d+[^"]+')
 
-with open("OnePieceAll.txt", "w") as fw:
+block = 9
+outfile = "Shield.txt"
+
+with open(outfile, "w") as fw:
     with open("Addrs.txt", encoding='utf-8') as f:
         for line in f:
             line = line.strip()
@@ -19,7 +22,7 @@ with open("OnePieceAll.txt", "w") as fw:
                 sleep(3)
 
                 all = preDes.findall(driver.page_source)
-                fw.write('\n'.join(all[5:10]) + '\n')
+                fw.write('\n'.join(all[block:2*block]) + '\n')
                 
 
 

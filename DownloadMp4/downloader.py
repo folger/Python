@@ -1,7 +1,7 @@
 from urllib.request import urlretrieve
+import os
 
-# filefmt = r"G:\OnePiece\海贼王第%s集.%03d.mp4"
-filefmt = "/Users/lunbest/OnePiece/生活大爆炸第%s集.%03d.mp4"
+path = r'G:\OnePiece'
 
 with open('Now.txt') as f:
     album = ''
@@ -15,9 +15,10 @@ with open('Now.txt') as f:
             album = line
             part = 1
         else:
-            filename = filefmt % (album, part)
+            name = "%s.%03d.mp4" %(album, part)
+            filename = os.path.join(path, name)
             urlretrieve(line, filename)
-            print("%s.%03d" %(album, part))
+            print(name)
 
             part += 1
 
