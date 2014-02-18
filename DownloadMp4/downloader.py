@@ -1,9 +1,12 @@
 from urllib.request import urlretrieve
 import os
 
+import inspect
+currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
+
 path = r'G:\OnePiece'
 
-with open('Now.txt') as f:
+with open(os.path.join(currentpath, 'Now.txt')) as f:
     album = ''
     part = 0
     for line in f:
