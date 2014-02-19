@@ -1,4 +1,5 @@
 from urllib.request import urlretrieve
+import urllib.error
 import os
 
 import inspect
@@ -20,10 +21,13 @@ with open(os.path.join(currentpath, 'Now.txt')) as f:
         else:
             name = "%s.%03d.mp4" %(album, part)
             filename = os.path.join(path, name)
-            urlretrieve(line, filename)
-            print(name)
+            try:
+                urlretrieve(line, filename)
+                print(name)
+            except urllib.error.HTTPError as e:
+                print("Failed to download %s : %s" % (name, e))
 
             part += 1
 
 
-
+os.system('pause')

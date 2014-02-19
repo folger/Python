@@ -6,7 +6,7 @@ driver = webdriver.Chrome(r'c:\box\Windows\chromedriver.exe')
 preSrc = re.compile("(http://tv.sohuxia.com/\d+/n\d+\.shtml)' >第(\d+)集")
 preDes = re.compile('http://\d+\.\d+\.\d+\.\d+[^"]+')
 
-block = 9
+block = 5
 outfile = "Shield.txt"
 
 with open(outfile, "w") as fw:
