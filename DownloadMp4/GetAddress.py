@@ -17,9 +17,7 @@ def OutputAddrs(preSrc, preDes, polishAddress):
                     driver.get(m.group(1))
                     sleep(3)
 
-                    all = preDes.findall(driver.page_source)
-                    # ss = '\n'.join(all[block:2*block]) + '\n'
-                    fw.write(polishAddress(all))
+                    fw.write(polishAddress(preDes.findall(driver.page_source)))
 
                 
 
