@@ -1,5 +1,4 @@
 from urllib.request import urlretrieve
-import urllib.error
 import os
 
 import inspect
@@ -24,7 +23,7 @@ with open(os.path.join(currentpath, 'Now.txt')) as f:
             try:
                 urlretrieve(line, filename)
                 print(name)
-            except urllib.error.HTTPError as e:
+            except Exception as e:
                 print("Failed to download %s : %s" % (name, e))
 
             part += 1
