@@ -51,5 +51,6 @@ class GenerateHTML:
 lang = input("Language ? ")
 
 generate = GenerateHTML(lang)
-print(generate.Exec())
+with open('html.txt', 'w', encoding='utf-8') as fw:
+    fw.write(generate.Exec())
 

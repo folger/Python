@@ -59,7 +59,7 @@ class MyHTMLParser(HTMLParser):
 
         
 #with open(r'd:\aaa\Script\LabTalk-Supported_Functions.html') as f:
-with urlopen("http://wikis/ltwiki/index.php?title=Script:LabTalk-Supported_Functions") as r:
+with urlopen("http://wikis/docwiki/index.php?title=UserGuide%3ALabTalk-Supported_Functions") as r:
   # print(f.read().decode())
   parser = MyHTMLParser()
   parser.feed(r.read().decode())
