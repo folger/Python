@@ -28,20 +28,20 @@ class GenerateHTML:
                 if line.endswith('$') or line.endswith(')'): # function
                     try:
                         funcs_description = self.funcs_descriptions[line.split('(')[0].lower()]
-                        s += '<tr><td><a href="/junk">%s</a></td><td>%s</td></tr>' % (funcs_description[0], funcs_description[1].strip())
+                        s += '    <tr>\n        <td><a href="/junk">%s</a></td>\n        <td>%s</td>\n    </tr>\n' % (funcs_description[0], funcs_description[1].strip())
                     except KeyError as e:
                         pass
                         # print("Missing function: %s" % line)
                 else: # category
                     if len(s):
-                        s += '</table>'
+                        s += '</table>\n'
                     if len(categorys):
                         try:
                             line = categorys[line]
                         except KeyError:
                             print("Category %s not found in Category%s.txt !!!" % (line, self.lang))
 
-                    s += '<table><caption>%s</caption>' % line.strip()
+                    s += '<table>\n    <caption>%s</caption>\n' % line.strip()
             if len(s):
                 s += '</table>'
             s = s.replace('/images/ltwiki/math/', './images/')
