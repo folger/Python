@@ -1,5 +1,3 @@
-import codecs
-
 class GenerateHTML:
     def __init__(self, lang):
         self.lang = lang.upper()
@@ -7,7 +5,9 @@ class GenerateHTML:
         with open(r'LTFuncs%s.txt' % self.lang, encoding='utf-8-sig') as f:
             for line in f:
                 entries = line.split('\t'*10)
-                self.funcs_descriptions[entries[0].split('(')[0].lower()] = (entries[0], entries[1] if len(entries) > 1 else "")
+                description = entries[-1]
+                for entry in entries[:-1]:
+                    self.funcs_descriptions[entry.split('(')[0].lower()] = (entry, description)
 
     def Exec(self):
         with open(r'SCVFuncs.txt') as f:
@@ -20,6 +20,7 @@ class GenerateHTML:
                         entries = line.split('\t')
                         categorys[entries[0]] = entries[1]
 
+            funcs_done = set()
             for line in f:
                 line = line.strip()
                 if len(line) == 0:
@@ -27,7 +28,11 @@ class GenerateHTML:
 
                 if line.endswith('$') or line.endswith(')'): # function
                     try:
-                        funcs_description = self.funcs_descriptions[line.split('(')[0].lower()]
+                        functionname = line.split('(')[0].lower()
+                        if functionname in funcs_done:
+                            continue
+                        funcs_done.add(functionname)
+                        funcs_description = self.funcs_descriptions[functionname]
                         s += '    <tr>\n        <td><a href="/junk">%s</a></td>\n        <td>%s</td>\n    </tr>\n' % (funcs_description[0], funcs_description[1].strip())
                     except KeyError as e:
                         pass
