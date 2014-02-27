@@ -38,7 +38,9 @@ class MyHTMLParser(HTMLParser):
             if tag == "td":
                 if self.isDescription():
                     # print(self.description.strip())
-                    self.results.append(self.description.strip())
+                    description = self.description.strip()
+                    if len(description) != 0:
+                        self.results.append(description)
             elif tag == "a":
                 if self.isFunction():
                     self.a = False
@@ -57,13 +59,17 @@ class MyHTMLParser(HTMLParser):
     def isDescription(self):
         return self.col == 2
 
+
+lang = input("Language ? ")
+if len(lang) == 0:
+    lang = 'E'
         
 #with open(r'd:\aaa\Script\LabTalk-Supported_Functions.html') as f:
 with urlopen("http://wikis/docwiki/index.php?title=UserGuide%3ALabTalk-Supported_Functions") as r:
     # print(f.read().decode())
     parser = MyHTMLParser()
     parser.feed(r.read().decode())
-    with open(r'g:\CheckCode\Python\SCVHtml\LTFuncs.txt', 'w', encoding='utf-8-sig') as f:
+    with open(r'g:\CheckCode\Python\SCVHtml\LTFuncs%s.txt' % lang, 'w', encoding='utf-8-sig') as f:
         f.write('\n'.join(parser.results))
 
 
