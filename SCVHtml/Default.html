@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="lib/jquery.js"></script>
+    <script type="text/javascript" src="lib/jquery-ui.js"></script>
+    <link href="lib/themes/cupertino/jquery-ui.css" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            overflow: hidden;
+            font-size: medium;
+        }
+
+        #userInput {
+            font-family: Consolas;
+            padding-left: 2px;
+            height: 1.5em;
+            width: 100%;
+            border: solid 1px black;
+            background-color: white;
+            position: fixed;
+            z-index: 1000;
+        }
+
+        #userInputPlaceholder {
+            cursor: text;
+            color: grey;
+            height: 1.25em;
+            width: 100%;
+            overflow: hidden;
+            display: block;
+            position: fixed;
+            border: solid 1px black;
+            background-color: white;
+            z-index: 1001;
+            padding: 0;
+            padding-left: 2px;
+            margin: 0;
+        }
+
+        #autocompleteContainer .ui-autocomplete {
+            height: 97%;
+            overflow-y: scroll;
+        }
+
+        .ui-autocomplete-category {
+            padding-top: .5em;
+            padding-bottom: .5em;
+            color: red;
+            font-style: italic;
+        }
+    </style>
+    <script>
+        if (!String.prototype.trim) {
+            String.prototype.trim = function () { return $.trim(this); }
+        }
+        $(function () {
+            var ltFuncs = $("#labtalkFunctions tr").map(function (idx, row) {
+                row = $(row);
+                var cols = row.find("td");
+                return {
+                    "label": cols.eq(0).text().trim(),
+                    "description": cols.eq(1).html(),
+                    "category": row.parents("table").find("caption").text().trim()
+                };
+            }).get();
+            var userInput = $("#userInput");
+            var config = userInput.autocomplete({
+                minLength: 0,
+                source: function (request, response) {
+                    setTimeout(function () {
+                        var terms = $.grep(request.term.split(" "), function (term) { return term != ""; });
+                        response($.grep(ltFuncs, function (data) {
+                            var label = "";
+                            var description = "";
+                            if (!data.LABEL) {
+                                label = data.LABEL = data.label.toUpperCase();
+                            } else {
+                                label = data.LABEL;
+                            }
+                            if (!data.DESC) {
+                                description = data.DESC = data.description.toUpperCase();
+                            } else {
+                                description = data.DESC;
+                            }
+                            return $.grep(terms, function (term) {
+                                term = term.toUpperCase();
+                                return (label.indexOf(term) > -1 || description.indexOf(term) > -1);
+                            }).length == terms.length;
+                        }));
+                    }, 0);
+                },
+                appendTo: "#autocompleteContainer",
+                select: function (event, ui) {
+                    setTimeout(function () {
+                        navigate("//select:" + ui.item.label);
+                    }, 0);
+                    return false;
+                },
+                focus: function (event, ui) {
+                    return false;
+                }
+            }).data("ui-autocomplete");
+            config._renderItem = function (ul, item) {
+                return $("<li>").append("<a><big>" + item.label + "</big><br><small>" + item.description + "</small></a>").appendTo(ul);
+            };
+            config._renderMenu = function (ul, items) {
+                var menu = this;
+                var currentCategory = "";
+                $.each(items, function (idx, item) {
+                    if (item.category != currentCategory) {
+                        ul.append("<li class='ui-autocomplete-category'>" + item.category + "</li>");
+                        currentCategory = item.category;
+                    }
+                    menu._renderItemData(ul, item);
+                });
+            };
+            config.close = function () {
+            };
+
+            userInput.autocomplete("search");
+            $(window).resize(function () {
+                userInput.autocomplete("search");
+            });
+
+            var userInputPlaceholder = $("#userInputPlaceholder");
+            userInputPlaceholder.click(function (e) {
+                userInput.focus();
+            }).text(userInput.attr("placeholder"));
+            userInput.focus(function () {
+                toggleUserInputPlaceholder();
+            }).blur(function () {
+                toggleUserInputPlaceholder();
+            }).keyup(function () {
+                toggleUserInputPlaceholder();
+            }).focus();
+            function toggleUserInputPlaceholder() {
+                if (userInput.val() == "") {
+                    userInputPlaceholder.show();
+                } else {
+                    userInputPlaceholder.hide();
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <input type="text" id="userInput" value="" autocomplete="off" placeholder="Enter search strings, click functions below to insert into Set Values dialog." />
+    <div id="userInputPlaceholder"></div>
+    <div id="autocompleteContainer"></div>
+    <div style="display: none" id="labtalkFunctions"></div>
+</body>
+</html>

@@ -84,16 +84,18 @@ class GenerateHTMLDlg(QDialog):
 
             subprocess.Popen(r'explorer .\%s' % imagefolder)
 
-            print(images)
-
             for image in images:
                 image = image.replace('<img src="./%s/' % imagefolder, 'http://wikis/images/docwiki/math/')
                 slash = image.rfind('/')
                 imagename = image[slash+1:]
 
-                urllib.request.urlretrieve(image, os.path.join(imagefolder, imagename))
-
-            QMessageBox.information(self, "Attention", "All images downloaded", QMessageBox.Ok)
+                try:
+                    urllib.request.urlretrieve(image, os.path.join(imagefolder, imagename))
+                except Exception as e:
+                    QMessageBox.critical(self, "Error", "Failed to download %s : %s" % (imagename, e), QMessageBox.Ok)
+                    break
+            else:
+                QMessageBox.information(self, "Attention", "All images downloaded", QMessageBox.Ok)
 
     def htmlfile(self): return 'Default%s.html' % self.langCombo.currentText()
 
