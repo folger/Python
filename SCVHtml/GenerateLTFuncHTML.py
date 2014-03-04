@@ -1,13 +1,12 @@
 class GenerateHTML:
-    def __init__(self, lang):
+    def __init__(self, lang, funcs):
         self.lang = lang.upper()
         self.funcs_descriptions = {}
-        with open(r'LTFuncs%s.txt' % self.lang, encoding='utf-8-sig') as f:
-            for line in f:
-                entries = line.split('\t'*10)
-                description = entries[-1]
-                for entry in entries[:-1]:
-                    self.funcs_descriptions[entry.split('(')[0].lower()] = (entry, description)
+        for func in funcs:
+            entries = func.split('\t'*10)
+            description = entries[-1]
+            for entry in entries[:-1]:
+                self.funcs_descriptions[entry.split('(')[0].lower()] = (entry, description)
 
     def Exec(self):
         with open(r'SCVFuncs.txt') as f:
@@ -53,9 +52,5 @@ class GenerateHTML:
             return s
 
 
-lang = input("Language ? ")
 
-generate = GenerateHTML(lang)
-with open('html.txt', 'w', encoding='utf-8') as fw:
-    fw.write(generate.Exec())
 

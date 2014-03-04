@@ -1,5 +1,4 @@
 from html.parser import HTMLParser
-from urllib.request import urlopen
 
 class MyHTMLParser(HTMLParser):
     def __init__(self):
@@ -58,18 +57,5 @@ class MyHTMLParser(HTMLParser):
 
     def isDescription(self):
         return self.col == 2
-
-
-lang = input("Language ? ")
-if len(lang) == 0:
-    lang = 'E'
-        
-#with open(r'd:\aaa\Script\LabTalk-Supported_Functions.html') as f:
-with urlopen("http://wikis/docwiki/index.php?title=UserGuide%3ALabTalk-Supported_Functions") as r:
-    # print(f.read().decode())
-    parser = MyHTMLParser()
-    parser.feed(r.read().decode())
-    with open(r'g:\CheckCode\Python\SCVHtml\LTFuncs%s.txt' % lang, 'w', encoding='utf-8-sig') as f:
-        f.write('\n'.join(parser.results))
 
 
