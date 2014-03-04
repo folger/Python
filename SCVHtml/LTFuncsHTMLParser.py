@@ -4,6 +4,7 @@ class MyHTMLParser(HTMLParser):
     def __init__(self):
         super(MyHTMLParser, self).__init__()
         self.table = False
+        self.FitFunc = False
 
         self.col = 0
         self.a = False
@@ -12,8 +13,9 @@ class MyHTMLParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         if tag == "table":
-            if attrs and attrs[0][0] == 'class' and attrs[0][1] == 'simple LTFunc':
+            if attrs and attrs[0][0] == 'class' and (attrs[0][1] == 'simple LTFunc' or attrs[0][1] == 'simple FitFunc'):
                 self.table = True
+                self.FitFunc = attrs[0][1] == 'simple FitFunc'
 
         if self.table:
           if tag == "tr":
@@ -50,6 +52,8 @@ class MyHTMLParser(HTMLParser):
           
     def handle_data(self, data):
         if self.isFunction() or self.isDescription():
+            if self.isFunction() and self.FitFunc:
+                self.description += "nlf_"
             self.description += data.replace("\n", "")
 
     def isFunction(self):

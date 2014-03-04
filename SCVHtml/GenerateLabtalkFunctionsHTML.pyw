@@ -48,10 +48,11 @@ class GenerateHTMLDlg(QDialog):
         self.connect(downloadImageBtn, SIGNAL("clicked()"), self.downloadImages)
 
     def generateHTML(self):
-        with urllib.request.urlopen("http://wikis/docwiki/index.php?title=UserGuide%3ALabTalk-Supported_Functions") as r:
+        with urllib.request.urlopen("http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions") as r:
             parser = LTFuncsHTMLParser.MyHTMLParser()
             parser.feed(r.read().decode())
 
+            # print('\n'.join(parser.results))
             generate = GenerateLTFuncHTML.GenerateHTML(self.langCombo.currentText(), parser.results)
 
             with open("Default.html", encoding='utf-8-sig') as fr:
