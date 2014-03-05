@@ -57,8 +57,8 @@ class GenerateHTMLDlg(QDialog):
 
             with open("Default.html", encoding='utf-8-sig') as fr:
                 s = fr.read()
-                s = s.replace('<div style="display: none" id="labtalkFunctions"></div>', '<div style="display: none" id="labtalkFunctions">' + generate.Exec() + '</div>'). \
-                    replace('/images/docwiki/math', './images')
+                gs = generate.Exec().replace('/images/docwiki/math', './images')
+                s = s.replace('<div style="display: none" id="labtalkFunctions"></div>', '<div style="display: none" id="labtalkFunctions">' + gs + '</div>')
                 with open(self.htmlfile(), 'w', encoding='utf-8-sig') as fw:
                     fw.write(s)
 
