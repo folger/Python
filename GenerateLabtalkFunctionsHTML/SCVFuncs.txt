@@ -394,6 +394,8 @@ Voigt(y0,xc,A,wG,wL)
 Weibull3(y0,xc,A,w1,w2)
 
 Fitting Functions - Piecewise
+PWL2(a1,k1,xi,k2)
+PWL3(a1,k1,xi1,k2,xi2,k3)
 
 Fitting Functions - Polynomial
 Constant(y0)
