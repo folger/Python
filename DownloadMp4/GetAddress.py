@@ -3,7 +3,7 @@ import re
 from time import sleep
 
 def OutputAddrs(preSrc, preDes, polishAddress):
-    driver = webdriver.Chrome(r'c:\box\Windows\chromedriver.exe')
+    driver = webdriver.Chrome('/Users/lunbest/Downloads/chromedriver')
     
     with open("Now.txt", "w") as fw:
         with open("Addrs.txt", encoding='utf-8') as f:
@@ -17,7 +17,7 @@ def OutputAddrs(preSrc, preDes, polishAddress):
                     driver.get(m.group(1))
                     sleep(3)
 
-                    fw.write(polishAddress(preDes.findall(driver.page_source)))
+                    fw.write(polishAddress(preDes.findall(driver.page_source)) + '\n')
 
                 
 

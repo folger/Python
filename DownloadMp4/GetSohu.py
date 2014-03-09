@@ -6,6 +6,6 @@ preDes = re.compile('http://\d+\.\d+\.\d+\.\d+[^"]+')
 
 def polishAddress(all):
     block = 5
-    return '\n'.join(all[block:2*block]) + '\n'
+    return '\n'.join(all[block:2*block])
 
 OutputAddrs(preSrc, preDes, polishAddress)
