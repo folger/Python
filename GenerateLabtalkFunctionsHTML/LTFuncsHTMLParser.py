@@ -18,17 +18,20 @@ class MyHTMLParser(HTMLParser):
                 self.FitFunc = attrs[0][1] == 'simple FitFunc'
 
         if self.table:
-          if tag == "tr":
-            self.col = 0
-            self.description = ''
-          elif tag == "td":
-            self.col += 1
-          elif tag == "a":
-            if self.col == 1:
-              self.a = True
-          else:
-            if self.isFunction() or self.isDescription():
-              self.description += "<%s %s>" % (tag, ' '.join(['%s="%s"' % (key, value.replace("\n", "")) for (key, value) in attrs]))
+            if tag == "tr":
+                self.col = 0
+                self.description = ''
+            elif tag == "td":
+                self.col += 1
+            elif tag == "a":
+              if self.col == 1:
+                  self.a = True
+            else:
+                if self.isFunction() or self.isDescription():
+                    if len(attrs):
+                        self.description += "<%s %s>" % (tag, ' '.join(['%s="%s"' % (key, value.replace("\n", "")) for (key, value) in attrs]))
+                    else:
+                        self.description += "<%s>" % tag
         
     def handle_endtag(self, tag):
         if self.table:
@@ -48,7 +51,8 @@ class MyHTMLParser(HTMLParser):
                     self.description += "\t" * 10
             else:
                 if self.isFunction() or self.isDescription():
-                    self.description += "</%s>" % tag
+                    if tag != "br":
+                        self.description += "</%s>" % tag
           
     def handle_data(self, data):
         if self.isFunction() or self.isDescription():
