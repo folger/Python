@@ -7,13 +7,16 @@ import urllib.error
 from shutil import rmtree
 from time import sleep
 
+import inspect
+currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
+
 def download_images(lang):
-    htmlfile = 'Default%s.html' % lang
+    htmlfile = os.path.join(currentpath, 'Default%s.html' % lang)
 
     if not os.path.isfile(htmlfile):
         return (False, "%s is needed to download images" % htmlfile)
 
-    imagefolder = 'images'
+    imagefolder = os.path.join(currentpath, 'images')
     try:
         rmtree(imagefolder)
     except FileNotFoundError:
@@ -25,7 +28,7 @@ def download_images(lang):
 
     def download(images, imagesfail):
         for image in images:
-            image = image.replace('<img src="./%s/' % imagefolder, 'http://wikis/images/ltwiki/math/')
+            image = image.replace('<img src="./images/', 'http://wikis/images/ltwiki/math/')
             slash = image.rfind('/')
             imagename = image[slash+1:]
 
@@ -42,7 +45,7 @@ def download_images(lang):
         s = fr.read()
         images = re.findall('<img src="[^"]+', s)
 
-        subprocess.Popen(r'explorer .\%s' % imagefolder)
+        subprocess.Popen(r'explorer %s' % imagefolder)
 
         imagesfail = []
         while True:
@@ -50,8 +53,6 @@ def download_images(lang):
             if not result[0] or len(imagesfail) == 0:
                 return result
                 
-            print("retrying ...")
-            print(imagesfail)
             images = imagesfail[:]
             imagesfail.clear()
 

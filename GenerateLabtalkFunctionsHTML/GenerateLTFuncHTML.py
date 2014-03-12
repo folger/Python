@@ -1,5 +1,10 @@
+import os
+import inspect
+
 class GenerateHTML:
     def __init__(self, lang, funcs):
+        self.currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
+
         self.lang = lang.upper()
         self.funcs_descriptions = {}
         for func in funcs:
@@ -9,7 +14,7 @@ class GenerateHTML:
                 self.funcs_descriptions[entry.split('(')[0].lower()] = (entry, description)
 
     def Exec(self):
-        with open(r'SCVFuncs.txt') as f:
+        with open(os.path.join(self.currentpath, 'SCVFuncs.txt')) as f:
             s = ''
             fcate = open(r'Category%s.txt' % self.lang, encoding='utf-8-sig') if self.lang != 'E' else None
             categorys = {}

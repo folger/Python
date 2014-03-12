@@ -1,11 +1,15 @@
+import os
 import sys
 from urllib.request import urlopen
 import LTFuncsHTMLParser
 import GenerateLTFuncHTML
 
+import inspect
+currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
+
 def generate_HTML(lang):
     def htmlfile(lang):
-        return 'Default%s.html' % lang
+        return os.path.join(currentpath, 'Default%s.html' % lang)
 
     def httplink(lang):
         return 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions'
@@ -17,7 +21,7 @@ def generate_HTML(lang):
         # print('\n'.join(parser.results))
         generate = GenerateLTFuncHTML.GenerateHTML(lang, parser.results)
 
-        with open("Default.html", encoding='utf-8-sig') as fr:
+        with open(os.path.join(currentpath, "Default.html"), encoding='utf-8-sig') as fr:
             s = fr.read()
             gs = generate.Exec().replace('/images/docwiki/math', './images')
             s = s.replace('<div style="display: none" id="labtalkFunctions"></div>', '<div style="display: none" id="labtalkFunctions">' + gs + '</div>')
