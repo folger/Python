@@ -19,7 +19,10 @@ class BuildProjDlg(QDialog):
         projLabel = QLabel("Projects")
         self.projectsCombo = QComboBox()
         projLabel.setBuddy(self.projectsCombo)
-        self.projectsCombo.addItems(sorted(self.projects.keys()))
+        projs = sorted(self.projects.keys())
+        self.originallindex = projs.index("OriginAll.sln")
+        self.projectsCombo.addItems(projs)
+        self.projectsCombo.setCurrentIndex(self.originallindex)
 
         platformLabel = QLabel("Platform")
         self.platformCombo = QComboBox()
@@ -36,11 +39,13 @@ class BuildProjDlg(QDialog):
         self.compileFilesLabel.setBuddy(self.compileFilesCombo)
 
         self.compileBtn = QPushButton("Compile")
+        originallBtn = QPushButton("OriginAll")
         buildBtn = QPushButton("Build")
         cleanBtn = QPushButton("Clean")
 
         btnsLayout = QHBoxLayout()
         btnsLayout.addStretch()
+        btnsLayout.addWidget(originallBtn)
         btnsLayout.addWidget(self.compileBtn)
         btnsLayout.addWidget(buildBtn)
         btnsLayout.addWidget(cleanBtn)
@@ -58,6 +63,7 @@ class BuildProjDlg(QDialog):
         self.setLayout(layout)
 
         self.connect(self.projectsCombo, SIGNAL("currentIndexChanged(int)"), self.projectChanged)
+        self.connect(originallBtn, SIGNAL("clicked()"), self.originall)
         self.connect(self.compileBtn, SIGNAL("clicked()"), self.compile)
         self.connect(buildBtn, SIGNAL("clicked()"), self.build)
         self.connect(cleanBtn, SIGNAL("clicked()"), partial(self.build, "/t:clean"))
@@ -86,14 +92,14 @@ class BuildProjDlg(QDialog):
 
     def projectChanged(self, index):
         if self.projectsCombo.currentText().lower().endswith('.vcxproj'):
-            self.compileBtn.show()
+            self.compileBtn.setEnabled(True)
             self.compileFilesLabel.show()
             self.compileFilesCombo.show()
 
             self.compileFilesCombo.clear()
             self.compileFilesCombo.addItems(self.get_project_files())
         else:
-            self.compileBtn.hide()
+            self.compileBtn.setEnabled(False)
             self.compileFilesLabel.hide()
             self.compileFilesCombo.hide()
 
@@ -111,6 +117,10 @@ class BuildProjDlg(QDialog):
 
     def compile(self):
         self.build('/t:clcompile /p:selectedfiles=%s' % self.compileFilesCombo.currentText())
+
+    def originall(self):
+        self.projectsCombo.setCurrentIndex(self.originallindex)
+
 
 app = QApplication(sys.argv)
 bp = BuildProjDlg()
