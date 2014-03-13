@@ -16,7 +16,7 @@ class GenerateHTML:
     def Exec(self):
         with open(os.path.join(self.currentpath, 'SCVFuncs.txt')) as f:
             s = ''
-            fcate = open(r'Category%s.txt' % self.lang, encoding='utf-8-sig') if self.lang != 'E' else None
+            fcate = open(os.path.join(self.currentpath, 'Category%s.txt' % self.lang), encoding='utf-8-sig') if self.lang != 'E' else None
             categorys = {}
             if fcate:
                 for line in fcate:
