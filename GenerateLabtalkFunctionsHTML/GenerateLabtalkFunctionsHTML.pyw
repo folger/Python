@@ -8,6 +8,7 @@ import sys
 import GeneratePolishedHTML
 import DownloadImage
 
+
 class GenerateHTMLDlg(QDialog):
     def __init__(self, parent=None):
         super(GenerateHTMLDlg, self).__init__(parent)
@@ -53,7 +54,6 @@ class GenerateHTMLDlg(QDialog):
             QMessageBox.information(self, "Attention", result[1], QMessageBox.Ok)
         else:
             QMessageBox.critical(self, "Error", result[1], QMessageBox.Ok)
-
 
 app = QApplication(sys.argv)
 bp = GenerateHTMLDlg()

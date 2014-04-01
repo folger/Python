@@ -7,6 +7,7 @@ import GenerateLTFuncHTML
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
+
 def generate_HTML(lang):
     def htmlfile(lang):
         return os.path.join(currentpath, 'Default%s.html' % lang)
@@ -24,7 +25,8 @@ def generate_HTML(lang):
         with open(os.path.join(currentpath, "Default.html"), encoding='utf-8-sig') as fr:
             s = fr.read()
             gs = generate.Exec().replace('/images/docwiki/math', './images')
-            s = s.replace('<div style="display: none" id="labtalkFunctions"></div>', '<div style="display: none" id="labtalkFunctions">' + gs + '</div>')
+            s = s.replace('<div style="display: none" id="labtalkFunctions"></div>',
+                          '<div style="display: none" id="labtalkFunctions">' + gs + '</div>')
             with open(htmlfile(lang), 'w', encoding='utf-8-sig') as fw:
                 fw.write(s)
 

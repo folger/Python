@@ -10,6 +10,7 @@ from time import sleep
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
+
 def download_images(lang):
     htmlfile = os.path.join(currentpath, 'Default%s.html' % lang)
 
@@ -38,7 +39,7 @@ def download_images(lang):
                 imagesfail.append(image)
             except Exception as e:
                 return (False, "Failed to download %s : %s" % (imagename, e))
-        
+
         return (True, "All images downloaded")
 
     with open(htmlfile, encoding='utf-8-sig') as fr:
@@ -52,7 +53,7 @@ def download_images(lang):
             result = download(images, imagesfail)
             if not result[0] or len(imagesfail) == 0:
                 return result
-                
+
             images = imagesfail[:]
             imagesfail.clear()
 

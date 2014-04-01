@@ -1,10 +1,5 @@
-import os
-import inspect
-
 class GenerateHTML:
     def __init__(self, lang, funcs):
-        self.currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
-
         self.funcs = funcs
 
         self.lang = lang.upper()
@@ -23,7 +18,7 @@ class GenerateHTML:
 
         for func in self.funcs:
             entries = func.split("\t"*10)
-            if len(entries) == 1: # categoty
+            if len(entries) == 1:  # categoty
                 funcs_done.clear()
                 fitfunc = func.startswith('Fitting Functions')
                 if len(s):
@@ -38,13 +33,10 @@ class GenerateHTML:
                 if funcnamenoargs in funcs_done:
                     continue
                 funcs_done.add(funcnamenoargs)
-                s += '    <tr>\n        <td><a href="/junk">%s</a></td>\n        <td>%s</td>\n    </tr>\n' % (funcname[4:] if fitfunc else funcname, description)
+                s += '    <tr>\n        <td><a href="/junk">%s</a></td>\n        <td>%s</td>\n    </tr>\n' \
+                    % (funcname[len("nlf_"):] if fitfunc else funcname, description)
 
         if len(s):
             s += '</table>'
         s = s.replace('/images/ltwiki/math/', './images/')
         return s
-
-
-
-

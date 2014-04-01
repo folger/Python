@@ -1,5 +1,6 @@
 from html.parser import HTMLParser
 
+
 class MyHTMLParser(HTMLParser):
     def __init__(self):
         super(MyHTMLParser, self).__init__()
@@ -41,8 +42,8 @@ class MyHTMLParser(HTMLParser):
             elif tag == "td":
                 self.col += 1
             elif tag == "a":
-              if self.col == 1:
-                  self.a = True
+                if self.col == 1:
+                    self.a = True
             else:
                 if self.isFunction() or self.isDescription():
                     if len(attrs):
@@ -60,8 +61,8 @@ class MyHTMLParser(HTMLParser):
             self.subcategory = False
 
         if self.table:
-          if tag == "table":
-            self.table = False
+            if tag == "table":
+                self.table = False
 
         if self.table:
             if tag == "td":
@@ -106,5 +107,3 @@ if __name__ == "__main__":
         parser.feed(r.read().decode())
         with open('parse_results.txt', 'w') as fw:
             fw.write('\n'.join(parser.results))
-
-
