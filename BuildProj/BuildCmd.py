@@ -17,19 +17,24 @@ def main():
                 project_file = projects[project]
 
                 if (len(sys.argv) > 2):
+                    file_name = sys.argv[2]
                     project_files = BuildUtils.get_project_files(project_file)
                     for file in project_files:
-                        if os.path.basename(file).lower() == sys.argv[2].lower():
+                        if os.path.basename(file).lower() == file_name.lower():
                             BuildUtils.compile(project_file, platform, configuration, file)
                             break
                     else:
-                        raise ValueError('source file cannot be found')
+                        raise ValueError('{} cannot be found in project {}'.format(file_name, project_name))
                     return
 
                 BuildUtils.build(project_file, platform, configuration)
                 break
         else:
-            raise ValueError('project file cannot be found')
+            raise ValueError('project file {} cannot be found'.format(project_name))
 
 
-main()
+try:
+    main()
+except Exception as e:
+    print(e)
+    os.system('pause')
