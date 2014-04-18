@@ -3,10 +3,9 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import sys
-import os
-import re
-import fnmatch
 from functools import partial
+import BuildUtils
+
 
 class BuildProjDlg(QDialog):
     def __init__(self, parent=None):
@@ -14,9 +13,9 @@ class BuildProjDlg(QDialog):
 
         self.setWindowTitle("Build Origin Projects")
 
-        self.projects = self.get_projects()
-        
+        self.projects = BuildUtils.get_projects()
         projLabel = QLabel("Projects")
+
         self.projectsCombo = QComboBox()
         projLabel.setBuddy(self.projectsCombo)
         projs = sorted(self.projects.keys())
@@ -70,26 +69,6 @@ class BuildProjDlg(QDialog):
 
         self.projectChanged(-1)
 
-    def get_projects(self):
-        path = os.path.join(os.environ["develop"], 'Source')
-        projects = {}
-        for dirpath, dirnames, files in os.walk(path):
-            all = fnmatch.filter(files, '*.vcxproj')
-            all.extend(fnmatch.filter(files, '*.sln'))
-            for f in all:
-                projects[f] = os.path.join(dirpath, f)
-        return projects
-
-    def get_project_files(self):
-        files = []
-        p = re.compile('"([^"]+\.(c|cpp|cxx))"', re.I)
-        with open(self.projects[self.projectsCombo.currentText()], encoding='utf-8') as f:
-            for line in f:
-                m = p.search(line)
-                if m:
-                    files.append(m.group(1))
-        return files
-
     def projectChanged(self, index):
         if self.projectsCombo.currentText().lower().endswith('.vcxproj'):
             self.compileBtn.setEnabled(True)
@@ -97,29 +76,28 @@ class BuildProjDlg(QDialog):
             self.compileFilesCombo.show()
 
             self.compileFilesCombo.clear()
-            self.compileFilesCombo.addItems(self.get_project_files())
+            self.compileFilesCombo.addItems(BuildUtils.get_project_files(self.projects[self.projectsCombo.currentText()]))
         else:
             self.compileBtn.setEnabled(False)
             self.compileFilesLabel.hide()
             self.compileFilesCombo.hide()
 
-    def build(self, extra_args = ""):
-        args = []
-        args.append('"%s"' % self.projects[self.projectsCombo.currentText()])
-        args.append('"/p:platform=%s"' % self.platformCombo.currentText())
-        args.append('"/p:configuration=%s"' % self.configCombo.currentText())
-        if extra_args:
-            args.extend(['"%s"' % arg for arg in extra_args.split(' ')])
-
-        cmd = "Build.bat %s" % ' '.join(args)
-        # print(cmd)
-        os.system(cmd)
-
-    def compile(self):
-        self.build('/t:clcompile /p:selectedfiles=%s' % self.compileFilesCombo.currentText())
-
     def originall(self):
         self.projectsCombo.setCurrentIndex(self.originallindex)
+
+    def build(self, extra_args = ''):
+        BuildUtils.build(self.projects[self.projectsCombo.currentText()],
+                         self.platformCombo.currentText(),
+                         self.configCombo.currentText(),
+                         extra_args
+                         )
+
+    def compile(self):
+        BuildUtils.compile(self.projects[self.projectsCombo.currentText()],
+                           self.platformCombo.currentText(),
+                           self.configCombo.currentText(),
+                           self.compileFilesCombo.currentText()
+                           )
 
 
 app = QApplication(sys.argv)
