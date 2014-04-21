@@ -13,7 +13,7 @@ class BuildProjDlg(QDialog):
 
         self.setWindowTitle("Build Origin Projects")
 
-        self.projects = BuildUtils.get_projects()
+        self.projects = dict(BuildUtils.get_projects())
         projLabel = QLabel("Projects")
 
         self.projectsCombo = QComboBox()
@@ -76,7 +76,7 @@ class BuildProjDlg(QDialog):
             self.compileFilesCombo.show()
 
             self.compileFilesCombo.clear()
-            self.compileFilesCombo.addItems(BuildUtils.get_project_files(self.projects[self.projectsCombo.currentText()]))
+            self.compileFilesCombo.addItems(list(BuildUtils.get_project_files(self.projects[self.projectsCombo.currentText()])))
         else:
             self.compileBtn.setEnabled(False)
             self.compileFilesLabel.hide()
