@@ -5,11 +5,15 @@ import re
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
+
 def get_projects():
-    path = os.path.join(os.environ["develop"], 'Source')
-    for dirpath, dirnames, files in os.walk(path):
-        for f in fnmatch.filter(files, '*.vcxproj') + fnmatch.filter(files, '*.sln'):
-            yield(f, os.path.join(dirpath, f))
+    try:
+        path = os.path.join(os.environ["develop"], 'Source')
+        for dirpath, dirnames, files in os.walk(path):
+            for f in fnmatch.filter(files, '*.vcxproj') + fnmatch.filter(files, '*.sln'):
+                yield(f, os.path.join(dirpath, f))
+    except KeyError:
+        yield '', ''
 
 
 def get_project_files(project):
@@ -21,7 +25,7 @@ def get_project_files(project):
                 yield m.group(1)
 
 
-def build(project, platform, configuration, extra_args = ""):
+def build(project, platform, configuration, extra_args=""):
     args = []
     args.append('"%s"' % project)
     args.append('"/p:platform=%s"' % platform)

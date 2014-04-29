@@ -19,8 +19,10 @@ class BuildProjDlg(QDialog):
         self.projectsCombo = QComboBox()
         projLabel.setBuddy(self.projectsCombo)
         projs = sorted(self.projects.keys())
-        self.originallindex = projs.index("OriginAll.sln")
-        self.orgviewerindex = projs.index("OrgViewer.sln")
+
+        self.originallindex = self.get_sln_index(projs, 'OriginAll.sln')
+        self.orgviewerindex = self.get_sln_index(projs, 'OrgViewer.sln')
+
         self.projectsCombo.addItems(projs)
         self.projectsCombo.setCurrentIndex(self.originallindex)
 
@@ -105,6 +107,11 @@ class BuildProjDlg(QDialog):
                            self.compileFilesCombo.currentText()
                            )
 
+    def get_sln_index(self, projs, sln):
+        try:
+            return projs.index("OriginAll.sln")
+        except ValueError:
+            return -1
 
 app = QApplication(sys.argv)
 bp = BuildProjDlg()
