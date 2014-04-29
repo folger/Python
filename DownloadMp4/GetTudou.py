@@ -5,6 +5,7 @@ preSrc = re.compile("(http://www.tudouxia.com/albumplay/(?:-|\w)+/(?:-|\w)+.html
 #preDes = re.compile('http://f.youku.com/player/getFlvPath/sid/\w+/st/mp4/fileid/[^"]+')
 preDes = re.compile('http://f.youku.com/player/getFlvPath/sid/\w+/st/flv/fileid/[^"]+')
 
+
 def polishAddress(all):
     ss = '\n'.join(all)
     return ss.replace('&amp;', '&')
