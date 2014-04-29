@@ -20,6 +20,7 @@ class BuildProjDlg(QDialog):
         projLabel.setBuddy(self.projectsCombo)
         projs = sorted(self.projects.keys())
         self.originallindex = projs.index("OriginAll.sln")
+        self.orgviewerindex = projs.index("OrgViewer.sln")
         self.projectsCombo.addItems(projs)
         self.projectsCombo.setCurrentIndex(self.originallindex)
 
@@ -41,10 +42,12 @@ class BuildProjDlg(QDialog):
         originallBtn = QPushButton("OriginAll")
         buildBtn = QPushButton("Build")
         cleanBtn = QPushButton("Clean")
+        orgviewerBtn = QPushButton("OrgViewer")
 
         btnsLayout = QHBoxLayout()
         btnsLayout.addStretch()
         btnsLayout.addWidget(originallBtn)
+        btnsLayout.addWidget(orgviewerBtn)
         btnsLayout.addWidget(self.compileBtn)
         btnsLayout.addWidget(buildBtn)
         btnsLayout.addWidget(cleanBtn)
@@ -66,6 +69,7 @@ class BuildProjDlg(QDialog):
         self.connect(self.compileBtn, SIGNAL("clicked()"), self.compile)
         self.connect(buildBtn, SIGNAL("clicked()"), self.build)
         self.connect(cleanBtn, SIGNAL("clicked()"), partial(self.build, "/t:clean"))
+        self.connect(orgviewerBtn, SIGNAL("clicked()"), self.orgviewer)
 
         self.projectChanged(-1)
 
@@ -84,6 +88,9 @@ class BuildProjDlg(QDialog):
 
     def originall(self):
         self.projectsCombo.setCurrentIndex(self.originallindex)
+
+    def orgviewer(self):
+        self.projectsCombo.setCurrentIndex(self.orgviewerindex)
 
     def build(self, extra_args = ''):
         BuildUtils.build(self.projects[self.projectsCombo.currentText()],
