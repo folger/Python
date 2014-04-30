@@ -109,7 +109,7 @@ class BuildProjDlg(QDialog):
 
     def get_sln_index(self, projs, sln):
         try:
-            return projs.index("OriginAll.sln")
+            return projs.index(sln)
         except ValueError:
             return -1
 
