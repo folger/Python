@@ -1,11 +1,24 @@
 from urllib.request import urlretrieve
 import os
+import sys
+
+out = sys.stdout
+lastpercent = ''
+
+
+def progress(count, blocksize, totalsize):
+    global lastpercent
+    global out
+    percent = int(count*blocksize*100.0/totalsize)
+    out.write('\b' * len(lastpercent))
+    lastpercent = '{:3d}%'.format(percent)
+    out.write(lastpercent)
+    out.flush()
 
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
-path = r'G:\OnePiece'
-
+path = 'G:/OnePiece'
 with open(os.path.join(currentpath, 'Now.txt')) as f:
     album = ''
     part = 0
@@ -18,14 +31,18 @@ with open(os.path.join(currentpath, 'Now.txt')) as f:
             album = line
             part = 1
         else:
-            name = "%s.%03d.mp4" %(album, part)
+            name = "%s.%03d.mp4" % (album, part)
             filename = os.path.join(path, name)
             try:
-                urlretrieve(line, filename)
-                print(name)
+                out.write(name + ' ... ')
+                out.flush()
+                lastpercent = ''
+                urlretrieve(line, filename, reporthook=progress)
             except Exception as e:
+                print()
                 print("Failed to download %s : %s" % (name, e))
 
+            print()
             part += 1
 
 

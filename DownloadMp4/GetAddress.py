@@ -1,10 +1,10 @@
 from selenium import webdriver
-import re
 from time import sleep
 
+
 def OutputAddrs(preSrc, preDes, polishAddress):
-    driver = webdriver.Chrome('/Users/lunbest/Downloads/chromedriver')
-    
+    driver = webdriver.Chrome('G:/chromedriver.exe')
+
     with open("Now.txt", "w") as fw:
         with open("Addrs.txt", encoding='utf-8') as f:
             for line in f:
@@ -18,10 +18,3 @@ def OutputAddrs(preSrc, preDes, polishAddress):
                     sleep(3)
 
                     fw.write(polishAddress(preDes.findall(driver.page_source)) + '\n')
-
-                
-
-
-
-
-
