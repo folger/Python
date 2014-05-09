@@ -9,9 +9,9 @@ lastpercent = ''
 def progress(count, blocksize, totalsize):
     global lastpercent
     global out
-    percent = int(count*blocksize*100.0/totalsize)
+    percent = count*blocksize*100.0/totalsize
     out.write('\b' * len(lastpercent))
-    lastpercent = '{:3d}%'.format(percent)
+    lastpercent = '{:.2f}%'.format(percent)
     out.write(lastpercent)
     out.flush()
 
