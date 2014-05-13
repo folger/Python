@@ -10,6 +10,8 @@ def progress(count, blocksize, totalsize):
     global lastpercent
     global out
     percent = count*blocksize*100.0/totalsize
+    if percent > 100:
+        percent = 100
     out.write('\b' * len(lastpercent))
     lastpercent = '{:.2f}%'.format(percent)
     out.write(lastpercent)
