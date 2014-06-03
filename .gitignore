@@ -11,3 +11,6 @@ GenerateLabtalkFunctionsHTML/LTFuncsJ.txt
 GenerateLabtalkFunctionsHTML/Default?.html
 GenerateLabtalkFunctionsHTML/lib/*
 GenerateLabtalkFunctionsHTML/images/*
+
+FolsTools/build
+FolsTools/dist
