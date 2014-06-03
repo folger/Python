@@ -14,7 +14,6 @@ class XFGUI:
             m = self.Match(r"(.)XFGUI_(.*)\.xml", file)
             if m:
                 scripts.append("gui2xf %s l:=%s;" % (m.group(2), m.group(1)))
-##        print(script)
         self.Run(''.join(scripts))
         return scripts
 
@@ -170,7 +169,7 @@ class GetBuildFromFTP(object):
     def do(self):
         f = self.fetch()
         if f:
-            return self.get_build_direct(f)
+            return self.get_build_direct(f) if self.flashget is None else self.get_build_flashget(f)
 
     def get_build_flashget(self, f):
         # cmd = r'"D:\FlashGet\flashget.exe" ftp://{}:{}@{}/"{}"{} {}'\
