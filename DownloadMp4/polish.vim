@@ -10,7 +10,6 @@ command! Tudou call PolishTudou()
 "http:\/\/v.pps.tv[^"]\{-}" title="第&nbsp;\d\+&nbsp;集
 function! PolishPPS()
   %s/">//g
-  %s/.html#from_splay" title="/ /g
-  %s/第&nbsp;\(\d\+\)&nbsp;集/\1/g
+  %s/#from_splay" title="第&nbsp;\(\d\+\)&nbsp;集//g
 endfunction
 command! PPS call PolishPPS()
