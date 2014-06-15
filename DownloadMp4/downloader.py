@@ -20,7 +20,7 @@ def progress(count, blocksize, totalsize):
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
-path = 'G:/OnePiece'
+path = 'F:/OnePiece'
 with open(os.path.join(currentpath, 'Now.txt')) as f:
     album = ''
     part = 0
@@ -35,16 +35,17 @@ with open(os.path.join(currentpath, 'Now.txt')) as f:
         else:
             name = "%s.%03d.mp4" % (album, part)
             filename = os.path.join(path, name)
-            try:
-                out.write(name + ' ... ')
-                out.flush()
-                lastpercent = ''
-                urlretrieve(line, filename, reporthook=progress)
-            except Exception as e:
-                print()
-                print("Failed to download %s : %s" % (name, e))
+            if not os.path.exists(filename):
+                try:
+                    out.write(name + ' ... ')
+                    out.flush()
+                    lastpercent = ''
+                    urlretrieve(line, filename, reporthook=progress)
+                except Exception as e:
+                    print()
+                    print("Failed to download %s : %s" % (name, e))
 
-            print()
+                print()
             part += 1
 
 
