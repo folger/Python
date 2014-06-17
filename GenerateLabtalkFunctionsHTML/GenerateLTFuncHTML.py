@@ -3,12 +3,6 @@ class GenerateHTML:
         self.funcs = funcs
 
         self.lang = lang.upper()
-        self.funcs_descriptions = {}
-        for func in funcs:
-            entries = func.split('\t'*10)
-            description = entries[-1]
-            for entry in entries[:-1]:
-                self.funcs_descriptions[entry.split('(')[0].lower()] = (entry, description)
 
     def Exec(self):
         s = ''
@@ -25,16 +19,19 @@ class GenerateHTML:
                     s += '</table>\n'
                 s += '<table>\n    <caption>%s</caption>\n' % func.strip()
             else:
-                funcname = entries[0].strip()
-                description = entries[1].strip()
+                funclink = entries[0].strip()
+                funcname = entries[1].strip()
+                description = entries[2].strip()
                 funcnamenoargs = funcname.split('(')[0].lower()
                 if fitfunc:
                     funcnamenoargs = 'nlf_' + funcnamenoargs
                 if funcnamenoargs in funcs_done:
                     continue
                 funcs_done.add(funcnamenoargs)
-                s += '    <tr>\n        <td><a href="/junk">%s</a></td>\n        <td>%s</td>\n    </tr>\n' \
-                    % (funcname[len("nlf_"):] if fitfunc else funcname, description)
+                if not funclink.startswith('http://'):
+                    funclink = 'http://wikis' + funclink
+                s += '    <tr>\n        <td><a href="/junk" reallink="%s">%s</a></td>\n        <td>%s</td>\n    </tr>\n' \
+                    % (funclink, funcname[len("nlf_"):] if fitfunc else funcname, description)
 
         if len(s):
             s += '</table>'

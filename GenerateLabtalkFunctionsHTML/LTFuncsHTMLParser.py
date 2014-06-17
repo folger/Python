@@ -44,6 +44,14 @@ class MyHTMLParser(HTMLParser):
             elif tag == "a":
                 if self.col == 1:
                     self.a = True
+                    for attr in attrs:
+                        if attr[0] == 'href':
+                            funclink = attr[1]
+                            if not funclink.startswith('http://'):
+                                funclink = 'http://wikis' + funclink
+                            self.description += funclink
+                            self.description += "\t" * 10
+                            break
             else:
                 if self.isFunction() or self.isDescription():
                     if len(attrs):
@@ -105,5 +113,6 @@ if __name__ == "__main__":
     with urlopen('http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions') as r:
         parser = MyHTMLParser()
         parser.feed(r.read().decode())
-        with open('parse_results.txt', 'w') as fw:
-            fw.write('\n'.join(parser.results))
+        with open('parse_results.txt', 'w', encoding='utf-8') as fw:
+            for result in parser.results:
+                print(result, file=fw)
