@@ -30,8 +30,8 @@ class GenerateHTML:
                 funcs_done.add(funcnamenoargs)
                 if not funclink.startswith('http://'):
                     funclink = 'http://wikis' + funclink
-                s += '    <tr>\n        <td><a href="/junk" reallink="%s">%s</a></td>\n        <td>%s</td>\n    </tr>\n' \
-                    % (funclink, funcname[len("nlf_"):] if fitfunc else funcname, description)
+                s += '    <tr>\n        <td><a href="%s" fprefix="%s">%s</a></td>\n        <td>%s</td>\n    </tr>\n' \
+                    % (funclink, "nlf_" if fitfunc else "", funcname[len("nlf_"):] if fitfunc else funcname, description)
 
         if len(s):
             s += '</table>'
