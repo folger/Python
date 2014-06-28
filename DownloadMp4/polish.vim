@@ -22,3 +22,6 @@ function! PolishSohu()
   %s/sohu\zs/xia/g
 endfunction
 command! Sohu call PolishSohu()
+
+"http:\/\/k.youku.com\/[^"]\{-}\/flv\/[^"]\{-}"
+"n"Byf"
