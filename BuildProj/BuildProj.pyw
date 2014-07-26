@@ -94,14 +94,16 @@ class BuildProjDlg(QDialog):
         self.projectsCombo.setCurrentIndex(self.orgviewerindex)
 
     def build(self, extra_args = ''):
-        BuildUtils.build(self.projects[self.projectsCombo.currentText()],
+        BuildUtils.build(False,
+                         self.projects[self.projectsCombo.currentText()],
                          self.platformCombo.currentText(),
                          self.configCombo.currentText(),
                          extra_args
                          )
 
     def compile(self):
-        BuildUtils.compile(self.projects[self.projectsCombo.currentText()],
+        BuildUtils.compile(False,
+                           self.projects[self.projectsCombo.currentText()],
                            self.platformCombo.currentText(),
                            self.configCombo.currentText(),
                            self.compileFilesCombo.currentText()

@@ -1,6 +1,7 @@
 import os
 import fnmatch
 import re
+import subprocess
 
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -25,20 +26,47 @@ def get_project_files(project):
                 yield m.group(1)
 
 
-def build(project, platform, configuration, extra_args=""):
+def build(return_output, project, platform, configuration, extra_args=""):
     args = []
-    args.append('"%s"' % project)
-    args.append('"/p:platform=%s"' % platform)
-    args.append('"/p:configuration=%s"' % configuration)
+    args.append('%s' % project)
+    args.append('/p:platform=%s' % platform)
+    args.append('/p:configuration=%s' % configuration)
     if extra_args:
-        args.extend(['"%s"' % arg for arg in extra_args.split(' ')])
+        args.extend(['%s' % arg for arg in extra_args.split(' ')])
 
-    cmd = "%s %s" % (os.path.join(currentpath, 'Build.bat'), ' '.join(args))
-    os.system(cmd)
+    if return_output:
+        s = ''
+        hasException = False
+        try:
+            s = subprocess.check_output(['msbuild'] + args, shell=True, universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            s = e.output
+            hasException = True
+        pCompileError = re.compile('^  [^(]+\(\d+\): .*?error')
+        errors = []
+        # first check compile error
+        for line in s.split('\n'):
+            line = line.rstrip()
+            if pCompileError.search(line):
+                errors.append(line)
+        # if no compile error, and there is CalledProcessError
+        # exception, then must be linking error
+        if len(errors) == 0 and hasException:
+            pLinkingError = re.compile('^  .+? : .*?error')
+            for line in s.split('\n'):
+                line = line.rstrip()
+                if pLinkingError.search(line):
+                    errors.append(line)
+        return '\n'.join(errors)
+    else:
+        try:
+            subprocess.call(['msbuild'] + args, shell=True, universal_newlines=True)
+        except subprocess.CalledProcessError:
+            pass
 
 
-def compile(project, platform, configuration, file):
-    build(project, platform, configuration, '/t:clcompile /p:selectedfiles=%s' % file)
+def compile(return_output, project, platform, configuration, file):
+    return build(return_output, project, platform, configuration, '/t:clcompile /p:selectedfiles=%s' % file)
 
 
 if __name__ == '__main__':
