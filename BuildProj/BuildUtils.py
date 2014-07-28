@@ -27,7 +27,7 @@ def get_project_files(project):
 
 
 def build(return_output, project, platform, configuration, extra_args=""):
-    args = []
+    args = ['/m']
     args.append('%s' % project)
     args.append('/p:platform=%s' % platform)
     args.append('/p:configuration=%s' % configuration)
@@ -42,7 +42,7 @@ def build(return_output, project, platform, configuration, extra_args=""):
         except subprocess.CalledProcessError as e:
             s = e.output
             hasException = True
-        pCompileError = re.compile('^  [^(]+\(\d+\): .*?error')
+        pCompileError = re.compile('^ +[^(]+\(\d+\): .*?error C\d+:')
         errors = []
         # first check compile error
         for line in s.split('\n'):
@@ -52,7 +52,7 @@ def build(return_output, project, platform, configuration, extra_args=""):
         # if no compile error, and there is CalledProcessError
         # exception, then must be linking error
         if len(errors) == 0 and hasException:
-            pLinkingError = re.compile('^  .+? : .*?error')
+            pLinkingError = re.compile('^ +.+? : .*?error C\d+:')
             for line in s.split('\n'):
                 line = line.rstrip()
                 if pLinkingError.search(line):
@@ -60,7 +60,8 @@ def build(return_output, project, platform, configuration, extra_args=""):
         return '\n'.join(errors)
     else:
         try:
-            subprocess.call(['msbuild'] + args, shell=True, universal_newlines=True)
+            print('subprocess.call')
+            subprocess.call(['msbuild'] + args, shell=True)
         except subprocess.CalledProcessError:
             pass
 
