@@ -34,4 +34,3 @@ try:
     main()
 except Exception as e:
     print(e)
-    os.system('pause')
