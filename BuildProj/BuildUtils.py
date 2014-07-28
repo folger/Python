@@ -44,23 +44,29 @@ def build(return_output, project, platform, configuration, extra_args=""):
             hasException = True
         pCompileError = re.compile('^ +[^(]+\(\d+\): .*?error C\d+:')
         errors = []
+        lines = s.split('\n')
+        for index, line in enumerate(lines):
+            line = line.rstrip()
+            if line == 'Build FAILED.':
+                break
+        else:
+            return ''
         # first check compile error
-        for line in s.split('\n'):
+        for line in lines[index+1:]:
             line = line.rstrip()
             if pCompileError.search(line):
                 errors.append(line)
         # if no compile error, and there is CalledProcessError
         # exception, then must be linking error
         if len(errors) == 0 and hasException:
-            pLinkingError = re.compile('^ +.+? : .*?error C\d+:')
-            for line in s.split('\n'):
+            pLinkingError = re.compile('^ +.+? : .*?error LNK\d+:')
+            for line in lines[index+1:]:
                 line = line.rstrip()
                 if pLinkingError.search(line):
                     errors.append(line)
         return '\n'.join(errors)
     else:
         try:
-            print('subprocess.call')
             subprocess.call(['msbuild'] + args, shell=True)
         except subprocess.CalledProcessError:
             pass
