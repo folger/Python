@@ -42,13 +42,19 @@ def build(return_output, project, platform, configuration, extra_args=""):
         except subprocess.CalledProcessError as e:
             s = e.output
             hasException = True
-        pCompileError = re.compile('^ +[^(]+\(\d+\): .*?error C\d+:')
+
         errors = []
         lines = s.split('\n')
-        for index, line in enumerate(lines):
+        def reverse_enumerate(iterable):
+            return zip(reversed(range(len(iterable))), reversed(iterable))
+
+        pCompileError = re.compile('^ +[^(]+\(\d+\): .*?error C\d+:')
+        for index, line in reverse_enumerate(lines):
             line = line.rstrip()
             if line == 'Build FAILED.':
                 break
+            elif line == 'Build succeeded.':
+                return ''
         else:
             return ''
         # first check compile error
