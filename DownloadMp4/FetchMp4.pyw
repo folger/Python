@@ -3,13 +3,15 @@
 import sys
 import os
 import re
+import subprocess
 from time import sleep
 from urllib.request import urlretrieve
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from selenium import webdriver
 
-path = os.environ['MP4_FETCH_PATH']
+fetchPath = os.environ['MP4_FETCH_PATH']
+mp4Path = os.environ['MP4_PATH']
 driver = webdriver.Chrome('./chromedriver')
 
 class Fetcher(QThread):
@@ -44,9 +46,10 @@ class Fetcher(QThread):
                 fails.append('Failed to fectch ' + url)
                 continue
 
+            names = []
             for subindex, f in enumerate(files):
                 name = '{}.{:03d}.mp4'.format(episode, subindex+1)
-                filename = os.path.join(path, name)
+                filename = os.path.join(fetchPath, name)
                 if not os.path.exists(filename):
                     self.title.emit('({}/{}) {} ({}/{})'.format(index+1,
                                     len(urls),
@@ -55,8 +58,21 @@ class Fetcher(QThread):
                                     len(files)))
                     try:
                         urlretrieve(f, filename, reporthook=self.progressHook)
+                        names.append(filename)
                     except Exception as e:
                         fails.append(name + ' ' + str(e))
+                        names.clear()
+                else:
+                    names.append(filename)
+
+            if len(names) > 0:
+                self.title.emit('Joining ...')
+                cmd = ['MP4Box']
+                for name in names:
+                    cmd += ['-force-cat', '-cat', name]
+                cmd.append('-new')
+                cmd.append(os.path.join(mp4Path, '{}.mp4'.format(episode)))
+                subprocess.call(cmd)
 
         if len(fails) > 0:
             self.error.emit('\n'.join(fails))
