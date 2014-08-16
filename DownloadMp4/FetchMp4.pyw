@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 import sys
 import os
 import re
@@ -7,18 +9,15 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from selenium import webdriver
 
-path = 'F:/OnePiece'
-driver = webdriver.Chrome('D:/BoxSync/Windows/chromedriver.exe')
+path = os.environ['MP4_FETCH_PATH']
+driver = webdriver.Chrome('./chromedriver')
 
 class Fetcher(QThread):
     title = pyqtSignal(str)
     setrange = pyqtSignal(int, int)
     progress = pyqtSignal(int)
     enable = pyqtSignal(bool)
-
-    def __init__(self, parent):
-        super(Fetcher, self).__init__(parent)
-        self.parent = parent
+    error = pyqtSignal(str)
 
     def run(self):
         def make_getter(url):
@@ -31,8 +30,9 @@ class Fetcher(QThread):
         urls = self.text.split('\n')
         self.enable.emit(False)
         for index, url in enumerate(urls):
+            url = url.lstrip()
             if len(url) == 0:
-                break
+                continue
             getter = make_getter(url)
             url = 'http://www.flvxz.com/?url=' + url
             driver.get(url)
@@ -53,10 +53,10 @@ class Fetcher(QThread):
                                     len(files)))
                     try:
                         urlretrieve(f, filename, reporthook=self.progressHook)
-                    except Exception:
-                        fails.append(name)
+                    except Exception as e:
+                        fails.append(name + ' ' + str(e))
         if len(fails) > 0:
-            QMessageBox.information(self.parent, "Files that fail", '\n'.join(fails))
+            self.error.emit('\n'.join(fails))
         self.enable.emit(True)
         self.setrange.emit(0, 0)
         self.title.emit('All Done')
@@ -88,7 +88,7 @@ class MP4Fetcher(QDialog):
         self.setLayout(layout)
 
     def createInputEdit(self):
-        label = QLabel('URLs')
+        label = QLabel('paste url line by line into box, then press Fetch')
         self.edit = QTextEdit()
         self.btnFetch = QPushButton('Fetch')
         self.connect(self.btnFetch, SIGNAL('clicked()'), self.fetch)
@@ -112,6 +112,7 @@ class MP4Fetcher(QDialog):
         fetcher.setrange.connect(self.setProgressRange)
         fetcher.progress.connect(self.updateProgress)
         fetcher.enable.connect(self.enableAll)
+        fetcher.error.connect(self.errorReport)
         fetcher.text = self.edit.toPlainText()
         fetcher.start()
 
@@ -130,6 +131,9 @@ class MP4Fetcher(QDialog):
     def enableAll(self, enable):
         self.btnFetch.setEnabled(enable)
         self.edit.setEnabled(enable)
+
+    def errorReport(self, error):
+        QMessageBox.information(self, "Files that fail", error)
 
 app = QApplication(sys.argv)
 dlg = MP4Fetcher()
