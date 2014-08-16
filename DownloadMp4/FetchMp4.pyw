@@ -7,40 +7,72 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from selenium import webdriver
 
+path = 'F:/OnePiece'
+driver = webdriver.Chrome('D:/BoxSync/Windows/chromedriver.exe')
+
 class Fetcher(QThread):
-    re_title = re.compile('<h4 class="media-heading">(\D+(\d+)\D+)</h4>')
     title = pyqtSignal(str)
     setrange = pyqtSignal(int, int)
     progress = pyqtSignal(int)
     enable = pyqtSignal(bool)
+
+    def __init__(self, parent):
+        super(Fetcher, self).__init__(parent)
+        self.parent = parent
+
     def run(self):
-        self.driver.get(self.url)
-        sleep(3)
-        self.page_source = self.driver.page_source
+        def make_getter(url):
+            if url.find('.tudou.') > 0:
+                return self.getTudou
+            if url.find('v.qq.com') > 0:
+                return self.getQQ
 
-        m = self.re_title.search(self.page_source)
+        fails = []
+        urls = self.text.split('\n')
+        self.enable.emit(False)
+        for index, url in enumerate(urls):
+            if len(url) == 0:
+                break
+            getter = make_getter(url)
+            url = 'http://www.flvxz.com/?url=' + url
+            driver.get(url)
+            sleep(5)
+            page_source = driver.page_source
+            mtitle = re.search('<h4 class="media-heading">(\D+(\d+)\D+)</h4>', page_source)
+            title = mtitle.group(1) if mtitle else 'Unknown'
+            episode = mtitle.group(2) if mtitle else 10000
+            files = getter(page_source)
+            for subindex, f in enumerate(files):
+                name = '{}.{:03d}.mp4'.format(episode, subindex+1)
+                filename = os.path.join(path, name)
+                if not os.path.exists(filename):
+                    self.title.emit('({}/{}) {}.({}/{})'.format(index+1,
+                                    len(urls),
+                                    title,
+                                    subindex+1,
+                                    len(files)))
+                    try:
+                        urlretrieve(f, filename, reporthook=self.progressHook)
+                    except Exception:
+                        fails.append(name)
+        if len(fails) > 0:
+            QMessageBox.information(self.parent, "Files that fail", '\n'.join(fails))
+        self.enable.emit(True)
+        self.setrange.emit(0, 0)
+        self.title.emit('All Done')
 
-        path = 'F:/OnePiece'
-        for i, f in enumerate(self.files()):
-            name = '{}.{:03d}.mp4'.format(m.group(2), i+1)
-            filename = os.path.join(path, name)
-            if not os.path.exists(filename):
-                self.title.emit(m.group(1) + '.{}'.format(i+1))
-                try:
-                    urlretrieve(f, filename, reporthook=self.progressHook)
-                except Exception as e:
-                    print("Failed to download %s : %s" % (name, e))
-
-    def files(self): pass
     def progressHook(self, count, blocksize, totalsize):
-        self.setrange.emit(0, totalsize)
+        self.setrange.emit(0, totalsize-1)
         self.progress.emit(count * blocksize)
 
-class FetchTudou(Fetcher):
-    pre = re.compile('http://k.youku.com/player/getFlvPath/sid/\w+/st/mp4/fileid/[^"]+')
-    def files(self):
-        ss = self.pre.findall(self.page_source)[-4:]
+    def getTudou(self, page_source):
+        ss = re.findall('http://k.youku.com/player/getFlvPath/sid/\w+/st/mp4/fileid/[^"]+',
+                        page_source)[-4:]
         return [s.replace('&amp;', '&') for s in ss]
+
+    def getQQ(self, page_source):
+        return re.findall('http://[\w.]+qq.com/flv/\d+/\d+/\w+\.p201\.\d+\.mp4\?vkey=\w+',
+                          page_source)
 
 class MP4Fetcher(QDialog):
     def __init__(self, parent=None):
@@ -54,8 +86,6 @@ class MP4Fetcher(QDialog):
         layout.addLayout(self.createProgressBar())
         #layout.setSizeConstraint(QLayout.SetFixedSize)
         self.setLayout(layout)
-
-        self.driver = webdriver.Chrome('D:/BoxSync/Windows/chromedriver.exe')
 
     def createInputEdit(self):
         label = QLabel('URLs')
@@ -77,20 +107,13 @@ class MP4Fetcher(QDialog):
         return layout
 
     def fetch(self):
-        def make_url(url):
-            if url.find('.tudou.') > 0:
-                return FetchTudou(self), url.replace('.tudou.', '.tudouxia.')
-
-        for url in self.edit.toPlainText().split('\n'):
-            if len(url) == 0:
-                break
-            fetcher, url = make_url(url)
-            fetcher.title.connect(self.updateTitle)
-            fetcher.setrange.connect(self.setProgressRange)
-            fetcher.progress.connect(self.updateProgress)
-            fetcher.driver = self.driver
-            fetcher.url = url
-            fetcher.start()
+        fetcher = Fetcher(self)
+        fetcher.title.connect(self.updateTitle)
+        fetcher.setrange.connect(self.setProgressRange)
+        fetcher.progress.connect(self.updateProgress)
+        fetcher.enable.connect(self.enableAll)
+        fetcher.text = self.edit.toPlainText()
+        fetcher.start()
 
     def updateTitle(self, text):
         self.title.setText(text)
@@ -99,8 +122,14 @@ class MP4Fetcher(QDialog):
         self.progress.setValue(val)
 
     def setProgressRange(self, min, max):
-        self.progress.setRange(min, max)
+        if min == 0 and max == 0:
+            self.progress.reset()
+        else:
+            self.progress.setRange(min, max)
 
+    def enableAll(self, enable):
+        self.btnFetch.setEnabled(enable)
+        self.edit.setEnabled(enable)
 
 app = QApplication(sys.argv)
 dlg = MP4Fetcher()
