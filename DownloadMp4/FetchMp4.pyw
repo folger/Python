@@ -20,33 +20,35 @@ class Fetcher(QThread):
     error = pyqtSignal(str)
 
     def run(self):
-        def make_getter(url):
-            if url.find('.tudou.') > 0:
-                return self.getTudou
-            if url.find('v.qq.com') > 0:
-                return self.getQQ
-
         fails = []
         urls = self.text.split('\n')
+
         self.enable.emit(False)
         for index, url in enumerate(urls):
             url = url.lstrip()
             if len(url) == 0:
                 continue
-            getter = make_getter(url)
-            url = 'http://www.flvxz.com/?url=' + url
-            driver.get(url)
+
+            self.title.emit('Fetching download addresses')
+            getter = self.makeGetter(url)
+            driver.get('http://www.flvxz.com/?url=' + url)
             sleep(5)
             page_source = driver.page_source
+
             mtitle = re.search('<h4 class="media-heading">(\D+(\d+)\D+)</h4>', page_source)
             title = mtitle.group(1) if mtitle else 'Unknown'
             episode = mtitle.group(2) if mtitle else 10000
+
             files = getter(page_source)
+            if len(files) == 0:
+                fails.append('Failed to fectch ' + url)
+                continue
+
             for subindex, f in enumerate(files):
                 name = '{}.{:03d}.mp4'.format(episode, subindex+1)
                 filename = os.path.join(path, name)
                 if not os.path.exists(filename):
-                    self.title.emit('({}/{}) {}.({}/{})'.format(index+1,
+                    self.title.emit('({}/{}) {} ({}/{})'.format(index+1,
                                     len(urls),
                                     title,
                                     subindex+1,
@@ -55,11 +57,18 @@ class Fetcher(QThread):
                         urlretrieve(f, filename, reporthook=self.progressHook)
                     except Exception as e:
                         fails.append(name + ' ' + str(e))
+
         if len(fails) > 0:
             self.error.emit('\n'.join(fails))
         self.enable.emit(True)
         self.setrange.emit(0, 0)
         self.title.emit('All Done')
+
+    def makeGetter(self, url):
+        if url.find('.tudou.') > 0:
+            return self.getTudou
+        if url.find('v.qq.com') > 0:
+            return self.getQQ
 
     def progressHook(self, count, blocksize, totalsize):
         self.setrange.emit(0, totalsize-1)
@@ -79,16 +88,15 @@ class MP4Fetcher(QDialog):
         super(MP4Fetcher, self).__init__(parent)
         self.setWindowTitle('MP4 Fetcher')
 
-        self.resize(400, 200)
+        self.resize(600, 300)
 
         layout = QVBoxLayout()
-        layout.addLayout(self.createInputEdit())
+        layout.addLayout(self.createFetchGroup())
         layout.addLayout(self.createProgressBar())
-        #layout.setSizeConstraint(QLayout.SetFixedSize)
         self.setLayout(layout)
 
-    def createInputEdit(self):
-        label = QLabel('paste url line by line into box, then press Fetch')
+    def createFetchGroup(self):
+        label = QLabel('Paste url line by line into box, then press Fetch')
         self.edit = QTextEdit()
         self.btnFetch = QPushButton('Fetch')
         self.connect(self.btnFetch, SIGNAL('clicked()'), self.fetch)
