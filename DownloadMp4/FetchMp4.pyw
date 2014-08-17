@@ -28,7 +28,7 @@ class Fetcher(QThread):
 
     def run(self):
         fails = []
-        urls = self.text.split('\n')
+        urls = self.text.rstrip().split('\n')
 
         self.enable.emit(False)
         for index, url in enumerate(urls):
@@ -36,7 +36,7 @@ class Fetcher(QThread):
             if len(url) == 0:
                 continue
 
-            self.title.emit('Fetching download addresses')
+            self.title.emit('({}/{}) Fetching download addresses'.format(index+1, len(urls)))
             getter = self.makeGetter(url)
             driver.get('http://www.flvxz.com/?url=' + url)
             for i in range(50):
@@ -55,11 +55,9 @@ class Fetcher(QThread):
             titles = []
             https = []
             for i, f in enumerate(files):
-                print(f.split('">'))
                 http, title = f.split('">')
                 titles.append(title)
                 https.append(http)
-            print(titles[0])
             mtitle = re.search(r'\D+(\d+)', titles[0])
             if not mtitle:
                 continue
@@ -87,9 +85,6 @@ class Fetcher(QThread):
                     break
 
             self.setrange.emit(0, 0)
-            if self.stop:
-                break
-
             if len(names) > 0:
                 self.title.emit('Joining ...')
                 cmd = ['MP4Box']
@@ -98,6 +93,8 @@ class Fetcher(QThread):
                 cmd.append('-new')
                 cmd.append(os.path.join(mp4Path, '{}.mp4'.format(episode)))
                 subprocess.call(cmd)
+            if self.stop:
+                break
 
         if len(fails) > 0:
             self.error.emit('\n'.join(fails))
@@ -111,6 +108,8 @@ class Fetcher(QThread):
             return self.getQQ
         if url.find('tv.cntv.cn') > 0:
             return self.getCNTV
+        if url.find('tv.sohu.com') > 0:
+            return self.getSohu
 
     def progressHook(self, count, blocksize, totalsize):
         self.setrange.emit(0, totalsize-1)
@@ -129,8 +128,14 @@ class Fetcher(QThread):
                           page_source)
 
     def getCNTV(self, page_source):
-        return re.findall(r'http://vod\.cntv\.lxdns\.com/flash/mp4video\d+/TMS/\d+/\d+/\d+/\w+?h2642000000nero_aac16-\d+\.mp4[^<]+',
+        return re.findall(r'http://vod\.cntv\.lxdns\.com/flash/mp4video\d+/TMS/\d+/\d+/\d+/\w+?h264818000nero_aac32-\d+\.mp4[^<]+',
                           page_source)
+
+    def getSohu(self, page_source):
+        ss = re.findall(r'http://(?:\d+\.\d+\.\d+\.\d+|sohu\.soooner\.com)[^<]+',
+                        page_source)
+        count = len(ss) // 3
+        return ss[count:2*count]
 
 class MP4Fetcher(QDialog):
     stop = pyqtSignal()
@@ -194,7 +199,7 @@ class MP4Fetcher(QDialog):
             self.progress.setRange(min, max)
 
     def enableAll(self, enable):
-        self.edit.setEnabled(enable)
+        self.edit.setReadOnly(not enable)
         if enable:
             self.isFetch = True
             self.btnFetch.setEnabled(True)
