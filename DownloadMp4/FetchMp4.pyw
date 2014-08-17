@@ -37,7 +37,6 @@ class Fetcher(QThread):
                 continue
 
             self.title.emit('({}/{}) Fetching download addresses'.format(index+1, len(urls)))
-            getter = self.makeGetter(url)
             driver.get('http://www.flvxz.com/?url=' + url)
             for i in range(50):
                 sleep(0.1)
@@ -47,9 +46,13 @@ class Fetcher(QThread):
                 break
             page_source = driver.page_source
 
-            files = getter(page_source)
+            getter = self.makeGetter(url)
+            if getter is None:
+                self.error.emit('URL not supported yet : ' + url)
+                continue
+            files = self.makeGetter(url)(page_source)
             if len(files) == 0:
-                fails.append('Failed to fectch ' + url)
+                fails.append('Failed to fectch : ' + url)
                 continue
 
             titles = []
@@ -102,7 +105,7 @@ class Fetcher(QThread):
         self.title.emit('Stopped' if self.stop else 'All Done')
 
     def makeGetter(self, url):
-        if url.find('www.tudou.com') > 0:
+        if url.find('www.tudou.com') > 0 or url.find('v.youku.com') > 0:
             return self.getTudou
         if url.find('v.qq.com') > 0:
             return self.getQQ
@@ -154,7 +157,7 @@ class MP4Fetcher(QDialog):
         self.isFetch = True
 
     def createFetchGroup(self):
-        label = QLabel('Paste url line by line into box, then press Fetch')
+        label = QLabel('Paste url(with http) line by line into box, then press Fetch')
         self.edit = QTextEdit()
         self.btnFetch = QPushButton('Fetch')
         self.connect(self.btnFetch, SIGNAL('clicked()'), self.fetch)
