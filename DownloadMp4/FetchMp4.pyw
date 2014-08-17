@@ -183,8 +183,9 @@ class MP4Fetcher(QDialog):
             fetcher.text = self.edit.toPlainText()
             fetcher.start()
         else:
-            self.btnFetch.setEnabled(False)
-            self.stop.emit()
+            if QMessageBox.warning(self, '', 'Stop ?', QMessageBox.Ok|QMessageBox.Cancel) == QMessageBox.Ok:
+                self.btnFetch.setEnabled(False)
+                self.stop.emit()
 
     def updateTitle(self, text):
         self.title.setText(text)
