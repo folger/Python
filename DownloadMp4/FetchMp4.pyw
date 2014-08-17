@@ -21,6 +21,11 @@ class Fetcher(QThread):
     enable = pyqtSignal(bool)
     error = pyqtSignal(str)
 
+    def __init__(self, parent):
+        super(Fetcher, self).__init__(parent)
+        self.stop = False
+        parent.stop.connect(self.setStop)
+
     def run(self):
         fails = []
         urls = self.text.split('\n')
@@ -34,7 +39,12 @@ class Fetcher(QThread):
             self.title.emit('Fetching download addresses')
             getter = self.makeGetter(url)
             driver.get('http://www.flvxz.com/?url=' + url)
-            sleep(5)
+            for i in range(50):
+                sleep(0.1)
+                if self.stop:
+                    break
+            if self.stop:
+                break
             page_source = driver.page_source
 
             mtitle = re.search('<h4 class="media-heading">(\D+(\d+)\D+)</h4>', page_source)
@@ -64,6 +74,12 @@ class Fetcher(QThread):
                         names.clear()
                 else:
                     names.append(filename)
+                if self.stop:
+                    break
+
+            self.setrange.emit(0, 0)
+            if self.stop:
+                break
 
             if len(names) > 0:
                 self.title.emit('Joining ...')
@@ -77,8 +93,7 @@ class Fetcher(QThread):
         if len(fails) > 0:
             self.error.emit('\n'.join(fails))
         self.enable.emit(True)
-        self.setrange.emit(0, 0)
-        self.title.emit('All Done')
+        self.title.emit('Stopped' if self.stop else 'All Done')
 
     def makeGetter(self, url):
         if url.find('.tudou.') > 0:
@@ -90,6 +105,9 @@ class Fetcher(QThread):
         self.setrange.emit(0, totalsize-1)
         self.progress.emit(count * blocksize)
 
+    def setStop(self):
+        self.stop = True
+
     def getTudou(self, page_source):
         ss = re.findall('http://k.youku.com/player/getFlvPath/sid/\w+/st/mp4/fileid/[^"]+',
                         page_source)[-4:]
@@ -100,6 +118,8 @@ class Fetcher(QThread):
                           page_source)
 
 class MP4Fetcher(QDialog):
+    stop = pyqtSignal()
+
     def __init__(self, parent=None):
         super(MP4Fetcher, self).__init__(parent)
         self.setWindowTitle('MP4 Fetcher')
@@ -110,6 +130,8 @@ class MP4Fetcher(QDialog):
         layout.addLayout(self.createFetchGroup())
         layout.addLayout(self.createProgressBar())
         self.setLayout(layout)
+
+        self.isFetch = True
 
     def createFetchGroup(self):
         label = QLabel('Paste url line by line into box, then press Fetch')
@@ -131,14 +153,18 @@ class MP4Fetcher(QDialog):
         return layout
 
     def fetch(self):
-        fetcher = Fetcher(self)
-        fetcher.title.connect(self.updateTitle)
-        fetcher.setrange.connect(self.setProgressRange)
-        fetcher.progress.connect(self.updateProgress)
-        fetcher.enable.connect(self.enableAll)
-        fetcher.error.connect(self.errorReport)
-        fetcher.text = self.edit.toPlainText()
-        fetcher.start()
+        if self.isFetch:
+            fetcher = Fetcher(self)
+            fetcher.title.connect(self.updateTitle)
+            fetcher.setrange.connect(self.setProgressRange)
+            fetcher.progress.connect(self.updateProgress)
+            fetcher.enable.connect(self.enableAll)
+            fetcher.error.connect(self.errorReport)
+            fetcher.text = self.edit.toPlainText()
+            fetcher.start()
+        else:
+            self.btnFetch.setEnabled(False)
+            self.stop.emit()
 
     def updateTitle(self, text):
         self.title.setText(text)
@@ -153,8 +179,14 @@ class MP4Fetcher(QDialog):
             self.progress.setRange(min, max)
 
     def enableAll(self, enable):
-        self.btnFetch.setEnabled(enable)
         self.edit.setEnabled(enable)
+        if enable:
+            self.isFetch = True
+            self.btnFetch.setEnabled(True)
+            self.btnFetch.setText('Fetch')
+        else:
+            self.isFetch = False
+            self.btnFetch.setText('Stop')
 
     def errorReport(self, error):
         QMessageBox.information(self, "Files that fail", error)
