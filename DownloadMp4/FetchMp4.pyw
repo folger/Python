@@ -47,17 +47,26 @@ class Fetcher(QThread):
                 break
             page_source = driver.page_source
 
-            mtitle = re.search('<h4 class="media-heading">(\D+(\d+)\D+)</h4>', page_source)
-            title = mtitle.group(1) if mtitle else 'Unknown'
-            episode = mtitle.group(2) if mtitle else 10000
-
             files = getter(page_source)
             if len(files) == 0:
                 fails.append('Failed to fectch ' + url)
                 continue
 
+            titles = []
+            https = []
+            for i, f in enumerate(files):
+                print(f.split('">'))
+                http, title = f.split('">')
+                titles.append(title)
+                https.append(http)
+            print(titles[0])
+            mtitle = re.search(r'\D+(\d+)', titles[0])
+            if not mtitle:
+                continue
+            episode = mtitle.group(1)
+
             names = []
-            for subindex, f in enumerate(files):
+            for subindex, http in enumerate(https):
                 name = '{}.{:03d}.mp4'.format(episode, subindex+1)
                 filename = os.path.join(fetchPath, name)
                 if not os.path.exists(filename):
@@ -65,9 +74,9 @@ class Fetcher(QThread):
                                     len(urls),
                                     title,
                                     subindex+1,
-                                    len(files)))
+                                    len(https)))
                     try:
-                        urlretrieve(f, filename, reporthook=self.progressHook)
+                        urlretrieve(http, filename, reporthook=self.progressHook)
                         names.append(filename)
                     except Exception as e:
                         fails.append(name + ' ' + str(e))
@@ -96,10 +105,12 @@ class Fetcher(QThread):
         self.title.emit('Stopped' if self.stop else 'All Done')
 
     def makeGetter(self, url):
-        if url.find('.tudou.') > 0:
+        if url.find('www.tudou.com') > 0:
             return self.getTudou
         if url.find('v.qq.com') > 0:
             return self.getQQ
+        if url.find('tv.cntv.cn') > 0:
+            return self.getCNTV
 
     def progressHook(self, count, blocksize, totalsize):
         self.setrange.emit(0, totalsize-1)
@@ -109,12 +120,16 @@ class Fetcher(QThread):
         self.stop = True
 
     def getTudou(self, page_source):
-        ss = re.findall('http://k.youku.com/player/getFlvPath/sid/\w+/st/mp4/fileid/[^"]+',
+        ss = re.findall(r'http://k.youku.com/player/getFlvPath/sid/\w+/st/mp4/fileid/[^<]+',
                         page_source)[-4:]
         return [s.replace('&amp;', '&') for s in ss]
 
     def getQQ(self, page_source):
-        return re.findall('http://[\w.]+qq.com/flv/\d+/\d+/\w+\.p201\.\d+\.mp4\?vkey=\w+',
+        return re.findall(r'http://[\w.]+qq\.com/flv/\d+/\d+/\w+\.p201\.\d+\.mp4\?vkey=[^<]+',
+                          page_source)
+
+    def getCNTV(self, page_source):
+        return re.findall(r'http://vod\.cntv\.lxdns\.com/flash/mp4video\d+/TMS/\d+/\d+/\d+/\w+?h2642000000nero_aac16-\d+\.mp4[^<]+',
                           page_source)
 
 class MP4Fetcher(QDialog):
