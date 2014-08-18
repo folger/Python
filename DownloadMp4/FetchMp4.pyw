@@ -81,14 +81,13 @@ class Fetcher(QThread):
                         names.append(filename)
                     except Exception as e:
                         fails.append(name + ' ' + str(e))
-                        names.clear()
                 else:
                     names.append(filename)
                 if self.stop:
                     break
 
             self.setrange.emit(0, 0)
-            if len(names) > 0:
+            if len(names) == len(https):
                 self.title.emit('Joining ...')
                 cmd = ['MP4Box']
                 for name in names:
