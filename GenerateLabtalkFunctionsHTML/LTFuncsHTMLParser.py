@@ -90,8 +90,12 @@ class MyHTMLParser(HTMLParser):
 
     def handle_data(self, data):
         if self.category:
-            self.lastcategory = data
-            self.results.append(data)
+            if data[0] == ' ' and self.lastcategory[-1] == ' ':
+                self.lastcategory = self.lastcategory + '&' + data
+                self.results[-1] = self.lastcategory
+            else:
+                self.lastcategory = data
+                self.results.append(data)
         elif self.subcategory:
             if self.results[-1].find("-") == -1:
                 del self.results[-1]

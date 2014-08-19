@@ -19,19 +19,21 @@ class GenerateHTML:
                     s += '</table>\n'
                 s += '<table>\n    <caption>%s</caption>\n' % func.strip()
             else:
-                funclink = entries[0].strip()
-                funcname = entries[1].strip()
-                description = entries[2].strip()
-                funcnamenoargs = funcname.split('(')[0].lower()
-                if fitfunc:
-                    funcnamenoargs = 'nlf_' + funcnamenoargs
-                if funcnamenoargs in funcs_done:
-                    continue
-                funcs_done.add(funcnamenoargs)
-                if not funclink.startswith('http://'):
-                    funclink = 'http://wikis' + funclink
-                s += '    <tr>\n        <td><a href="%s" fprefix="%s">%s</a></td>\n        <td>%s</td>\n    </tr>\n' \
-                    % (funclink, "nlf_" if fitfunc else "", funcname[len("nlf_"):] if fitfunc else funcname, description)
+                total = (len(entries) - 1) // 2
+                for i in range(total):
+                    funclink = entries[i*2].strip()
+                    funcname = entries[i*2+1].strip()
+                    description = entries[-1].strip()
+                    funcnamenoargs = funcname.split('(')[0].lower()
+                    if fitfunc:
+                        funcnamenoargs = 'nlf_' + funcnamenoargs
+                    if funcnamenoargs in funcs_done:
+                        continue
+                    funcs_done.add(funcnamenoargs)
+                    if not funclink.startswith('http://'):
+                        funclink = 'http://wikis' + funclink
+                    s += '    <tr>\n        <td><a href="%s" fprefix="%s">%s</a></td>\n        <td>%s</td>\n    </tr>\n' \
+                        % (funclink, "nlf_" if fitfunc else "", funcname[len("nlf_"):] if fitfunc else funcname, description)
 
         if len(s):
             s += '</table>'
