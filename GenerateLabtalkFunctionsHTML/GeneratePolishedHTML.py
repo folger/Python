@@ -13,7 +13,7 @@ def generate_HTML(lang):
         return os.path.join(currentpath, 'Default%s.html' % lang)
 
     def httplink(lang):
-        return 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions'
+        return 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions-vNext'
 
     with urlopen(httplink(lang)) as r:
         parser = LTFuncsHTMLParser.MyHTMLParser()

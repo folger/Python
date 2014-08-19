@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title></title>
     <script type="text/javascript" src="lib/jquery.js"></script>
     <script type="text/javascript" src="lib/jquery-ui.js"></script>
@@ -45,8 +46,10 @@
         }
 
         #autocompleteContainer .ui-autocomplete {
-            height: 97%;
             overflow-y: scroll;
+            position: fixed;
+            bottom: 0 !important;
+            width: 100% !important;
         }
 
         .ui-autocomplete-category {
@@ -99,38 +102,107 @@
                     funcNames[funcName] = true;
                     return {
                         "label": funcName,
+                        "LABEL": funcName.toUpperCase(),
                         "link": cols.eq(0).find("a").attr("href"),
                         "description": cols.eq(1).html(),
+                        "DESC": cols.eq(1).text().toUpperCase(),
                         "category": row.parents("table").find("caption").text().trim(),
                         "fprefix": cols.eq(0).find("a").attr("fprefix")
                     };
                 }
             }).get();
             delete funcNames;
+            function searchLtFuncsRanged(terms, minResults, state) {
+                return function (result) {
+                    var nameMatchedIndexes = {};
+                    if (!state) {
+                        var idx = searchLtFuncsByName(terms, minResults, 0, result, nameMatchedIndexes);
+                        if (idx != ltFuncs.length) {
+                            return {
+                                nameSearchStartIdx: idx,
+                                nameMatchedIndexes: nameMatchedIndexes
+                            };
+                        }
+                    } else if (state.nameSearchStartIdx) {
+                        nameMatchedIndexes = state.nameMatchedIndexes;
+                        searchLtFuncsByName(terms, minResults, state.nameSearchStartIdx, result, nameMatchedIndexes);
+                    }
+                    var i = 0;
+                    var startIdx = 0;
+                    if (state && state.DescSearchStartIdx) {
+                        startIdx = state.DescSearchStartIdx;
+                    }
+                    for (i = startIdx; i < ltFuncs.length && (minResults < 0 || result.length < minResults) ; i++) {
+                        if (nameMatchedIndexes[i]) {
+                            continue;
+                        }
+                        var data = ltFuncs[i];
+                        var description = data.DESC;
+                        var termMatches = 0;
+                        for (var j = 0; j < terms.length; j++) {
+                            var term = terms[j];
+                            if (description.indexOf(term) > -1) {
+                                termMatches++;
+                            }
+                        }
+                        if (termMatches == terms.length) {
+                            result.push(data);
+                        }
+                    }
+                    return {
+                        DescSearchStartIdx: i
+                    };
+                };
+            }
+            function searchLtFuncsByName(terms, minResults, startIdx, result, nameMatchedIndexes) {
+                var i = 0;
+                for (i = startIdx; i < ltFuncs.length && (minResults < 0 || result.length < minResults) ; i++) {
+                    var data = ltFuncs[i];
+                    data.termMatchIdx = Number.MAX_VALUE;
+                    var label = data.LABEL;
+                    var termMatches = 0;
+                    for (var j = 0; j < terms.length; j++) {
+                        var term = terms[j];
+                        var matchIdx = label.indexOf(term);
+                        if (matchIdx > -1) {
+                            termMatches++;
+                            data.termMatchIdx = Math.min(data.termMatchIdx, matchIdx);
+                        }
+                    }
+                    if (termMatches == terms.length) {
+                        result.push(data);
+                        nameMatchedIndexes[i] = true;
+                    }
+                }
+                if (result.length > 1) {
+                    result.sort(function (a, b) {
+                        return a.termMatchIdx - b.termMatchIdx;
+                    });
+                }
+                return i;
+            }
             var userInput = $("#userInput");
             var config = userInput.autocomplete({
                 minLength: 0,
                 delay: 150,
                 source: function (request, response) {
+                    clearTimeout(this.renderMenuContinuationTimer);
+                    clearTimeout(this.resultHighlightTimer);
                     var terms = $.grep(request.term.split(" "), function (term) { return term != ""; });
-                    response($.grep(ltFuncs, function (data) {
-                        var label = "";
-                        var description = "";
-                        if (!data.LABEL) {
-                            label = data.LABEL = data.label.toUpperCase();
-                        } else {
-                            label = data.LABEL;
-                        }
-                        if (!data.DESC) {
-                            description = data.DESC = data.description.toUpperCase();
-                        } else {
-                            description = data.DESC;
-                        }
-                        return $.grep(terms, function (term) {
-                            term = term.toUpperCase();
-                            return (label.indexOf(term) > -1 || description.indexOf(term) > -1);
-                        }).length == terms.length;
-                    }));
+                    var firstResonseLength = 20;
+                    if (terms.length == 0) {
+                        var initial = ltFuncs.slice(0, firstResonseLength - 1);
+                        initial.continuation = function (items) {
+                            items.result = ltFuncs.slice(firstResonseLength);
+                        };
+                        response(initial);
+                    } else {
+                        terms = $.map(terms, function (term) { return term.toUpperCase(); });
+                        var initial = [];
+                        var state = searchLtFuncsRanged(terms, 20, null)(initial);
+                        initial.continuation = searchLtFuncsRanged(terms, -1, state);
+                        response(initial);
+                    }
                 },
                 appendTo: "#autocompleteContainer",
                 select: function (event, ui) {
@@ -142,39 +214,62 @@
                 focus: function (event, ui) {
                     return false;
                 }
-            }).data("ui-autocomplete");
-            config._renderItem = function (ul, item) {
-                return $("<li>").append("<a><big>" + item.label + "</big><br><small title='Click to view document.'>" + item.description + "</small></a>").appendTo(ul);
+            });
+            var autocomplete = config.data("ui-autocomplete");
+            autocomplete.renderMenuContinuation = null;
+            autocomplete.renderMenuContinuationTimer = 0;
+            autocomplete.renderMenuContinuationTimerDelay = 800;
+            autocomplete.resultHighlightTimer = 0;
+            autocomplete.resultHighlightThrottle = 50;
+            autocomplete._renderItem = function (ul, data) {
+                var li = $("<li>").append("<a><big>" + data.label + "</big><br><small title='Click to view document.'>" + data.description + "</small></a>");
+                li.find("small").click(function (event) {
+                    event.stopPropagation();
+                    setTimeout(function () {
+                        navigate("//doc:" + data.fprefix + data.label);
+                    }, 0);
+                });
+                return li.appendTo(ul);
             };
-            config._renderMenu = function (ul, items) {
-                var menu = this;
+            autocomplete._renderMenu = function (ul, items) {
+                clearTimeout(autocomplete.renderMenuContinuationTimer);
+                clearTimeout(autocomplete.resultHighlightTimer);
+                autocomplete.renderMenuContinuation = null;
                 var currentCategory = "";
+                if (!items.continuation) {
+                    currentCategory = ul.children().last().data("ui-autocomplete-item").category;
+                }
                 $.each(items, function (idx, item) {
                     if (item.category != currentCategory) {
                         ul.append("<li class='ui-autocomplete-category'>" + item.category + "</li>");
                         currentCategory = item.category;
                     }
-                    menu._renderItemData(ul, item);
+                    autocomplete._renderItemData(ul, item);
                 });
-            };
-            config.close = function () {
-            };
+                if (items.continuation) {
+                    autocomplete.renderMenuContinuation = function () {
+                        var remainingItems = [];
+                        items.continuation(remainingItems);
+                        if (remainingItems.result) {
+                            remainingItems = remainingItems.result;
+                        }
+                        autocomplete._renderMenu(ul, remainingItems);
+                    };
+                    autocomplete.renderMenuContinuationTimer = setTimeout(autocomplete.renderMenuContinuation, autocomplete.renderMenuContinuationTimerDelay);
+                } else {
+                    autocomplete.menu.refresh();
+                    autocomplete.renderMenuContinuation = null;
+                }
 
-            setTimeout(function () {
-                $(".ui-menu-item small").click(function (event) {
-                    event.stopPropagation();
-
-                    var item = $(this).closest(".ui-menu-item").data("ui-autocomplete-item");
-                    setTimeout(function () {
-                        navigate("//doc:" + item.fprefix + item.label);
-                    }, 0);
-                })
-            }, 100);
+                autocomplete.resultHighlightTimer = setTimeout(function () {
+                    $.each($.grep(autocomplete.term.split(" "), function (term) { return term != ""; }), function (idx, term) {
+                        fullSearchHighlight(term);
+                    });
+                }, 100);
+            };
+            autocomplete.close = function () { };
 
             userInput.autocomplete("search");
-            $(window).resize(function () {
-                userInput.autocomplete("search");
-            });
 
             var userInputPlaceholder = $("#userInputPlaceholder");
             userInputPlaceholder.click(function (e) {
@@ -187,6 +282,7 @@
             }).keyup(function () {
                 toggleUserInputPlaceholder();
             }).focus();
+
             function toggleUserInputPlaceholder() {
                 if (userInput.val() == "") {
                     userInputPlaceholder.show();
@@ -194,12 +290,44 @@
                     userInputPlaceholder.hide();
                 }
             }
+
+            function fullSearchHighlight(text, textRange) {
+                if (text == "") {
+                    return;
+                }
+                if (document.body.createTextRange) {
+                    if (!textRange) {
+                        textRange = document.body.createTextRange();
+                        textRange.moveToElementText(document.getElementById("autocompleteContainer"));
+                    }
+                    var i = 0;
+                    for (; i < autocomplete.resultHighlightThrottle && textRange.findText(text); i++) {
+                        textRange.execCommand("BackColor", false, "yellow");
+                        textRange.collapse(false);
+                    }
+                    if (i == autocomplete.resultHighlightThrottle) {
+                        autocomplete.resultHighlightTimer = setTimeout(function () {
+                            fullSearchHighlight(text, textRange);
+                        }, 0);
+                    }
+                } else if (window.find && window.getSelection) {
+                    document.designMode = "on";
+                    var sel = window.getSelection();
+                    sel.collapse(document.body, 0);
+
+                    while (window.find(text)) {
+                        document.execCommand("HiliteColor", false, "yellow");
+                        sel.collapseToEnd();
+                    }
+                    document.designMode = "off";
+                }
+            }
         });
     </script>
 </head>
 <body>
-    <input type="text" id="userInput" value="" autocomplete="off" placeholder="Search" />
     <div id="userInputPlaceholder"></div>
+    <input type="text" id="userInput" value="" autocomplete="off" placeholder="Enter keywords to search. Double click function name to insert into Set Values dialog." />
     <div id="autocompleteContainer"></div>
     <div style="display: none" id="labtalkFunctions"></div>
 </body>
