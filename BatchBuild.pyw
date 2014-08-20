@@ -329,7 +329,8 @@ class BatchBuilder(QDialog):
         self.progress.reset()
         mythread = BuildThread(self)
         mythread.enabled.connect(self.enableAll)
-        mythread.copydlls.connect(self.copyToFS1)
+        if self.checkCopyAfterBuild.isChecked():
+            mythread.copydlls.connect(self.copyToFS1)
         mythread.error.connect(self.errorReport)
         mythread.dummy.connect(self.dummy)
         mythread.build_configurations = self.getBuildConfigurations()
