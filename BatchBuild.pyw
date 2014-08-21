@@ -193,16 +193,20 @@ class DllJobThread(QThread):
     setrange = pyqtSignal(int, int)
     updated = pyqtSignal(int)
     enabled = pyqtSignal(bool)
+    error = pyqtSignal(str)
     def run(self):
         # 32bit only dlls : Lababf32.dll
         # 64bit only dlls : OABFFIO64.dll, OCallFN64.dll
         assert(len(BinFile32Release())+1 == len(BinFile64Release()))
 
         self.enabled.emit(False)
-        if self.win32:
-            self.doJobs(True)
-        if self.x64:
-            self.doJobs(False)
+        try:
+            if self.win32:
+                self.doJobs(True)
+            if self.x64:
+                self.doJobs(False)
+        except WindowsError as e:
+            self.error.emit(str(e))
         self.enabled.emit(True)
 
     def doJobs(self, win32):
@@ -342,6 +346,7 @@ class BatchBuilder(QDialog):
         mythread.setrange.connect(self.setProgressRange)
         mythread.updated.connect(self.updateProgress)
         mythread.enabled.connect(self.enableAll)
+        mythread.error.connect(self.errorReport)
         mythread.binfolder = self.getBinFolder()
         mythread.win32 = self.check32Release.isChecked()
         mythread.x64 = self.check64Release.isChecked()
@@ -352,6 +357,7 @@ class BatchBuilder(QDialog):
         mythread.setrange.connect(self.setProgressRange)
         mythread.updated.connect(self.updateProgress)
         mythread.enabled.connect(self.enableAll)
+        mythread.error.connect(self.errorReport)
         mythread.binfolder = self.getBinFolder()
         mythread.win32 = self.check32Release.isChecked()
         mythread.x64 = self.check64Release.isChecked()
