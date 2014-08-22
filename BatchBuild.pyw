@@ -246,15 +246,17 @@ class BuildThread(QThread):
     dummy = pyqtSignal()
     def run(self):
         self.enabled.emit(False)
-        for config in self.build_configurations:
-            ret = subprocess.call(config + [self.slnfile])
+        for slnfile in self.slnfiles:
+            for config in self.build_configurations:
+                ret = subprocess.call(config + [slnfile])
+                if ret != 0:
+                    break
             if ret != 0:
+                self.dummy.emit() # to eat up possible KeyboardInterrupt
+                self.error.emit('Build Error, check Command Window')
                 break
-        else:
+        if ret == 0:
             self.copydlls.emit()
-        if ret != 0:
-            self.dummy.emit() # to eat up possible KeyboardInterrupt
-            self.error.emit('Build Error, check Command Window')
         self.enabled.emit(True)
 
 class BatchBuilder(QDialog):
@@ -338,7 +340,7 @@ class BatchBuilder(QDialog):
         mythread.error.connect(self.errorReport)
         mythread.dummy.connect(self.dummy)
         mythread.build_configurations = self.getBuildConfigurations()
-        mythread.slnfile = self.getSolutionFile()
+        mythread.slnfiles = self.getSolutionFiles()
         mythread.start()
 
     def copyToFS1(self):
@@ -367,7 +369,7 @@ class BatchBuilder(QDialog):
         mythread = BuildThread(self)
         mythread.enabled.connect(self.enableAll)
         mythread.build_configurations = self.getBuildConfigurations(['\t:clean'])
-        mythread.slnfile = self.getSolutionFile()
+        mythread.slnfiles = self.getSolutionFiles()
         mythread.start()
 
     def onConfigurationChanged(self):
@@ -425,7 +427,7 @@ class BatchBuilder(QDialog):
         except KeyError:
             print('Fail to detect binary folder')
         return ''
-    def getSolutionFile(self):
+    def getSolutionFiles(self):
         def getSourceFolder():
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                                 r'Software\OriginLab\VS')
@@ -447,7 +449,8 @@ class BatchBuilder(QDialog):
                 return 'OrgViewer.sln'
             if self.slnOrglab.isChecked():
                 return 'OrgLab.sln'
-        return os.path.join(getSourceFolder(), r'vc32\orgmain', getSln())
+        return [os.path.join(getSourceFolder(), r'CrashRpt\CrashRpt.sln'),
+                os.path.join(getSourceFolder(), r'vc32\orgmain', getSln())]
 
     def getBuildConfigurations(self, extra_option=[]):
         def getBuildConfiguration(win32, release):
