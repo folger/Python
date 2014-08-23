@@ -14,6 +14,8 @@ fetchPath = os.environ['MP4_FETCH_PATH']
 mp4Path = os.environ['MP4_PATH']
 driver = webdriver.Chrome('./chromedriver')
 
+class StopFetch(Exception): pass
+
 class Fetcher(QThread):
     title = pyqtSignal(str)
     setrange = pyqtSignal(int, int)
@@ -73,12 +75,14 @@ class Fetcher(QThread):
                 if not os.path.exists(filename):
                     self.title.emit('({}/{}) {} ({}/{})'.format(index+1,
                                     len(urls),
-                                    title,
+                                    titles[subindex],
                                     subindex+1,
                                     len(https)))
                     try:
                         urlretrieve(http, filename, reporthook=self.progressHook)
                         names.append(filename)
+                    except StopFetch:
+                        pass
                     except Exception as e:
                         fails.append(name + ' ' + str(e))
                 else:
@@ -114,6 +118,8 @@ class Fetcher(QThread):
             return self.getSohu
 
     def progressHook(self, count, blocksize, totalsize):
+        if self.stop:
+            raise StopFetch
         self.setrange.emit(0, totalsize-1)
         self.progress.emit(count * blocksize)
 
@@ -136,7 +142,11 @@ class Fetcher(QThread):
     def getSohu(self, page_source):
         ss = re.findall(r'http://(?:\d+\.\d+\.\d+\.\d+|sohu\.soooner\.com)[^<]+',
                         page_source)
-        count = len(ss) // 3
+        nn = len(ss)
+        if nn % 4 == 0:
+            count = nn // 4
+        else:
+            count = len(ss) // 3
         return ss[count:2*count]
 
 class MP4Fetcher(QDialog):
