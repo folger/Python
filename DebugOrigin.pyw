@@ -1,8 +1,6 @@
 import sys
 import os
 import subprocess
-import shutil
-import winreg
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -49,7 +47,7 @@ class DebugOrigin(QDialog):
         return layout
 
     def debug75(self):
-        self.run([''])
+        self.debugVS6(r'E:\Origin75', 'Origin.dsw')
 
     def debug81(self):
         print('debug81')
