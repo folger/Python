@@ -50,7 +50,7 @@ class Fetcher(QThread):
             if getter is None:
                 self.error.emit('URL not supported yet : ' + url)
                 continue
-            files = self.makeGetter(url)(page_source)
+            files = getter(page_source)
             if len(files) == 0:
                 fails.append('Failed to fectch : ' + url)
                 continue
@@ -126,7 +126,7 @@ class Fetcher(QThread):
         return [s.replace('&amp;', '&') for s in ss]
 
     def getQQ(self, page_source):
-        return re.findall(r'http://[\w.]+qq\.com/flv/\d+/\d+/\w+\.p201\.\d+\.mp4\?vkey=[^<]+',
+        return re.findall(r'http://\d+\.\d+\.\d+\.\d+/[\w.]+qq\.com/\w+\.p202\.\d+\.mp4\?vkey=[^<]+',
                           page_source)
 
     def getCNTV(self, page_source):
