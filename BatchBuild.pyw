@@ -247,7 +247,17 @@ class BuildThread(QThread):
     def run(self):
         self.enabled.emit(False)
         for slnfile in self.slnfiles:
+            is_crashrpt = slnfile.find('CrashRpt') > 0
+            ret = 0
             for config in self.build_configurations:
+                skip = False
+                if is_crashrpt:
+                    for c in config:
+                        if c.find('Debug') > 0:
+                            skip = True
+                            break
+                if skip:
+                    continue
                 ret = subprocess.call(config + [slnfile])
                 if ret != 0:
                     break
@@ -470,6 +480,11 @@ class BatchBuilder(QDialog):
             build_configurations.append(self.getBuildConfiguration(False, False))
         return build_configurations
 
+
+    def closeEvent(self, event):
+        if not self.slnOrigin.isEnabled():
+            QMessageBox.information(self, 'Cannot Quit', 'Please wait for building process finish')
+            event.ignore()
 app = QApplication(sys.argv)
 dlg = BatchBuilder()
 dlg.show()
