@@ -94,6 +94,7 @@ def BinFile32Release():
         r"32bit\CrashSender1402.exe",
         r"32bit\dbghelp.dll",
         r"32bit\PyDLLs\OPython.dll",
+        r"32bit\Py27DLLs\OPython27.dll",
         r"32bit\PyDLLs\_PyOrigin.pyd"
         )
 
@@ -186,6 +187,7 @@ def BinFile64Release():
         r"64bit\CrashSender1402.exe",
         r"64bit\dbghelp.dll",
         r"64bit\PyDLLs\OPython.dll",
+        r"64bit\Py27DLLs\OPython27.dll",
         r"64bit\PyDLLs\_PyOrigin.pyd",
         )
 
@@ -230,6 +232,7 @@ class CopyDllThread(DllJobThread):
             pass
         os.mkdir(self.path)
         os.makedirs(os.path.join(self.path, platformpath, 'PyDLLs'))
+        os.makedirs(os.path.join(self.path, platformpath, 'Py27DLLs'))
         os.makedirs(os.path.join(self.path, r'OriginC\Originlab'))
 
     def doJob(self, dll):
