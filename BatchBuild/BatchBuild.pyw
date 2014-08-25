@@ -276,6 +276,11 @@ class BatchBuilder(QDialog):
     def __init__(self, parent=None):
         super(BatchBuilder, self).__init__(parent)
         self.setWindowTitle('Batch Build')
+        self.setFixedSize(250, 350)
+
+        icon = QIcon()
+        icon.addPixmap(QPixmap('main.ico'))
+        self.setWindowIcon(icon)
 
         self.progress = QProgressBar()
 
