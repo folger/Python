@@ -362,6 +362,7 @@ class BatchBuilder(QDialog):
         mythread.start()
 
     def copyToFS1(self):
+        self.progress.reset()
         mythread = CopyDllThread(self)
         mythread.setrange.connect(self.setProgressRange)
         mythread.updated.connect(self.updateProgress)
@@ -373,6 +374,7 @@ class BatchBuilder(QDialog):
         mythread.start()
 
     def deleteBin(self):
+        self.progress.reset()
         mythread = DeleteDllThread(self)
         mythread.setrange.connect(self.setProgressRange)
         mythread.updated.connect(self.updateProgress)
@@ -384,9 +386,10 @@ class BatchBuilder(QDialog):
         mythread.start()
 
     def clean(self):
+        self.progress.reset()
         mythread = BuildThread(self)
         mythread.enabled.connect(self.enableAll)
-        mythread.build_configurations = self.getBuildConfigurations(['\t:clean'])
+        mythread.build_configurations = self.getBuildConfigurations(['/t:clean'])
         mythread.slnfiles = self.getSolutionFiles()
         mythread.start()
 
