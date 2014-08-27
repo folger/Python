@@ -358,7 +358,7 @@ class BatchBuilder(QDialog):
         mythread.error.connect(self.errorReport)
         mythread.dummy.connect(self.dummy)
         mythread.build_configurations = self.getBuildConfigurations()
-        mythread.slnfiles = self.getSolutionFiles()
+        mythread.slnfiles = self.getSolutionFiles
         mythread.start()
 
     def copyToFS1(self):
@@ -368,7 +368,7 @@ class BatchBuilder(QDialog):
         mythread.updated.connect(self.updateProgress)
         mythread.enabled.connect(self.enableAll)
         mythread.error.connect(self.errorReport)
-        mythread.binfolder = self.getBinFolder()
+        mythread.binfolder = self.getBinFolder
         mythread.win32 = self.check32Release.isChecked()
         mythread.x64 = self.check64Release.isChecked()
         mythread.start()
@@ -380,7 +380,7 @@ class BatchBuilder(QDialog):
         mythread.updated.connect(self.updateProgress)
         mythread.enabled.connect(self.enableAll)
         mythread.error.connect(self.errorReport)
-        mythread.binfolder = self.getBinFolder()
+        mythread.binfolder = self.getBinFolder
         mythread.win32 = self.check32Release.isChecked()
         mythread.x64 = self.check64Release.isChecked()
         mythread.start()
@@ -390,7 +390,7 @@ class BatchBuilder(QDialog):
         mythread = BuildThread(self)
         mythread.enabled.connect(self.enableAll)
         mythread.build_configurations = self.getBuildConfigurations(['/t:clean'])
-        mythread.slnfiles = self.getSolutionFiles()
+        mythread.slnfiles = self.getSolutionFiles
         mythread.start()
 
     def onConfigurationChanged(self):
@@ -434,6 +434,7 @@ class BatchBuilder(QDialog):
     def dummy(self):
         pass
 
+    @property
     def getBinFolder(self):
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                              r'Software\OriginLab\VS')
@@ -448,6 +449,8 @@ class BatchBuilder(QDialog):
         except KeyError:
             print('Fail to detect binary folder')
         return ''
+
+    @property
     def getSolutionFiles(self):
         def getSourceFolder():
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
@@ -491,11 +494,12 @@ class BatchBuilder(QDialog):
             build_configurations.append(self.getBuildConfiguration(False, False))
         return build_configurations
 
-
     def closeEvent(self, event):
         if not self.slnOrigin.isEnabled():
             QMessageBox.information(self, 'Cannot Quit', 'Please wait for building process finish')
             event.ignore()
+
+
 app = QApplication(sys.argv)
 dlg = BatchBuilder()
 dlg.show()
