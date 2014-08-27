@@ -10,7 +10,7 @@ VS2012Path = 'D:\VS2012\Common7\IDE\devenv.exe'
 
 class DebugOrigin(QDialog):
     def __init__(self, parent=None):
-        super(DebugOrigin, self).__init__(parent)
+        super().__init__(parent)
         self.setWindowTitle('Debug Origin')
 
         icon = QIcon()
