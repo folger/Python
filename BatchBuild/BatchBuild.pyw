@@ -3,6 +3,7 @@ import os
 import subprocess
 import shutil
 import winreg
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -77,6 +78,7 @@ def BinFile32Release():
         "ou9.dll",
         "OUim9.dll",
         "Outl9.dll",
+        "OVideoReader9.dll",
         "OVideoWriter9.dll",
         "owxGrid9.dll",
         "wxbase28.dll",
@@ -97,6 +99,7 @@ def BinFile32Release():
         r"32bit\Py27DLLs\OPython27.dll",
         r"32bit\PyDLLs\_PyOrigin.pyd"
         )
+
 
 def BinFile64Release():
     return (
@@ -170,6 +173,7 @@ def BinFile64Release():
         "ou9_64.dll",
         "OUim9_64.dll",
         "Outl9_64.dll",
+        "OVideoReader9_64.dll",
         "OVideoWriter9_64.dll",
         "owxGrid9_64.dll",
         "wxbase28_64.dll",
@@ -191,6 +195,9 @@ def BinFile64Release():
         r"64bit\PyDLLs\_PyOrigin.pyd",
         )
 
+
+assert(len(BinFile32Release())+1 == len(BinFile64Release()))
+
 class DllJobThread(QThread):
     setrange = pyqtSignal(int, int)
     updated = pyqtSignal(int)
@@ -199,7 +206,6 @@ class DllJobThread(QThread):
     def run(self):
         # 32bit only dlls : Lababf32.dll
         # 64bit only dlls : OABFFIO64.dll, OCallFN64.dll
-        assert(len(BinFile32Release())+1 == len(BinFile64Release()))
 
         self.enabled.emit(False)
         try:
@@ -219,8 +225,6 @@ class DllJobThread(QThread):
             self.updated.emit(i)
             self.doJob(dll)
 
-    def beforeDoJobs(self, win32): pass
-    def doJob(self): pass
 
 class CopyDllThread(DllJobThread):
     def beforeDoJobs(self, win32):
@@ -238,9 +242,17 @@ class CopyDllThread(DllJobThread):
     def doJob(self, dll):
         shutil.copyfile(os.path.join(self.binfolder, dll), os.path.join(self.path, dll))
 
+
 class DeleteDllThread(DllJobThread):
+    def beforeDoJobs(self, win32): pass
     def doJob(self, dll):
-        os.remove(os.path.join(self.binfolder, dll))
+        if dll.lower().endswith('dbghelp.dll'):
+            return
+        try:
+            os.remove(os.path.join(self.binfolder, dll))
+        except FileNotFoundError:
+            pass
+
 
 class BuildThread(QThread):
     enabled = pyqtSignal(bool)
@@ -271,6 +283,7 @@ class BuildThread(QThread):
         if ret == 0:
             self.copydlls.emit()
         self.enabled.emit(True)
+
 
 class BatchBuilder(QDialog):
     def __init__(self, parent=None):
