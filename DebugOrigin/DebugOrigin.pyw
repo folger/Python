@@ -8,6 +8,7 @@ VS6Path = 'C:\Program Files (x86)\Microsoft Visual Studio\COMMON\MSDev98\Bin\MSD
 VS2010Path = 'C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe'
 VS2012Path = 'D:\VS2012\Common7\IDE\devenv.exe'
 
+MAIN_WINDOW_GEOMETRY = 'mainWindowGeometry'
 class DebugOrigin(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -19,6 +20,8 @@ class DebugOrigin(QDialog):
 
         self.setFixedSize(200, 300)
         self.setLayout(self.createButtons())
+
+        self.loadSetting(MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val))
 
     def createButtons(self):
         debug75 = self.createButton('Debug 7.5')
@@ -105,7 +108,24 @@ class DebugOrigin(QDialog):
         except FileNotFoundError:
             pass
 
+    def reject(self):
+        self.close()
+
+    def closeEvent(self, event):
+        settings = QSettings()
+        settings.setValue(MAIN_WINDOW_GEOMETRY, self.saveGeometry())
+
+    def loadSetting(self, key, func):
+        settings = QSettings()
+        value = settings.value(key)
+        if value != None:
+            func(value)
+
 app = QApplication(sys.argv)
+app.setOrganizationDomain('originlab.com')
+app.setOrganizationName('originlab')
+app.setApplicationName('DebugOrigin')
+app.setApplicationVersion('1.0.0')
 dlg = DebugOrigin()
 dlg.show()
 app.exec_()

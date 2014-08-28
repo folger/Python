@@ -285,6 +285,15 @@ class BuildThread(QThread):
         self.enabled.emit(True)
 
 
+MAIN_WINDOW_GEOMETRY = 'mainWindowGeometry'
+SLN_ORIGIN = 'slnOrigin'
+SLN_VIEWER = 'slnViewer'
+SLN_ORGLAB = 'slnOrglab'
+CHECK_32_RELEASE = 'check32Release'
+CHECK_32_DEBUG = 'check32Debug'
+CHECK_64_RELEASE = 'check64Release'
+CHECK_64_DEBUG = 'check64Debug'
+CHECK_COPY_DLLS_AFTER_BUILD = 'copyDllsAfterBuild'
 class BatchBuilder(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -303,6 +312,18 @@ class BatchBuilder(QDialog):
         layout.addWidget(self.createActionGroup())
         layout.addWidget(self.progress)
         self.setLayout(layout)
+
+        self.loadSetting(MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val))
+        str2bool = lambda s: s == 'true' or s == 'True'
+        self.loadSetting(SLN_ORIGIN, lambda val: self.slnOrigin.setChecked(str2bool(val)))
+        self.loadSetting(SLN_VIEWER, lambda val: self.slnViewer.setChecked(str2bool(val)))
+        self.loadSetting(SLN_ORGLAB, lambda val: self.slnOrglab.setChecked(str2bool(val)))
+        self.loadSetting(CHECK_32_RELEASE, lambda val: self.check32Release.setChecked(str2bool(val)))
+        self.loadSetting(CHECK_32_DEBUG, lambda val: self.check32Debug.setChecked(str2bool(val)))
+        self.loadSetting(CHECK_64_RELEASE, lambda val: self.check64Release.setChecked(str2bool(val)))
+        self.loadSetting(CHECK_64_DEBUG, lambda val: self.check64Debug.setChecked(str2bool(val)))
+        self.loadSetting(CHECK_COPY_DLLS_AFTER_BUILD, lambda val: self.checkCopyAfterBuild.setChecked(str2bool(val)))
+        self.onConfigurationChanged()
 
     def createSolutionGroup(self):
         self.slnOrigin = QRadioButton('Origin')
@@ -507,13 +528,37 @@ class BatchBuilder(QDialog):
             build_configurations.append(self.getBuildConfiguration(False, False))
         return build_configurations
 
+    def reject(self):
+        self.close()
+
     def closeEvent(self, event):
         if not self.slnOrigin.isEnabled():
             QMessageBox.information(self, 'Cannot Quit', 'Please wait for building process finish')
             event.ignore()
 
+        settings = QSettings()
+        settings.setValue(MAIN_WINDOW_GEOMETRY, self.saveGeometry())
+        settings.setValue(SLN_ORIGIN, self.slnOrigin.isChecked())
+        settings.setValue(SLN_VIEWER, self.slnViewer.isChecked())
+        settings.setValue(SLN_ORGLAB, self.slnOrglab.isChecked())
+        settings.setValue(CHECK_32_RELEASE, self.check32Release.isChecked())
+        settings.setValue(CHECK_32_DEBUG, self.check32Debug.isChecked())
+        settings.setValue(CHECK_64_RELEASE, self.check64Release.isChecked())
+        settings.setValue(CHECK_64_DEBUG, self.check64Debug.isChecked())
+        settings.setValue(CHECK_COPY_DLLS_AFTER_BUILD, self.check64Debug.isChecked())
+
+    def loadSetting(self, key, func):
+        settings = QSettings()
+        value = settings.value(key)
+        if value != None:
+            func(value)
+
 
 app = QApplication(sys.argv)
+app.setOrganizationDomain('originlab.com')
+app.setOrganizationName('originlab')
+app.setApplicationName('BatchBuild')
+app.setApplicationVersion('1.0.0')
 dlg = BatchBuilder()
 dlg.show()
 app.exec_()
