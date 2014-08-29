@@ -298,7 +298,7 @@ class BatchBuilder(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('Batch Build')
-        self.setFixedSize(250, 350)
+        self.setFixedSize(250, 380)
 
         icon = QIcon()
         icon.addPixmap(QPixmap('main.ico'))
@@ -335,7 +335,7 @@ class BatchBuilder(QDialog):
         layout.addWidget(self.slnOrigin)
         layout.addWidget(self.slnViewer)
         layout.addWidget(self.slnOrglab)
-        group = QGroupBox('Soluntion')
+        group = QGroupBox('Solution')
         group.setLayout(layout)
         return group
 
@@ -361,10 +361,10 @@ class BatchBuilder(QDialog):
         return group
 
     def createActionGroup(self):
-        self.btnBuild = QPushButton('Build')
-        self.btnCopyToFS1 = QPushButton('Copy to fs1 (Release)')
-        self.btnDeleteBin = QPushButton('Delete Binaries (Release)')
-        self.btnClean = QPushButton('Clean')
+        self.btnBuild = self.createButton('Build')
+        self.btnCopyToFS1 = self.createButton('Copy to fs1 (Release)')
+        self.btnDeleteBin = self.createButton('Delete Binaries (Release)')
+        self.btnClean = self.createButton('Clean')
         self.checkCopyAfterBuild = QCheckBox('Copy files after Build (Release)')
         self.checkCopyAfterBuild.setChecked(True)
 
@@ -382,6 +382,11 @@ class BatchBuilder(QDialog):
         group = QGroupBox('Action')
         group.setLayout(layout)
         return group
+
+    def createButton(self, text):
+        btn = QPushButton(text)
+        btn.setFixedHeight(30)
+        return btn
 
     def build(self):
         self.progress.reset()
