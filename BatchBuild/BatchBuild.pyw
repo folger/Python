@@ -535,17 +535,17 @@ class BatchBuilder(QDialog):
         if not self.slnOrigin.isEnabled():
             QMessageBox.information(self, 'Cannot Quit', 'Please wait for building process finish')
             event.ignore()
-
-        settings = QSettings()
-        settings.setValue(MAIN_WINDOW_GEOMETRY, self.saveGeometry())
-        settings.setValue(SLN_ORIGIN, self.slnOrigin.isChecked())
-        settings.setValue(SLN_VIEWER, self.slnViewer.isChecked())
-        settings.setValue(SLN_ORGLAB, self.slnOrglab.isChecked())
-        settings.setValue(CHECK_32_RELEASE, self.check32Release.isChecked())
-        settings.setValue(CHECK_32_DEBUG, self.check32Debug.isChecked())
-        settings.setValue(CHECK_64_RELEASE, self.check64Release.isChecked())
-        settings.setValue(CHECK_64_DEBUG, self.check64Debug.isChecked())
-        settings.setValue(CHECK_COPY_DLLS_AFTER_BUILD, self.check64Debug.isChecked())
+        else:
+            settings = QSettings()
+            settings.setValue(MAIN_WINDOW_GEOMETRY, self.saveGeometry())
+            settings.setValue(SLN_ORIGIN, self.slnOrigin.isChecked())
+            settings.setValue(SLN_VIEWER, self.slnViewer.isChecked())
+            settings.setValue(SLN_ORGLAB, self.slnOrglab.isChecked())
+            settings.setValue(CHECK_32_RELEASE, self.check32Release.isChecked())
+            settings.setValue(CHECK_32_DEBUG, self.check32Debug.isChecked())
+            settings.setValue(CHECK_64_RELEASE, self.check64Release.isChecked())
+            settings.setValue(CHECK_64_DEBUG, self.check64Debug.isChecked())
+            settings.setValue(CHECK_COPY_DLLS_AFTER_BUILD, self.check64Debug.isChecked())
 
     def loadSetting(self, key, func):
         settings = QSettings()
