@@ -105,6 +105,12 @@ class MyHTMLParser(HTMLParser):
                 self.description += "nlf_"
             self.description += data.replace("\n", "")
 
+    def handle_entityref(self, ref):
+        self.handle_data('&{};'.format(ref))
+
+    def handle_charref(self, ref):
+        self.handle_data('&#{};'.format(ref))
+
     def isFunction(self):
         return self.col == 1 and self.a
 
