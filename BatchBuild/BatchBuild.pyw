@@ -3,6 +3,7 @@ import os
 import subprocess
 import shutil
 import winreg
+from time import sleep
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -234,6 +235,8 @@ class CopyDllThread(DllJobThread):
             shutil.rmtree(self.path)
         except FileNotFoundError:
             pass
+
+        sleep(2)
         os.mkdir(self.path)
         os.makedirs(os.path.join(self.path, platformpath, 'PyDLLs'))
         os.makedirs(os.path.join(self.path, platformpath, 'Py27DLLs'))
