@@ -530,7 +530,7 @@ class BatchBuilder(QDialog):
         if self.check64Release.isChecked():
             build_configurations.append(getBuildConfiguration(False, True))
         if self.check64Debug.isChecked():
-            build_configurations.append(self.getBuildConfiguration(False, False))
+            build_configurations.append(getBuildConfiguration(False, False))
         return build_configurations
 
     def reject(self):
