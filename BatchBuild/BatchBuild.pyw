@@ -201,9 +201,17 @@ assert(len(BinFile32Release())+1 == len(BinFile64Release()))
 
 class DllJobThread(QThread):
     setrange = pyqtSignal(int, int)
-    updated = pyqtSignal(int)
+    updated = pyqtSignal(int, str)
     enabled = pyqtSignal(bool)
     error = pyqtSignal(str)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setrange.connect(parent.setProgressRange)
+        self.updated.connect(parent.updateProgress)
+        self.enabled.connect(parent.enableAll)
+        self.error.connect(parent.errorReport)
+
     def run(self):
         # 32bit only dlls : Lababf32.dll
         # 64bit only dlls : OABFFIO64.dll, OCallFN64.dll
@@ -223,8 +231,9 @@ class DllJobThread(QThread):
         self.setrange.emit(0, len(dlls)-1)
         self.beforeDoJobs(win32)
         for i, dll in enumerate(dlls):
-            self.updated.emit(i)
+            self.updated.emit(i, dll)
             self.doJob(dll)
+        self.setrange.emit(0, 0)
 
 
 class CopyDllThread(DllJobThread):
@@ -255,6 +264,39 @@ class DeleteDllThread(DllJobThread):
             os.remove(os.path.join(self.binfolder, dll))
         except FileNotFoundError:
             pass
+
+
+class CopyFilesThread(QThread):
+    setrange = pyqtSignal(int, int)
+    updated = pyqtSignal(int, str)
+    enabled = pyqtSignal(bool)
+    error = pyqtSignal(str)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setrange.connect(parent.setProgressRange)
+        self.updated.connect(parent.updateProgress)
+        self.enabled.connect(parent.enableAll)
+        self.error.connect(parent.errorReport)
+
+    def run(self):
+        try:
+            shutil.rmtree(self.desfolder)
+        except FileNotFoundError:
+            pass
+        os.mkdir(self.desfolder)
+
+        files = os.listdir(self.srcfolder)
+        self.enabled.emit(False)
+        self.setrange.emit(0, len(files)-1)
+        try:
+            for i,f in enumerate(files):
+                self.updated.emit(i, f)
+                shutil.copyfile(os.path.join(self.srcfolder, f), os.path.join(self.desfolder, f))
+        except WindowsError as e:
+            self.error.emit(str(e))
+        self.enabled.emit(True)
+        self.setrange.emit(0, 0)
 
 
 class BuildThread(QThread):
@@ -301,19 +343,21 @@ class BatchBuilder(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('Batch Build')
-        self.setFixedSize(250, 380)
+        self.setFixedSize(250, 460)
 
         icon = QIcon()
         icon.addPixmap(QPixmap('main.ico'))
         self.setWindowIcon(icon)
 
         self.progress = QProgressBar()
+        self.label_progress = QLabel()
 
         layout = QVBoxLayout()
         layout.addWidget(self.createSolutionGroup())
         layout.addWidget(self.createConfigurationGroup())
         layout.addWidget(self.createActionGroup())
         layout.addWidget(self.progress)
+        layout.addWidget(self.label_progress)
         self.setLayout(layout)
 
         self.loadSetting(MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val))
@@ -365,9 +409,11 @@ class BatchBuilder(QDialog):
 
     def createActionGroup(self):
         self.btnBuild = self.createButton('Build')
+        self.btnClean = self.createButton('Clean')
         self.btnCopyToFS1 = self.createButton('Copy to fs1 (Release)')
         self.btnDeleteBin = self.createButton('Delete Binaries (Release)')
-        self.btnClean = self.createButton('Clean')
+        self.btnCopyPDB = self.createButton('Copy PDBs (Release)')
+        self.btnCopyMAP = self.createButton('Copy MAPs (Release)')
         self.checkCopyAfterBuild = QCheckBox('Copy files after Build (Release)')
         self.checkCopyAfterBuild.setChecked(True)
 
@@ -375,13 +421,17 @@ class BatchBuilder(QDialog):
         self.connect(self.btnCopyToFS1, SIGNAL("clicked()"), self.copyToFS1)
         self.connect(self.btnDeleteBin, SIGNAL("clicked()"), self.deleteBin)
         self.connect(self.btnClean, SIGNAL("clicked()"), self.clean)
+        self.connect(self.btnCopyPDB, SIGNAL("clicked()"), self.copyPDB)
+        self.connect(self.btnCopyMAP, SIGNAL("clicked()"), self.copyMAP)
 
         layout = QVBoxLayout()
         layout.addWidget(self.checkCopyAfterBuild)
         layout.addWidget(self.btnBuild)
+        layout.addWidget(self.btnClean)
         layout.addWidget(self.btnCopyToFS1)
         layout.addWidget(self.btnDeleteBin)
-        layout.addWidget(self.btnClean)
+        layout.addWidget(self.btnCopyPDB)
+        layout.addWidget(self.btnCopyMAP)
         group = QGroupBox('Action')
         group.setLayout(layout)
         return group
@@ -392,7 +442,6 @@ class BatchBuilder(QDialog):
         return btn
 
     def build(self):
-        self.progress.reset()
         mythread = BuildThread(self)
         mythread.enabled.connect(self.enableAll)
         if self.checkCopyAfterBuild.isChecked():
@@ -400,39 +449,40 @@ class BatchBuilder(QDialog):
         mythread.error.connect(self.errorReport)
         mythread.dummy.connect(self.dummy)
         mythread.build_configurations = self.getBuildConfigurations()
-        mythread.slnfiles = self.getSolutionFiles
+        mythread.slnfiles = self.solutionFiles
         mythread.start()
 
     def copyToFS1(self):
-        self.progress.reset()
         mythread = CopyDllThread(self)
-        mythread.setrange.connect(self.setProgressRange)
-        mythread.updated.connect(self.updateProgress)
-        mythread.enabled.connect(self.enableAll)
-        mythread.error.connect(self.errorReport)
-        mythread.binfolder = self.getBinFolder
+        mythread.binfolder = self.binFolder
         mythread.win32 = self.check32Release.isChecked()
         mythread.x64 = self.check64Release.isChecked()
         mythread.start()
 
     def deleteBin(self):
-        self.progress.reset()
         mythread = DeleteDllThread(self)
-        mythread.setrange.connect(self.setProgressRange)
-        mythread.updated.connect(self.updateProgress)
-        mythread.enabled.connect(self.enableAll)
-        mythread.error.connect(self.errorReport)
-        mythread.binfolder = self.getBinFolder
+        mythread.binfolder = self.binFolder
         mythread.win32 = self.check32Release.isChecked()
         mythread.x64 = self.check64Release.isChecked()
         mythread.start()
 
     def clean(self):
-        self.progress.reset()
         mythread = BuildThread(self)
         mythread.enabled.connect(self.enableAll)
         mythread.build_configurations = self.getBuildConfigurations(['/t:clean'])
-        mythread.slnfiles = self.getSolutionFiles
+        mythread.slnfiles = self.solutionFiles
+        mythread.start()
+
+    def copyPDB(self):
+        mythread = CopyFilesThread(self)
+        mythread.srcfolder = os.path.join(self.outFolder, 'PDB_Release')
+        mythread.desfolder = r'\\fs1\dev\PDBs\GZBuild'
+        mythread.start()
+
+    def copyMAP(self):
+        mythread = CopyFilesThread(self)
+        mythread.srcfolder = os.path.join(self.outFolder, 'MapFiles')
+        mythread.desfolder = r'\\fs1\dev\Maps\GZBuild'
         mythread.start()
 
     def onConfigurationChanged(self):
@@ -445,11 +495,19 @@ class BatchBuilder(QDialog):
         self.btnBuild.setEnabled(enable)
         self.btnClean.setEnabled(enable)
 
-    def updateProgress(self, val):
+        self.btnCopyPDB.setEnabled(True)
+        self.btnCopyMAP.setEnabled(True)
+
+    def updateProgress(self, val, name):
         self.progress.setValue(val)
+        self.label_progress.setText(name)
 
     def setProgressRange(self, min, max):
-        self.progress.setRange(min, max)
+        if min == 0 and max == 0:
+            self.progress.reset()
+            self.label_progress.setText('')
+        else:
+            self.progress.setRange(min, max)
 
     def enableAll(self, enable):
         self.slnOrigin.setEnabled(enable)
@@ -469,6 +527,8 @@ class BatchBuilder(QDialog):
             self.btnCopyToFS1.setEnabled(False)
             self.btnDeleteBin.setEnabled(False)
             self.btnClean.setEnabled(False)
+            self.btnCopyPDB.setEnabled(False)
+            self.btnCopyMAP.setEnabled(False)
 
     def errorReport(self, s):
         QMessageBox.information(self, 'Error', s)
@@ -477,7 +537,7 @@ class BatchBuilder(QDialog):
         pass
 
     @property
-    def getBinFolder(self):
+    def binFolder(self):
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                              r'Software\OriginLab\VS')
         try:
@@ -493,7 +553,7 @@ class BatchBuilder(QDialog):
         return ''
 
     @property
-    def getSolutionFiles(self):
+    def solutionFiles(self):
         def getSourceFolder():
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                                 r'Software\OriginLab\VS')
@@ -517,6 +577,22 @@ class BatchBuilder(QDialog):
                 return 'OrgLab.sln'
         return [os.path.join(getSourceFolder(), r'CrashRpt\CrashRpt.sln'),
                 os.path.join(getSourceFolder(), r'vc32\orgmain', getSln())]
+
+    @property
+    def outFolder(self):
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                             r'Software\OriginLab\VS')
+        try:
+            return winreg.QueryValueEx(key, 'BuildOutDir')[0]
+        except WindowsError:
+            pass
+        finally:
+            winreg.CloseKey(key)
+        try:
+            return os.path.join(os.environ['develop'], 'Out')
+        except KeyError:
+            print('Fail to detect Out folder')
+        return ''
 
     def getBuildConfigurations(self, extra_option=[]):
         def getBuildConfiguration(win32, release):
