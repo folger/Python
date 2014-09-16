@@ -3,7 +3,7 @@ import os
 import subprocess
 import shutil
 import winreg
-from time import sleep
+from time import sleep, gmtime, strftime
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -204,6 +204,8 @@ class DllJobThread(QThread):
     updated = pyqtSignal(int, str)
     enabled = pyqtSignal(bool)
     error = pyqtSignal(str)
+    getStatus = pyqtSignal(list)
+    updateStatus = pyqtSignal(str)
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -211,6 +213,8 @@ class DllJobThread(QThread):
         self.updated.connect(parent.updateProgress)
         self.enabled.connect(parent.enableAll)
         self.error.connect(parent.errorReport)
+        self.getStatus.connect(parent.getStatus)
+        self.updateStatus.connect(parent.updateStatus)
 
     def run(self):
         # 32bit only dlls : Lababf32.dll
@@ -230,11 +234,13 @@ class DllJobThread(QThread):
         dlls = BinFile32Release() if win32 else BinFile64Release()
         self.setrange.emit(0, len(dlls)-1)
         self.beforeDoJobs(win32)
+        oldstatus = []
+        self.getStatus.emit(oldstatus)
         for i, dll in enumerate(dlls):
             self.updated.emit(i, dll)
             self.doJob(dll)
         self.setrange.emit(0, 0)
-
+        self.updateStatus.emit(oldstatus[0])
 
 class CopyDllThread(DllJobThread):
     def beforeDoJobs(self, win32):
@@ -304,6 +310,7 @@ class BuildThread(QThread):
     copydlls = pyqtSignal()
     error = pyqtSignal(str)
     dummy = pyqtSignal()
+    updateStatus = pyqtSignal(str)
     def run(self):
         self.enabled.emit(False)
         for slnfile in self.slnfiles:
@@ -325,10 +332,10 @@ class BuildThread(QThread):
                 self.dummy.emit() # to eat up possible KeyboardInterrupt
                 self.error.emit('Build Error, check Command Window')
                 break
+        self.updateStatus.emit(strftime("%Y-%m-%d %H:%M:%S", gmtime()) if ret == 0 else "Build Failed")
         if ret == 0:
             self.copydlls.emit()
         self.enabled.emit(True)
-
 
 MAIN_WINDOW_GEOMETRY = 'mainWindowGeometry'
 SLN_ORIGIN = 'slnOrigin'
@@ -350,14 +357,14 @@ class BatchBuilder(QDialog):
         self.setWindowIcon(icon)
 
         self.progress = QProgressBar()
-        self.label_progress = QLabel()
+        self.label_status = QLabel()
 
         layout = QVBoxLayout()
         layout.addWidget(self.createSolutionGroup())
         layout.addWidget(self.createConfigurationGroup())
         layout.addWidget(self.createActionGroup())
         layout.addWidget(self.progress)
-        layout.addWidget(self.label_progress)
+        layout.addWidget(self.label_status)
         self.setLayout(layout)
 
         self.loadSetting(MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val))
@@ -448,6 +455,7 @@ class BatchBuilder(QDialog):
             mythread.copydlls.connect(self.copyToFS1)
         mythread.error.connect(self.errorReport)
         mythread.dummy.connect(self.dummy)
+        mythread.updateStatus.connect(self.updateStatus)
         mythread.build_configurations = self.getBuildConfigurations()
         mythread.slnfiles = self.solutionFiles
         mythread.start()
@@ -500,12 +508,12 @@ class BatchBuilder(QDialog):
 
     def updateProgress(self, val, name):
         self.progress.setValue(val)
-        self.label_progress.setText(name)
+        self.label_status.setText(name)
 
     def setProgressRange(self, min, max):
         if min == 0 and max == 0:
             self.progress.reset()
-            self.label_progress.setText('')
+            self.label_status.setText('')
         else:
             self.progress.setRange(min, max)
 
@@ -535,6 +543,12 @@ class BatchBuilder(QDialog):
 
     def dummy(self):
         pass
+
+    def updateStatus(self, s):
+        self.label_status.setText(s)
+
+    def getStatus(self, oldstatus):
+        oldstatus.append(self.label_status.text())
 
     @property
     def binFolder(self):
