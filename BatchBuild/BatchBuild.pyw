@@ -629,7 +629,7 @@ class BatchBuilder(QDialog):
             settings.setValue(CHECK_32_DEBUG, self.check32Debug.isChecked())
             settings.setValue(CHECK_64_RELEASE, self.check64Release.isChecked())
             settings.setValue(CHECK_64_DEBUG, self.check64Debug.isChecked())
-            settings.setValue(CHECK_COPY_DLLS_AFTER_BUILD, self.check64Debug.isChecked())
+            settings.setValue(CHECK_COPY_DLLS_AFTER_BUILD, self.checkCopyAfterBuild.isChecked())
 
     def loadSetting(self, key, func):
         settings = QSettings()
