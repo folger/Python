@@ -7,6 +7,7 @@ import sys
 
 import GeneratePolishedHTML
 import DownloadImage
+from GenerateLTFuncHTML import HTMLType
 
 
 class GenerateHTMLDlg(QDialog):
@@ -15,34 +16,51 @@ class GenerateHTMLDlg(QDialog):
 
         self.setWindowTitle("Generate Labtalk Functions HTML")
 
-        langLabel = QLabel("Language")
-        self.langCombo = QComboBox()
-        langLabel.setBuddy(self.langCombo)
-        self.langCombo.addItems(["E", "G", "J"])
-
         generateBtn = QPushButton("Generate HTML")
         downloadImageBtn = QPushButton("Download Images")
 
-        layout1 = QHBoxLayout()
-        layout1.addWidget(langLabel)
-        layout1.addWidget(self.langCombo)
-        layout1.addWidget(generateBtn)
-        layout1.addWidget(downloadImageBtn)
+        layout = QVBoxLayout()
+        layout.addLayout(self.createLanguageGroup())
+        layout.addWidget(self.createHTMLGroup())
+        layout.addWidget(generateBtn)
+        layout.addWidget(downloadImageBtn)
 
-        # self.logOutput = QTextEdit(parent)
-        # self.logOutput.setReadOnly(True)
-
-        # layout = QGridLayout()
-        # layout.addLayout(layout1, 0, 0)
-        # layout.addWidget(self.logOutput, 1, 0)
-
-        self.setLayout(layout1)
+        self.setLayout(layout)
 
         self.connect(generateBtn, SIGNAL("clicked()"), self.generateHTML)
         self.connect(downloadImageBtn, SIGNAL("clicked()"), self.downloadImages)
 
+    def createLanguageGroup(self):
+        langLabel = QLabel("Language")
+        self.langCombo = QComboBox()
+        self.langCombo.addItems(["E", "G", "J"])
+
+        layout = QHBoxLayout()
+        layout.addWidget(langLabel)
+        layout.addWidget(self.langCombo)
+        return layout
+
+    def createHTMLGroup(self):
+        self.radioGeneral = QRadioButton('General')
+        self.radioFO = QRadioButton('FO')
+        self.radioNLFIT = QRadioButton('NLFIT')
+        self.radioGeneral.setChecked(True)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.radioGeneral)
+        layout.addWidget(self.radioFO)
+        layout.addWidget(self.radioNLFIT)
+        group = QGroupBox('HTML Type')
+        group.setLayout(layout)
+        return group
+
     def generateHTML(self):
-        result = GeneratePolishedHTML.generate_HTML(self.langCombo.currentText())
+        htmlType = HTMLType()
+        if self.radioFO.isChecked():
+            htmlType.val = HTMLType.FO
+        elif self.radioNLFIT.isChecked():
+            htmlType.val = HTMLType.NLFIT
+        result = GeneratePolishedHTML.generate_HTML(self.langCombo.currentText(), htmlType)
         self.reportResult(result)
 
     def downloadImages(self):

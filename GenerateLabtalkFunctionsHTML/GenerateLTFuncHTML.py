@@ -1,24 +1,52 @@
+class HTMLType:
+    general = 1
+    FO = 2
+    NLFIT = 3
+    def __init__(self):
+        self.val = self.general
+
+    def isFitting(self): return self.val == self.FO
+    def isFittingNonSpecial(self): return self.val == self.NLFIT
+
 class GenerateHTML:
     def __init__(self, lang, funcs):
         self.funcs = funcs
 
         self.lang = lang.upper()
 
-    def Exec(self):
+    def Exec(self, htmlType):
         s = ''
 
         fitfunc = False
         funcs_done = set()
+        fitfunc_categoryname = ''
+
+        def check_htmlType_continue():
+            if fitfunc:
+                if htmlType.isFittingNonSpecial() and fitfunc_categoryname in ('Implicit', 'PFW', 'Surface Fitting'):
+                    return True
+            else:
+                if htmlType.isFitting() or htmlType.isFittingNonSpecial():
+                    return True
+            return False
 
         for func in self.funcs:
             entries = func.split("\t"*10)
-            if len(entries) == 1:  # categoty
+            if len(entries) == 1:  # category
                 funcs_done.clear()
                 fitfunc = func.startswith('Fitting Functions')
+                if fitfunc:
+                    if htmlType.isFitting() or htmlType.isFittingNonSpecial():
+                        fitfunc_categoryname = func.split('-')[1].lstrip()
+                        func = fitfunc_categoryname
+                if check_htmlType_continue():
+                    continue
                 if len(s):
                     s += '</table>\n'
                 s += '<table>\n    <caption>%s</caption>\n' % func.strip()
             else:
+                if check_htmlType_continue():
+                    continue
                 total = (len(entries) - 1) // 2
                 for i in range(total):
                     funclink = entries[i*2].strip()

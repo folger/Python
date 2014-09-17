@@ -120,7 +120,7 @@ class MyHTMLParser(HTMLParser):
 from urllib.request import urlopen
 
 if __name__ == "__main__":
-    with urlopen('http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions-vNext') as r:
+    with urlopen('http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions') as r:
         parser = MyHTMLParser()
         parser.feed(r.read().decode())
         with open('parse_results.txt', 'w', encoding='utf-8') as fw:

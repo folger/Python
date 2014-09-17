@@ -12,7 +12,7 @@ currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 
 def download_images(lang):
-    htmlfile = os.path.join(currentpath, 'Default%s.html' % lang)
+    htmlfile = os.path.join(currentpath, 'SCV_%s.html' % lang)
 
     if not os.path.isfile(htmlfile):
         return (False, "%s is needed to download images" % htmlfile)
