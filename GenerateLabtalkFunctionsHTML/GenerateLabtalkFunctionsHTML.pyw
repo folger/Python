@@ -41,7 +41,7 @@ class GenerateHTMLDlg(QDialog):
         return layout
 
     def createHTMLGroup(self):
-        self.radioGeneral = QRadioButton('General')
+        self.radioGeneral = QRadioButton('SCV')
         self.radioFO = QRadioButton('FO')
         self.radioNLFIT = QRadioButton('NLFIT')
         self.radioGeneral.setChecked(True)
@@ -55,11 +55,11 @@ class GenerateHTMLDlg(QDialog):
         return group
 
     def generateHTML(self):
-        htmlType = HTMLType()
+        htmlType = HTMLType.SCV
         if self.radioFO.isChecked():
-            htmlType.val = HTMLType.FO
+            htmlType = HTMLType.FO
         elif self.radioNLFIT.isChecked():
-            htmlType.val = HTMLType.NLFIT
+            htmlType = HTMLType.NLFIT
         result = GeneratePolishedHTML.generate_HTML(self.langCombo.currentText(), htmlType)
         self.reportResult(result)
 

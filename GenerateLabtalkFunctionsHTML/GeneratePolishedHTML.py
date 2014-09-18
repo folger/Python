@@ -2,7 +2,7 @@ import os
 import sys
 from urllib.request import urlopen
 import LTFuncsHTMLParser
-from GenerateLTFuncHTML import GenerateHTML
+from GenerateLTFuncHTML import GenerateHTML, HTMLType
 
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -10,11 +10,13 @@ currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 def generate_HTML(lang, htmlType):
     def htmlfile(lang):
-        if htmlType.isFitting():
+        if htmlType == HTMLType.SCV:
+            return os.path.join(currentpath, 'SCV_%s.html' % lang)
+        if htmlType == HTMLType.FO:
             return os.path.join(currentpath, 'FO_%s.html' % lang)
-        if htmlType.isFittingNonSpecial():
+        if htmlType == HTMLType.NLFIT:
             return os.path.join(currentpath, 'NLFIT_%s.html' % lang)
-        return os.path.join(currentpath, 'SCV_%s.html' % lang)
+        return os.path.join(currentpath, 'ALL_%s.html' % lang)
 
     def httplink(lang):
         return 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions'
@@ -28,7 +30,7 @@ def generate_HTML(lang, htmlType):
 
         with open(os.path.join(currentpath, "Default.html"), encoding='utf-8-sig') as fr:
             s = fr.read()
-            if htmlType.isFitting() or htmlType.isFittingNonSpecial():
+            if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
                 s = s.replace('navigate("//select:" + ui.item.fprefix + ui.item.label);', 'navigate("//select:" + ui.item.category + "|" + ui.item.label);')
             gs = generate.Exec(htmlType).replace('/images/docwiki/math', './images')
             s = s.replace('<div style="display: none" id="labtalkFunctions"></div>',

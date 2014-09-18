@@ -1,12 +1,6 @@
 class HTMLType:
-    general = 1
-    FO = 2
-    NLFIT = 3
-    def __init__(self):
-        self.val = self.general
+    ALL, SCV, FO, NLFIT = range(4)
 
-    def isFitting(self): return self.val == self.FO
-    def isFittingNonSpecial(self): return self.val == self.NLFIT
 
 class GenerateHTML:
     def __init__(self, lang, funcs):
@@ -23,10 +17,10 @@ class GenerateHTML:
 
         def check_htmlType_continue():
             if fitfunc:
-                if htmlType.isFittingNonSpecial() and fitfunc_categoryname in ('Implicit', 'PFW', 'Surface Fitting'):
+                if htmlType == HTMLType.NLFIT and fitfunc_categoryname in ('Implicit', 'PFW', 'Surface Fitting'):
                     return True
             else:
-                if htmlType.isFitting() or htmlType.isFittingNonSpecial():
+                if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
                     return True
             return False
 
@@ -36,7 +30,7 @@ class GenerateHTML:
                 funcs_done.clear()
                 fitfunc = func.startswith('Fitting Functions')
                 if fitfunc:
-                    if htmlType.isFitting() or htmlType.isFittingNonSpecial():
+                    if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
                         fitfunc_categoryname = func.split('-')[1].lstrip()
                         func = fitfunc_categoryname
                 if check_htmlType_continue():
