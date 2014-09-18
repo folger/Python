@@ -3,10 +3,11 @@ import os
 import subprocess
 import shutil
 import winreg
-from time import sleep, gmtime, strftime
+from time import sleep, localtime, strftime
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+
 
 def BinFile32Release():
     return (
@@ -199,6 +200,7 @@ def BinFile64Release():
 
 assert(len(BinFile32Release())+1 == len(BinFile64Release()))
 
+
 class DllJobThread(QThread):
     setrange = pyqtSignal(int, int)
     updated = pyqtSignal(int, str)
@@ -242,6 +244,7 @@ class DllJobThread(QThread):
         self.setrange.emit(0, 0)
         self.updateStatus.emit(oldstatus[0])
 
+
 class CopyDllThread(DllJobThread):
     def beforeDoJobs(self, win32):
         platformpath = '32bit' if win32 else '64bit'
@@ -263,6 +266,7 @@ class CopyDllThread(DllJobThread):
 
 class DeleteDllThread(DllJobThread):
     def beforeDoJobs(self, win32): pass
+
     def doJob(self, dll):
         if dll.lower().endswith('dbghelp.dll'):
             return
@@ -296,7 +300,7 @@ class CopyFilesThread(QThread):
         self.enabled.emit(False)
         self.setrange.emit(0, len(files)-1)
         try:
-            for i,f in enumerate(files):
+            for i, f in enumerate(files):
                 self.updated.emit(i, f)
                 shutil.copyfile(os.path.join(self.srcfolder, f), os.path.join(self.desfolder, f))
         except WindowsError as e:
@@ -311,6 +315,7 @@ class BuildThread(QThread):
     error = pyqtSignal(str)
     dummy = pyqtSignal()
     updateStatus = pyqtSignal(str)
+
     def run(self):
         self.enabled.emit(False)
         for slnfile in self.slnfiles:
@@ -329,10 +334,10 @@ class BuildThread(QThread):
                 if ret != 0:
                     break
             if ret != 0:
-                self.dummy.emit() # to eat up possible KeyboardInterrupt
+                self.dummy.emit()  # to eat up possible KeyboardInterrupt
                 self.error.emit('Build Error, check Command Window')
                 break
-        self.updateStatus.emit(strftime("%Y-%m-%d %H:%M:%S", gmtime()) if ret == 0 else "Build Failed")
+        self.updateStatus.emit(strftime("%Y-%m-%d %H:%M:%S", localtime()) if ret == 0 else "Build Failed")
         if ret == 0:
             self.copydlls.emit()
         self.enabled.emit(True)
@@ -346,6 +351,8 @@ CHECK_32_DEBUG = 'check32Debug'
 CHECK_64_RELEASE = 'check64Release'
 CHECK_64_DEBUG = 'check64Debug'
 CHECK_COPY_DLLS_AFTER_BUILD = 'copyDllsAfterBuild'
+
+
 class BatchBuilder(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -368,7 +375,8 @@ class BatchBuilder(QDialog):
         self.setLayout(layout)
 
         self.loadSetting(MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val))
-        str2bool = lambda s: s == 'true' or s == 'True'
+
+        def str2bool(s): return s == 'true' or s == 'True'
         self.loadSetting(SLN_ORIGIN, lambda val: self.slnOrigin.setChecked(str2bool(val)))
         self.loadSetting(SLN_VIEWER, lambda val: self.slnViewer.setChecked(str2bool(val)))
         self.loadSetting(SLN_ORGLAB, lambda val: self.slnOrglab.setChecked(str2bool(val)))
@@ -494,7 +502,7 @@ class BatchBuilder(QDialog):
         mythread.start()
 
     def onConfigurationChanged(self):
-        enableRelease= self.check32Release.isChecked() or self.check64Release.isChecked()
+        enableRelease = self.check32Release.isChecked() or self.check64Release.isChecked()
         self.btnCopyToFS1.setEnabled(enableRelease)
         self.btnDeleteBin.setEnabled(enableRelease)
         self.checkCopyAfterBuild.setEnabled(enableRelease)
@@ -570,7 +578,7 @@ class BatchBuilder(QDialog):
     def solutionFiles(self):
         def getSourceFolder():
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                                r'Software\OriginLab\VS')
+                                 r'Software\OriginLab\VS')
             try:
                 return winreg.QueryValueEx(key, 'BuildCodeBaseDir')[0]
             except WindowsError:
@@ -582,6 +590,7 @@ class BatchBuilder(QDialog):
             except KeyError:
                 print('Fail to detect build source folder')
             return ''
+
         def getSln():
             if self.slnOrigin.isChecked():
                 return 'OriginAll.sln'
@@ -648,7 +657,7 @@ class BatchBuilder(QDialog):
     def loadSetting(self, key, func):
         settings = QSettings()
         value = settings.value(key)
-        if value != None:
+        if value:
             func(value)
 
 
