@@ -42,7 +42,7 @@ class XFGUI:
 
     def Run(self, script):
         if len(script) != 0:
-            os.system(r"G:\F_C_VC32\origin9 -h -rs %s;exit;" % script)
+            os.system(r"H:\F_C_VC32\origin92 -h -rs %s;exit;" % script)
             # subprocess.check_call([r"G:\F_C_VC32\origin9.exe", "-h", "-rs", '"%s;exit;"' % script])
 
     def Match(self, pattern, string):
