@@ -97,7 +97,7 @@ class MyHTMLParser(HTMLParser):
                 self.lastcategory = data
                 self.results.append(data)
         elif self.subcategory:
-            if self.results[-1].find("-") == -1:
+            if not self.results[-1].startswith("http"):
                 del self.results[-1]
             self.results.append(self.lastcategory + " - " + data)
         elif self.isFunction() or self.isDescription():

@@ -20,8 +20,8 @@ class GenerateHTMLDlg(QDialog):
         downloadImageBtn = QPushButton("Download Images")
 
         layout = QVBoxLayout()
-        layout.addLayout(self.createLanguageGroup())
-        layout.addWidget(self.createHTMLGroup())
+        #layout.addLayout(self.createLanguageGroup())
+        #layout.addWidget(self.createHTMLGroup())
         layout.addWidget(generateBtn)
         layout.addWidget(downloadImageBtn)
 
@@ -55,16 +55,20 @@ class GenerateHTMLDlg(QDialog):
         return group
 
     def generateHTML(self):
-        htmlType = HTMLType.SCV
-        if self.radioFO.isChecked():
-            htmlType = HTMLType.FO
-        elif self.radioNLFIT.isChecked():
-            htmlType = HTMLType.NLFIT
-        result = GeneratePolishedHTML.generate_HTML(self.langCombo.currentText(), htmlType)
-        self.reportResult(result)
+        #htmlType = HTMLType.SCV
+        #if self.radioFO.isChecked():
+            #htmlType = HTMLType.FO
+        #elif self.radioNLFIT.isChecked():
+            #htmlType = HTMLType.NLFIT
+        #result = GeneratePolishedHTML.generate_HTML(self.langCombo.currentText(), htmlType)
+        #self.reportResult(result)
+        for language in ('E', 'G', 'J'):
+            for htmlType in (HTMLType.SCV, HTMLType.FO, HTMLType.NLFIT):
+                GeneratePolishedHTML.generate_HTML(language, htmlType)
+        self.reportResult((True, 'Done'))
 
     def downloadImages(self):
-        result = DownloadImage.download_images(self.langCombo.currentText())
+        result = DownloadImage.download_images('E')
         self.reportResult(result)
 
     def reportResult(self, result):
@@ -77,4 +81,3 @@ app = QApplication(sys.argv)
 bp = GenerateHTMLDlg()
 bp.show()
 app.exec_()
-
