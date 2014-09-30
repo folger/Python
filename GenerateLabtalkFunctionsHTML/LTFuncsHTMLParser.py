@@ -1,5 +1,7 @@
 from html.parser import HTMLParser
 
+url = 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions'
+
 
 class MyHTMLParser(HTMLParser):
     def __init__(self):
@@ -78,7 +80,7 @@ class MyHTMLParser(HTMLParser):
                     # print(self.description.strip())
                     description = self.description.strip()
                     if len(description) != 0:
-                        self.results.append(description)
+                        self.results.append(self.polishDescription(description))
             elif tag == "a":
                 if self.isFunction():
                     self.a = False
@@ -117,10 +119,15 @@ class MyHTMLParser(HTMLParser):
     def isDescription(self):
         return self.col == 2
 
+    def polishDescription(self, description):
+        for s, v, in (('<ul>', '<dl>'), ('</ul>', '</dl>'), ('<li>', '<dd>'), ('</li>', '</dd>')):
+            description = description.replace(s, v)
+        return description
+
 from urllib.request import urlopen
 
 if __name__ == "__main__":
-    with urlopen('http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions') as r:
+    with urlopen(url) as r:
         parser = MyHTMLParser()
         parser.feed(r.read().decode())
         with open('parse_results.txt', 'w', encoding='utf-8') as fw:
