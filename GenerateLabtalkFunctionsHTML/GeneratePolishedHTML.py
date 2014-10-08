@@ -9,7 +9,7 @@ currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 
 def generate_HTML(lang, htmlType):
-    def htmlfile(lang):
+    def htmlfile():
         if htmlType == HTMLType.SCV:
             return os.path.join(currentpath, 'SCV_%s.html' % lang)
         if htmlType == HTMLType.FO:
@@ -17,6 +17,14 @@ def generate_HTML(lang, htmlType):
         if htmlType == HTMLType.NLFIT:
             return os.path.join(currentpath, 'NLFIT_%s.html' % lang)
         return os.path.join(currentpath, 'ALL_%s.html' % lang)
+
+    def basicHTML():
+        htmls = {
+            'E': 'Default.html',
+            'G': 'DefaultG.html',
+            'J': 'DefaultJ.html',
+        }
+        return htmls[lang]
 
     def httplink(lang):
         return LTFuncsHTMLParser.url
@@ -28,17 +36,17 @@ def generate_HTML(lang, htmlType):
         # print('\n'.join(parser.results))
         generate = GenerateHTML(lang, parser.results)
 
-        with open(os.path.join(currentpath, "Default.html"), encoding='utf-8-sig') as fr:
+        with open(os.path.join(currentpath, basicHTML()), encoding='utf-8-sig') as fr:
             s = fr.read()
             if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
                 s = s.replace('navigate("//select:" + ui.item.fprefix + ui.item.label);', 'navigate("//select:" + ui.item.category + "|" + ui.item.label);')
             gs = generate.Exec(htmlType).replace('/images/docwiki/math', './images')
             s = s.replace('<div style="display: none" id="labtalkFunctions"></div>',
                           '<div style="display: none" id="labtalkFunctions">' + gs + '</div>')
-            with open(htmlfile(lang), 'w', encoding='utf-8-sig') as fw:
+            with open(htmlfile(), 'w', encoding='utf-8-sig') as fw:
                 fw.write(s)
 
-    return (True, "%s generated" % htmlfile(lang))
+    return (True, "%s generated" % htmlfile())
 
 
 if __name__ == "__main__":

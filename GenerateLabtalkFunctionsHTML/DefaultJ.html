@@ -1,0 +1,331 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title></title>
+    <script type="text/javascript" src="lib/jquery.js"></script>
+    <script type="text/javascript" src="lib/jquery-ui.js"></script>
+    <link href="lib/themes/cupertino/jquery-ui.css" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            overflow: hidden;
+            font-size: medium;
+        }
+
+        #userInput {
+            font-family: Consolas;
+            padding-left: 2px;
+            height: 1.5em;
+            width: 100%;
+            border: solid 1px black;
+            background-color: white;
+            position: fixed;
+            z-index: 1000;
+        }
+
+        #userInputPlaceholder {
+            cursor: text;
+            color: grey;
+            height: 1.25em;
+            width: 100%;
+            overflow: hidden;
+            display: block;
+            position: fixed;
+            border: solid 1px black;
+            background-color: white;
+            z-index: 1001;
+            padding: 0;
+            padding-left: 2px;
+            margin: 0;
+        }
+
+        #autocompleteContainer .ui-autocomplete {
+            overflow-y: scroll;
+            position: fixed;
+            bottom: 0 !important;
+            width: 100% !important;
+        }
+
+        .ui-autocomplete-category {
+            padding: .5em .2em;
+            color: red;
+            font: italic normal 15pt "Times New Roman";
+        }
+
+        #autocompleteContainer .ui-menu-item {
+            margin-bottom: 12px;
+        }
+
+        .ui-menu-item big {
+            font: bold 11pt arial;
+        }
+
+        .ui-menu-item small .doc-link {
+            font: normal 10pt arial;
+            background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAVklEQVR4Xn3PgQkAMQhDUXfqTu7kTtkpd5RA8AInfArtQ2iRXFWT2QedAfttj2FsPIOE1eCOlEuoWWjgzYaB/IkeGOrxXhqB+uA9Bfcm0lAZuh+YIeAD+cAqSz4kCMUAAAAASUVORK5CYII=) center left no-repeat;
+            padding-left: 13px;
+        }
+
+        .ui-menu-item small .doc-link:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .ui-menu-item > a {
+            border: 1px solid transparent;
+        }
+
+        .ui-menu .ui-menu-item a.ui-state-focus,
+        .ui-menu .ui-menu-item a.ui-state-active {
+            margin: 0;
+        }
+
+        a.ui-state-item-hover {
+            border: 1px solid #afd0e9;
+            color: #121212;
+            background: #e4f1fb url(lib/themes/cupertino/images/ui-bg_glass_100_e4f1fb_1x400.png) 50% 50% repeat-x;
+        }
+    </style>
+    <script>
+        if (!String.prototype.trim) {
+            String.prototype.trim = function () { return $.trim(this); }
+        }
+        $(function () {
+            var funcNames = {};
+            var ltFuncs = $("#labtalkFunctions tr").map(function (idx, row) {
+                row = $(row);
+                var cols = row.find("td");
+                var funcName = cols.eq(0).text().trim();
+                if (!funcNames[funcName]) {
+                    funcNames[funcName] = true;
+                    var data = {
+                        "label": funcName,
+                        "link": cols.eq(0).find("a").attr("href"),
+                        "description": cols.eq(1).html(),
+                        "DESC": cols.eq(1).text().toUpperCase(),
+                        "category": row.parents("table").find("caption").text().trim(),
+                        "fprefix": cols.eq(0).find("a").attr("fprefix")
+                    };
+                    data.CAT = data.category.replace(/ functions/i, "").toUpperCase();
+                    data.LABEL = data.label.toUpperCase();
+                    return data;
+                }
+            }).get();
+            delete funcNames;
+            function searchLtFuncsRanged(terms, minResults, state) {
+                return function (result) {
+                    var nameMatchedIndexes = {};
+                    if (!state) {
+                        var idx = searchLtFuncsByName(terms, minResults, 0, result, nameMatchedIndexes);
+                        if (idx != ltFuncs.length) {
+                            return {
+                                nameSearchStartIdx: idx,
+                                nameMatchedIndexes: nameMatchedIndexes
+                            };
+                        }
+                    } else if (state.nameSearchStartIdx) {
+                        nameMatchedIndexes = state.nameMatchedIndexes;
+                        searchLtFuncsByName(terms, minResults, state.nameSearchStartIdx, result, nameMatchedIndexes);
+                    }
+                    var i = 0;
+                    var startIdx = 0;
+                    if (state && state.DescSearchStartIdx) {
+                        startIdx = state.DescSearchStartIdx;
+                    }
+                    for (i = startIdx; i < ltFuncs.length && (minResults < 0 || result.length < minResults) ; i++) {
+                        if (nameMatchedIndexes[i]) {
+                            continue;
+                        }
+                        var data = ltFuncs[i];
+                        var description = data.DESC;
+                        var category = data.CAT;
+                        var termMatches = 0;
+                        for (var j = 0; j < terms.length; j++) {
+                            var term = terms[j];
+                            if (description.indexOf(term) > -1 || category.indexOf(term) > -1) {
+                                termMatches++;
+                            }
+                        }
+                        if (termMatches == terms.length) {
+                            result.push(data);
+                        }
+                    }
+                    return {
+                        DescSearchStartIdx: i
+                    };
+                };
+            }
+            function searchLtFuncsByName(terms, minResults, startIdx, result, nameMatchedIndexes) {
+                var i = 0;
+                for (i = startIdx; i < ltFuncs.length && (minResults < 0 || result.length < minResults) ; i++) {
+                    var data = ltFuncs[i];
+                    data.termMatchIdx = Number.MAX_VALUE;
+                    var label = data.LABEL;
+                    var termMatches = 0;
+                    for (var j = 0; j < terms.length; j++) {
+                        var term = terms[j];
+                        var matchIdx = label.indexOf(term);
+                        if (matchIdx > -1) {
+                            termMatches++;
+                            data.termMatchIdx = Math.min(data.termMatchIdx, matchIdx);
+                        }
+                    }
+                    if (termMatches == terms.length) {
+                        result.push(data);
+                        nameMatchedIndexes[i] = true;
+                    }
+                }
+                if (result.length > 1) {
+                    result.sort(function (a, b) {
+                        return a.termMatchIdx - b.termMatchIdx;
+                    });
+                }
+                return i;
+            }
+            var userInput = $("#userInput");
+            var config = userInput.autocomplete({
+                minLength: 0,
+                delay: 150,
+                source: function (request, response) {
+                    clearTimeout(this.renderMenuContinuationTimer);
+                    clearTimeout(this.resultHighlightTimer);
+                    var terms = $.grep(request.term.split(" "), function (term) { return term != ""; });
+                    var firstResonseLength = 20;
+                    if (terms.length == 0) {
+                        var initial = ltFuncs.slice(0, firstResonseLength - 1);
+                        initial.continuation = function (items) {
+                            items.result = ltFuncs.slice(firstResonseLength);
+                        };
+                        response(initial);
+                    } else {
+                        terms = $.map(terms, function (term) { return term.toUpperCase(); });
+                        var initial = [];
+                        var state = searchLtFuncsRanged(terms, 20, null)(initial);
+                        initial.continuation = searchLtFuncsRanged(terms, -1, state);
+                        response(initial);
+                    }
+                },
+                appendTo: "#autocompleteContainer",
+                select: function (event, ui) {
+                    setTimeout(function () {
+                        navigate("//select:" + ui.item.fprefix + ui.item.label);
+                    }, 0);
+                    return false;
+                },
+                focus: function (event, ui) {
+                    return false;
+                }
+            });
+            var autocomplete = config.data("ui-autocomplete");
+            autocomplete.renderMenuContinuation = null;
+            autocomplete.renderMenuContinuationTimer = 0;
+            autocomplete.renderMenuContinuationTimerDelay = 800;
+            autocomplete.resultHighlightTimer = 0;
+            autocomplete.resultHighlightThrottle = 50;
+            autocomplete._renderItem = function (ul, data) {
+                var li = $("<li>").append("<a><big>" + data.label + "</big><br><small><span class='doc-link'></span> " + data.description + "</small></a>");
+                li.find("small .doc-link").click(function (event) {
+                    event.stopPropagation();
+                    setTimeout(function () {
+                        navigate("//doc:" + data.fprefix + data.label);
+                    }, 0);
+                });
+                return li.appendTo(ul);
+            };
+            autocomplete._renderMenu = function (ul, items) {
+                clearTimeout(autocomplete.renderMenuContinuationTimer);
+                clearTimeout(autocomplete.resultHighlightTimer);
+                autocomplete.renderMenuContinuation = null;
+                var currentCategory = "";
+                if (!items.continuation) {
+                    currentCategory = ul.children().last().data("ui-autocomplete-item").category;
+                }
+                $.each(items, function (idx, item) {
+                    if (item.category != currentCategory) {
+                        ul.append("<li class='ui-autocomplete-category'>" + item.category + "</li>");
+                        currentCategory = item.category;
+                    }
+                    autocomplete._renderItemData(ul, item);
+                });
+                if (items.continuation) {
+                    autocomplete.renderMenuContinuation = function () {
+                        var remainingItems = [];
+                        items.continuation(remainingItems);
+                        if (remainingItems.result) {
+                            remainingItems = remainingItems.result;
+                        }
+                        autocomplete._renderMenu(ul, remainingItems);
+                    };
+                    autocomplete.renderMenuContinuationTimer = setTimeout(autocomplete.renderMenuContinuation, autocomplete.renderMenuContinuationTimerDelay);
+                } else {
+                    autocomplete.menu.refresh();
+                    autocomplete.renderMenuContinuation = null;
+                }
+
+                autocomplete.resultHighlightTimer = setTimeout(function () {
+                    $.each($.grep(autocomplete.term.split(" "), function (term) { return term != ""; }), function (idx, term) {
+                        fullSearchHighlight(term);
+                    });
+                }, 100);
+            };
+            autocomplete.close = function () { };
+
+            userInput.autocomplete("search");
+
+            var userInputPlaceholder = $("#userInputPlaceholder");
+            userInputPlaceholder.click(function (e) {
+                userInput.focus();
+            }).text(userInput.attr("placeholder"));
+            userInput.focus(function () {
+                toggleUserInputPlaceholder();
+            }).blur(function () {
+                toggleUserInputPlaceholder();
+            }).keyup(function () {
+                toggleUserInputPlaceholder();
+            }).focus();
+
+            function toggleUserInputPlaceholder() {
+                if (userInput.val() == "") {
+                    userInputPlaceholder.show();
+                } else {
+                    userInputPlaceholder.hide();
+                }
+            }
+
+            function fullSearchHighlight(text, textRange) {
+                if (text == "") {
+                    return;
+                }
+                if (document.body.createTextRange) {
+                    if (!textRange) {
+                        textRange = document.body.createTextRange();
+                        textRange.moveToElementText(document.getElementById("autocompleteContainer"));
+                    }
+                    var i = 0;
+                    for (; i < autocomplete.resultHighlightThrottle && textRange.findText(text) ; i++) {
+                        textRange.execCommand("BackColor", false, "yellow");
+                        textRange.collapse(false);
+                    }
+                    if (i == autocomplete.resultHighlightThrottle) {
+                        autocomplete.resultHighlightTimer = setTimeout(function () {
+                            fullSearchHighlight(text, textRange);
+                        }, 0);
+                    }
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="userInputPlaceholder"></div>
+    <input type="text" id="userInput" value="" autocomplete="off" placeholder="検索語句を入力してください。関数名をダブルクリックしてダイアログを挿入します。" />
+    <div id="autocompleteContainer"></div>
+    <div style="display: none" id="labtalkFunctions"></div>
+</body>
+</html>

@@ -4,11 +4,6 @@ DownloadMp4/chromedriver*
 
 *.pyc
 
-GenerateLabtalkFunctionsHTML/html.txt
-GenerateLabtalkFunctionsHTML/LTFuncsE.txt
-GenerateLabtalkFunctionsHTML/LTFuncsG.txt
-GenerateLabtalkFunctionsHTML/LTFuncsJ.txt
-GenerateLabtalkFunctionsHTML/Default?.html
 GenerateLabtalkFunctionsHTML/lib/*
 GenerateLabtalkFunctionsHTML/images/*
 
