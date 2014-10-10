@@ -120,7 +120,7 @@ class MyHTMLParser(HTMLParser):
         return self.col == 2
 
     def polishDescription(self, description):
-        for s, v, in (('<ul>', '<dl>'), ('</ul>', '</dl>'), ('<li>', '<dd>'), ('</li>', '</dd>')):
+        for s, v, in (('<ul>', '<dl>'), ('</ul>', '</dl>'), ('<li>', '<dd>'), ('</li>', '</dd>'), ('&#160;', ' ')):
             description = description.replace(s, v)
         return description
 
