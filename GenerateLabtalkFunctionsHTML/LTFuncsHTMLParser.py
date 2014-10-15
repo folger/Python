@@ -1,6 +1,11 @@
 from html.parser import HTMLParser
 
-url = 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions'
+#url = 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions'
+#http_prefix = 'http://wikis'
+#image_path = '/images/ltwiki/math/'
+url = 'http://zaphod-w/doc/LabTalk/guide/LT-Supported-Functions'
+http_prefix = 'http://zaphod-w'
+image_path = r'/doc\en/LabTalk/images/LabTalk-Supported_Functions/'
 
 
 class MyHTMLParser(HTMLParser):
@@ -50,7 +55,7 @@ class MyHTMLParser(HTMLParser):
                         if attr[0] == 'href':
                             funclink = attr[1]
                             if not funclink.startswith('http://'):
-                                funclink = 'http://wikis' + funclink
+                                funclink = http_prefix + funclink
                             self.description += funclink
                             self.description += "\t" * 10
                             break

@@ -1,3 +1,5 @@
+import LTFuncsHTMLParser
+
 class HTMLType:
     ALL, SCV, FO, NLFIT = range(4)
 
@@ -59,5 +61,5 @@ class GenerateHTML:
 
         if len(s):
             s += '</table>'
-        s = s.replace('/images/ltwiki/math/', './images/')
+        s = s.replace(LTFuncsHTMLParser.image_path, './images/')
         return s

@@ -6,6 +6,7 @@ from urllib.request import urlretrieve
 import urllib.error
 from shutil import rmtree
 from time import sleep
+import LTFuncsHTMLParser
 
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -29,7 +30,7 @@ def download_images(lang):
 
     def download(images, imagesfail):
         for image in images:
-            image = image.replace('<img src="./images/', 'http://wikis/images/ltwiki/math/')
+            image = image.replace('<img src="./images/', LTFuncsHTMLParser.http_prefix + LTFuncsHTMLParser.image_path)
             slash = image.rfind('/')
             imagename = image[slash+1:]
 
