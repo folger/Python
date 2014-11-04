@@ -27,6 +27,8 @@ def get_project_files(project):
 
 
 def build(return_output, project, platform, configuration, extra_args=""):
+    os.environ['VisualStudioVersion'] = '11.0'
+
     args = ['/m']
     args.append('%s' % project)
     args.append('/p:platform=%s' % platform)
@@ -45,6 +47,7 @@ def build(return_output, project, platform, configuration, extra_args=""):
 
         errors = []
         lines = s.split('\n')
+
         def reverse_enumerate(iterable):
             return zip(reversed(range(len(iterable))), reversed(iterable))
 
