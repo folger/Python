@@ -4,11 +4,13 @@ import subprocess
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-VS6Path = 'C:\Program Files (x86)\Microsoft Visual Studio\COMMON\MSDev98\Bin\MSDEV.EXE'
-VS2010Path = 'C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe'
-VS2012Path = 'D:\VS2012\Common7\IDE\devenv.exe'
+VS6Path = r'C:\Program Files (x86)\Microsoft Visual Studio\COMMON\MSDev98\Bin\MSDEV.EXE'
+VS2010Path = r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe'
+VS2012Path = r'D:\VS2012\Common7\IDE\devenv.exe'
 
 MAIN_WINDOW_GEOMETRY = 'mainWindowGeometry'
+
+
 class DebugOrigin(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -100,7 +102,9 @@ class DebugOrigin(QDialog):
         self.run(VS2012Path, os.path.join(source_path, r'vc32\orgmain\OriginAll.sln'))
 
     def run(self, exe, sln):
-        subprocess.call([exe, sln])
+        subprocess.Popen([exe, sln],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
 
     def removeLinkFolder(self, folder):
         try:
@@ -118,7 +122,7 @@ class DebugOrigin(QDialog):
     def loadSetting(self, key, func):
         settings = QSettings()
         value = settings.value(key)
-        if value != None:
+        if value is not None:
             func(value)
 
 app = QApplication(sys.argv)
