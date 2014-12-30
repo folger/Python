@@ -357,7 +357,6 @@ class BatchBuilder(QDialog):
     def __init__(self, parent=None, devFolder=''):
         super().__init__(parent)
         self._devFolder = devFolder
-        print(self.developFolder)
         self.setWindowTitle(self.developFolder)
         self.setFixedSize(250, 460)
 
