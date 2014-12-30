@@ -20,7 +20,7 @@ class DebugOrigin(QDialog):
         icon.addPixmap(QPixmap('main.ico'))
         self.setWindowIcon(icon)
 
-        self.setFixedSize(200, 300)
+        self.setFixedSize(200, 320)
         self.setLayout(self.createButtons())
 
         self.loadSetting(MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val))
@@ -34,6 +34,7 @@ class DebugOrigin(QDialog):
         debug90sr2 = self.createButton('Debug 9.0 SR2')
         debug91sr0 = self.createButton('Debug 9.1 SR0')
         debug91sr2 = self.createButton('Debug 9.1 SR2')
+        debug92sr0 = self.createButton('Debug 9.2 SR0')
 
         self.connect(debug75, SIGNAL('clicked()'), self.debug75)
         self.connect(debug81, SIGNAL('clicked()'), self.debug81)
@@ -43,6 +44,7 @@ class DebugOrigin(QDialog):
         self.connect(debug90sr2, SIGNAL('clicked()'), self.debug90sr2)
         self.connect(debug91sr0, SIGNAL('clicked()'), self.debug91sr0)
         self.connect(debug91sr2, SIGNAL('clicked()'), self.debug91sr2)
+        self.connect(debug92sr0, SIGNAL('clicked()'), self.debug92sr0)
 
         layout = QVBoxLayout()
         layout.addWidget(debug75)
@@ -53,6 +55,7 @@ class DebugOrigin(QDialog):
         layout.addWidget(debug90sr2)
         layout.addWidget(debug91sr0)
         layout.addWidget(debug91sr2)
+        layout.addWidget(debug92sr0)
         return layout
 
     def createButton(self, text):
@@ -83,6 +86,9 @@ class DebugOrigin(QDialog):
 
     def debug91sr2(self):
         self.debugVS2012(r'E:\C_91SR2')
+
+    def debug92sr0(self):
+        self.debugVS2012(r'E:\C_92SR0\Source')
 
     def debugVS6(self, source_path, dsw):
         self.removeLinkFolder(r'C:\C')
