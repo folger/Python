@@ -354,9 +354,11 @@ CHECK_COPY_DLLS_AFTER_BUILD = 'copyDllsAfterBuild'
 
 
 class BatchBuilder(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, devFolder=''):
         super().__init__(parent)
-        self.setWindowTitle('Batch Build')
+        self._devFolder = devFolder
+        print(self.developFolder)
+        self.setWindowTitle(self.developFolder)
         self.setFixedSize(250, 460)
 
         icon = QIcon()
@@ -559,6 +561,10 @@ class BatchBuilder(QDialog):
         oldstatus.append(self.label_status.text())
 
     @property
+    def developFolder(self):
+        return self._devFolder if len(self._devFolder) > 0 else os.environ['develop']
+
+    @property
     def binFolder(self):
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                              r'Software\OriginLab\VS')
@@ -569,7 +575,7 @@ class BatchBuilder(QDialog):
         finally:
             winreg.CloseKey(key)
         try:
-            return os.path.join(os.environ['develop'], 'Origin')
+            return os.path.join(self.developFolder, 'Origin')
         except KeyError:
             print('Fail to detect binary folder')
         return ''
@@ -586,7 +592,7 @@ class BatchBuilder(QDialog):
             finally:
                 winreg.CloseKey(key)
             try:
-                return os.path.join(os.environ['develop'], 'Source')
+                return os.path.join(self.developFolder, 'Source')
             except KeyError:
                 print('Fail to detect build source folder')
             return ''
@@ -612,7 +618,7 @@ class BatchBuilder(QDialog):
         finally:
             winreg.CloseKey(key)
         try:
-            return os.path.join(os.environ['develop'], 'Out')
+            return os.path.join(self.developFolder, 'Out')
         except KeyError:
             print('Fail to detect Out folder')
         return ''
@@ -661,11 +667,11 @@ class BatchBuilder(QDialog):
             func(value)
 
 
-app = QApplication(sys.argv)
+app = QApplication([])
 app.setOrganizationDomain('originlab.com')
 app.setOrganizationName('originlab')
 app.setApplicationName('BatchBuild')
 app.setApplicationVersion('1.0.0')
-dlg = BatchBuilder()
+dlg = BatchBuilder(None, sys.argv[1] if len(sys.argv) > 1 else '')
 dlg.show()
 app.exec_()
