@@ -1,0 +1,105 @@
+s = [
+b"OHEADER_DialogMessages_H",b"./Origin/OriginC/System/DialogMessages.h",
+b"OHEADER_HelpId_H",b"./Origin/OriginC/OriginLab/HelpId.h",
+b"OHEADER_O3DGLConst_H",b"./Origin/OriginC/System/O3DGLConst.h",
+b"OHEADER_o8dlg_H",b"./Origin/OriginC/System/o8dlg.h",
+b"OHEADER_OC_const_H",b"./Origin/OriginC/System/OC_const.h",
+b"OHEADER_OC_localize_H",b"./Origin/OriginC/System/OC_localize.h",
+b"OHEADER_OC_Res_H",b"./Origin/OriginC/System/OC_Res.h",
+b"OHEADER_OC_sys_H",b"./Origin/OriginC/System/OC_sys.h",
+b"OHEADER_OC_types_H",b"./Origin/OriginC/System/OC_types.h",
+b"OHEADER_OCGDI_H",b"./Origin/OriginC/System/ocGDI.h",
+b"OHEADER_OCMenuId_H",b"./Origin/OriginC/System/ocMenuId.h",
+b"OHEADER_OCUndoIds_H",b"./Origin/OriginC/System/ocUndoIds.h",
+b"OHEADER_oEvents_H",b"./Origin/OriginC/OriginLab/oEvents.h",
+b"OHEADER_oPlotIDs_H",b"./Origin/OriginC/System/oPlotIDs.h",
+b"OHEADER_labutils_H",b"./Origin/OriginC/System/labutils.h",
+b"OHEADER_oErrMsg_H",b"./Origin/OriginC/System/oErrMsg.h",
+b"OHEADER_oMsg_H",b"./Origin/OriginC/System/oMsg.h",
+b"OHEADER_okThemeID_H",b"./Origin/OriginC/OriginLab/okThemeID.h",
+b"OHEADER_ocPFM_H",b"./Origin/OriginC/OriginLab/ocPFM.h",
+b"OHEADER_OODBC_H",b"./Origin/OriginC/OriginLab/OODBC.h",
+b"OHEADER_ImportWiz_H",b"./Origin/OriginC/OriginLab/ImportWiz.h",
+b"OHEADER_ODlg_H",b"./Origin/OriginC/OriginLab/ODlg.h",
+b"OHEADER_ODlg8_H",b"./Origin/OriginC/OriginLab/ODlg8.h",
+b"OHEADER_ODlgA_H",b"./Origin/OriginC/OriginLab/ODlgA.h",
+b"OHEADER_octrictr_H",b"./Origin/OriginC/System/octrictr.h",
+b"OHEADER_ocim_H",b"./Origin/OriginC/System/ocim.h",
+b"OHEADER_OCLT_H",b"./Origin/OriginC/System/OCLT.h",
+b"OHEADER_ocmath_H",b"./Origin/OriginC/System/ocmath.h",
+b"OHEADER_ocNR_H",b"./Origin/OriginC/System/ocNR.h",
+b"OHEADER_ocStats_H",b"./Origin/OriginC/System/ocStats.h",
+b"OHEADER_ocTriContour_H",b"./Origin/OriginC/System/ocTriContour.h",
+b"OHEADER_Stat_H",b"./Origin/OriginC/System/Stat.h",
+b"OHEADER_stats_types_H",b"./Origin/OriginC/System/stats_types.h",
+b"OHEADER_wks2mat_H",b"./Origin/OriginC/System/wks2mat.h",
+b"OHEADER_ocm_H",b"./Origin/OriginC/System/ocm.h",
+b"OHEADER_ocmsp_H",b"./Origin/OriginC/System/ocmsp.h",
+b"OHEADER_DataIds_H",b"./Origin/OriginC/OriginLab/DataIds.h",
+b"OHEADER_OCTreeUtils_H",b"./Origin/OriginC/System/OCTreeUtils.h",
+b"OHEADER_OCTreeUtils2_H",b"./Origin/OriginC/System/OCTreeUtils2.h",
+b"OHEADER_ocu_H",b"./Origin/OriginC/System/ocu.h",
+b"OHEADER_oExtFile_H",b"./Origin/OriginC/System/oExtFile.h",
+b"OHEADER_ocgrid_H",b"./Origin/OriginC/System/ocgrid.h",
+b"OHEADER_oUtils_H",b"./Origin/OriginC/System/oUtils.h",
+b"OHEADER_okocUtils_H",b"./Origin/OriginC/System/okocUtils.h",
+b"OHEADER_XFbase_H",b"./Origin/OriginC/System/XFbase.h",
+b"OHEADER_xfutils_H",b"./Origin/OriginC/System/xfutils.h",
+b"OHEADER_FDFTree_H",b"./Origin/OriginC/System/FDFTree.h",
+b"OHEADER_NLParams_H",b"./Origin/OriginC/System/NLParams.h",
+b"OHEADER_ONLSF_H",b"./Origin/OriginC/System/ONLSF.h",
+b"OHEADER_octe_H",b"./Origin/OriginC/OriginLab/octe.h",
+b"OHEADER_fft_H",b"./Origin/OriginC/OriginLab/fft.h",
+b"OHEADER_OMLinkRes_H",b"./Origin/OriginC/OriginLab/OMLinkRes.h",
+b"OHEADER_ocStatEx_H",b"./Origin/OriginC/System/ocStatEx.h",
+b"OHEADER_OCHttpUtils_H",b"./Origin/OriginC/OriginLab/OCHttpUtils.h",
+b"OHEADER_nag_H",b"./Origin/OriginC/System/NAG/nag.h",
+b"OHEADER_nags_H",b"./Origin/OriginC/System/NAG/nags.h",
+b"OHEADER_nagg01_H",b"./Origin/OriginC/System/NAG/nagg01.h",
+b"OHEADER_nagg02_H",b"./Origin/OriginC/System/NAG/nagg02.h",
+b"OHEADER_nagg04_H",b"./Origin/OriginC/System/NAG/nagg04.h",
+b"OHEADER_nagg07_H",b"./Origin/OriginC/System/NAG/nagg07.h",
+b"OHEADER_nagg08_H",b"./Origin/OriginC/System/NAG/nagg08.h",
+b"OHEADER_nagg12_H",b"./Origin/OriginC/System/NAG/nagg12.h",
+b"OHEADER_naga02_H",b"./Origin/OriginC/System/NAG/naga02.h",
+b"OHEADER_nagg05_H",b"./Origin/OriginC/System/NAG/nagg05.h",
+b"OHEADER_nage01_H",b"./Origin/OriginC/System/NAG/nage01.h",
+b"OHEADER_nage02_H",b"./Origin/OriginC/System/NAG/nage02.h",
+b"OHEADER_nag_stdlib_H",b"./Origin/OriginC/System/NAG/nag_stdlib.h",
+b"OHEADER_nagf02_H",b"./Origin/OriginC/System/NAG/nagf02.h",
+b"OHEADER_nagf03_H",b"./Origin/OriginC/System/NAG/nagf03.h",
+b"OHEADER_nagf04_H",b"./Origin/OriginC/System/NAG/nagf04.h",
+b"OHEADER_nagf06_H",b"./Origin/OriginC/System/NAG/nagf06.h",
+b"OHEADER_nagf07_H",b"./Origin/OriginC/System/NAG/nagf07.h",
+b"OHEADER_nagf08_H",b"./Origin/OriginC/System/NAG/nagf08.h",
+b"OHEADER_nagd06_H",b"./Origin/OriginC/System/NAG/nagd06.h",
+b"OHEADER_nagd01_H",b"./Origin/OriginC/System/NAG/nagd01.h",
+b"OHEADER_nage04_H",b"./Origin/OriginC/System/NAG/nage04.h",
+b"OHEADER_nagc02_H",b"./Origin/OriginC/System/NAG/nagc02.h",
+b"OHEADER_nagf16_H",b"./Origin/OriginC/System/NAG/nagf16.h",
+b"OHEADER_nagc05_H",b"./Origin/OriginC/System/NAG/nagc05.h",
+b"OHEADER_nagc06_H",b"./Origin/OriginC/System/NAG/nagc06.h",
+b"OHEADER_nagx02_H",b"./Origin/OriginC/System/NAG/nagx02.h",
+b"OHEADER_OC_nag_ex_H",b"./Origin/OriginC/System/NAG/OC_nag_ex.h",
+b"OHEADER_OPython_H",b"./Origin/OriginC/OriginLab/OPython.h",
+b"OHEADER_OABFFILES_H",b"./Origin/OriginC/OriginLab/oabffiles.h",
+b"OHEADER_OABFFIO_H",b"./Origin/OriginC/OriginLab/OABFFIO.h",
+b"OHEADER_OR_H",b"./Origin/OriginC/OriginLab/OR.h"
+]
+
+from itertools import chain
+import fnmatch
+import os
+for root, dirs, files in os.walk('F:/Dev/Source'):
+    for f in chain(fnmatch.filter(files, '*.h'), fnmatch.filter(files, '*.c'), fnmatch.filter(files, '*.cpp')):
+        fullpath = os.path.join(root, f)
+        with open(fullpath, 'rb') as fr:
+            data = fr.read()
+        orgdata = data
+        i = 0
+        while i < len(s):
+            data = data.replace(s[i], b'".' + s[i+1] + b'"')
+            i += 2
+        if data != orgdata:
+            with open(fullpath, 'wb') as fw:
+                fw.write(data)
