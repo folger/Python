@@ -1,62 +1,34 @@
 data = [
-    #'BinAlign, bCharBinAlign, FALSE',
-    #'Intervals, dBinWidth, TRUE',
-    #'BoxRange, bBoxType, FALSE',
-    #'WhiskerRange, bWhiskerType, FALSE',
-    #'SymbolEdgeColor, lSymbolColor, FALSE',
-    #'SymbolFillColor, lSymbolFill, FALSE',
-    #'CharIndex1, bSymbolStyle1, FALSE',
-    #'CharIndex99, bSymbolStyle99, FALSE',
-    #'CharIndexMean, bSymbolStyleMean, FALSE',
-    #'CharIndexMin, bSymbolStyleMin, FALSE',
-    #'CharIndexMax, bSymbolStyleMax, FALSE',
-    #'CharFont1, bCharFont1, FALSE',
-    #'CharFont99, bCharFont99, FALSE',
-    #'CharFontMean, bCharFontMean, FALSE',
-    #'CharFontMin, bCharFontMin, FALSE',
-    #'CharFontMax, bCharFontMax, FALSE',
-    #'CharStyle1, bCharStyle1, FALSE',
-    #'CharStyle99, bCharStyle99, FALSE',
-    #'CharStyleMean, bCharStyleMean, FALSE',
-    #'CharStyleMin, bCharStyleMin, FALSE',
-    #'CharStyleMax, bCharStyleMax, FALSE',
-    #'BoxChartLabelsShow, bBoxChartLabelsShow, FALSE',
-    #'BinomialTrialsNum, lBinomialTrialsNum, FALSE',
-    'SymbolShape1, bSymbol1, FALSE',
-    'SymbolShape99, bSymbol99, FALSE',
-    'SymbolShapeMean, bSymbolMean, FALSE',
-    'SymbolShapeMin, bSymbolMin, FALSE',
-    'SymbolShapeMax, bSymbolMax, FALSE',
-    'SymbolInterior1, bSymbolFill1, FALSE',
-    'SymbolInterior99, bSymbolFill99, FALSE',
-    'SymbolInteriorMean, bSymbolFillMean, FALSE',
-    'SymbolInteriorMin, bSymbolFillMin, FALSE',
-    'SymbolInteriorMax, bSymbolFillMax, FALSE',
+    'HasOutliers, bDotCntrl, DWORD, BSC_OUTLIERS, FALSE',
+    'HasDiamondBox, bDotCntrl, DWORD, BSC_DIAMOND, FALSE',
+    'HasBoxLabel, bDotCntrl, DWORD, BSC_BOX_LABELS, FALSE',
+    'HasWhiskerLabel, bDotCntrl, DWORD, BSC_HISTO_LABELS, FALSE',
+    'HasMeanLine, byFlags, BYTE, BCIF_SHOW_MEAN_LINE, FALSE',
+    'HasOutliersInLine, bDotCntrl, DWORD, BSC_OUTLIERS_IN_LINE, FALSE',
+    'HasDataOnTopOfBox, bDotCntrl, DWORD, BSC_DRAW_DATA_ON_TOP_OF_BOX, FALSE',
+    'HasMeanValueLabel, bDotCntrl, DWORD, BSC_MEAN_VALUE_LABEL, FALSE',
+    'EnablePercentileMax, bQuantilesCtrl, BYTE, BQC_ENABLE_MAX, FALSE',
+    'EnablePercentile99Percent, bQuantilesCtrl, BYTE, BQC_ENABLE_99PCT, FALSE',
+    'EnablePercentileMean, bQuantilesCtrl, BYTE, BQC_ENABLE_MEAN, FALSE',
+    'EnablePercentile1Percent, bQuantilesCtrl, BYTE, BQC_ENABLE_1PCT, FALSE',
+    'EnablePercentileMin, bQuantilesCtrl, BYTE, BQC_ENABLE_MIN, FALSE',
+    'EnablePercentileCustom, bQuantilesCtrl, BYTE, BQC_ENABLE_CUSTOM, FALSE',
+    'JitterPoints, byFlags, BYTE, BCIF_JITTER_POINTS, FALSE',
 ]
 
-#template = '''BOOL	COKGraphicLayer::SetBoxChartInfo{name}(int value, BOOL bUndo)
-#{{
-	#OK_UNDO_INT_CLASS(bUndo, GetBoxChartInfo{name}, SetBoxChartInfo{name}, COKGraphicLayer);
-	#return GeneralSetBoxChartInfo(&BOXCHARTINFO::{field}, value, bUndo);
-#}}
-#BOOL	COKGraphicLayer::GetBoxChartInfo{name}(int& value)
-#{{
-	#return GeneralGetBoxChartInfo(&BOXCHARTINFO::{field}, value);
-#}}
-#'''
-template = '''BOOL	COKGraphicLayer::SetBoxChartInfo{name}(int value, BOOL bUndo)
+template = '''BOOL	COKGraphicLayer::SetBoxChartInfo{name}(BOOL value, BOOL bUndo)
 {{
-	OK_UNDO_INT_CLASS(bUndo, GetBoxChartInfo{name}, SetBoxChartInfo{name}, COKGraphicLayer);
-	return GeneralSetBoxChartInfo(&BOXCHARTINFO::{field}, value, bUndo, (BOOL (COKGraphicLayer::*)(int&))nullptr, 0, &SYMBOL_UNIT_2_SIZE);
+	OK_UNDO_BOOL_CLASS(bUndo, GetBoxChartInfo{name}, SetBoxChartInfo{name}, COKGraphicLayer);
+	return GeneralSetBoxChartInfoBit(&BOXCHARTINFO::{field}, value, bUndo, {bit});
 }}
-BOOL	COKGraphicLayer::GetBoxChartInfo{name}(int& value)
+BOOL	COKGraphicLayer::GetBoxChartInfo{name}(BOOL& value)
 {{
-	return GeneralGetBoxChartInfo(&BOXCHARTINFO::{field}, value, &SYMBOL_SIZE_2_UNIT);
+	return GeneralGetBoxChartInfoBit(&BOXCHARTINFO::{field}, value, {bit});
 }}
 '''
 
 with open('q.cpp', 'w') as fw:
     for d in data:
-        name, field, _ = d.split(', ')
-        print(template.format(name=name, field=field), file=fw, end='')
+        name, field, _, bit, _ = d.split(', ')
+        print(template.format(name=name, field=field, bit=bit), file=fw, end='')
 
