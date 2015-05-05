@@ -107,7 +107,10 @@ import sys
 
 
 class GetBuildFromFTP(object):
-    def __init__(self, key1, key2, srcpath, despath, flashget, ftpsite=''):
+    def __init__(self, key1, key2, srcpath, despath, flashget,
+            ftpsite='',
+            username='',
+            password=''):
         self.key1 = key1
         self.key2 = key2
         self.srcpath = srcpath
@@ -117,20 +120,16 @@ class GetBuildFromFTP(object):
             ftpsite = '207.180.39.173'  # nd2
             #self.fptsite = '98.118.55.12' # nd1
         self.ftpsite = ftpsite
+        self.username = username
+        self.password = password
 
     def pattern(self):
         return CopyBuild.pattern1(self.key1, self.key2)
 
-    def username(self):
-        return 'gzoffice'
-
-    def password(self):
-        return 'labtalk'
-
     def fetch(self):
         print("Connecting %s ..." % self.ftpsite)
         try:
-            with FTP(self.ftpsite, self.username(), self.password()) as ftp:
+            with FTP(self.ftpsite, self.username, self.password) as ftp:
                 try:
                     ftp.set_pasv(False)
                     ftp.cwd(self.srcpath)
@@ -183,7 +182,7 @@ class GetBuildFromFTP(object):
         print('Downloading {}'.format(f))
         # os.system(cmd)
         subprocess.check_call([self.flashget,
-                               'ftp://{}:{}@{}/{}{}'.format(self.username(), self.password(), self.ftpsite, self.srcpath, f),
+                               'ftp://{}:{}@{}/{}{}'.format(self.username, self.password, self.ftpsite, self.srcpath, f),
                                os.path.join(self.despath, f)])
         print('Downloaded{}\n'.format(exclamination))
         return f
@@ -191,7 +190,7 @@ class GetBuildFromFTP(object):
     def get_build_direct(self, f):
         files = []
         try:
-            with FTP(self.ftpsite, self.username(), self.password()) as ftp:
+            with FTP(self.ftpsite, self.username, self.password) as ftp:
                 ftp.set_pasv(False)
                 ftp.cwd(os.path.join(self.srcpath, f))
 
@@ -212,8 +211,8 @@ class GetBuildFromFTP(object):
             sys.stdout.flush()
 
             self.lastpercent = ''
-            urlretrieve('ftp://{}:{}@{}/{}{}/{}'.format(self.username(),
-                                                        self.password(),
+            urlretrieve('ftp://{}:{}@{}/{}{}/{}'.format(self.username,
+                                                        self.password,
                                                         self.ftpsite,
                                                         self.srcpath,
                                                         f,
