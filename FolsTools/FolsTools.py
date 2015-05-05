@@ -169,6 +169,10 @@ class GetBuildFromFTP(object):
     def do(self):
         f = self.fetch()
         if f:
+            fdest = os.path.join(self.despath, f)
+            if os.path.exists(fdest):
+                print('{} already exists'.format(fdest))
+                return
             return self.get_build_direct(f) if self.flashget is None else self.get_build_flashget(f)
 
     def get_build_flashget(self, f):
