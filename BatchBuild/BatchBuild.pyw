@@ -70,7 +70,7 @@ def BinFile32Release():
         "OPfm9.dll",
         "OPFMFuncs9.dll",
         "orespr9.dll",
-        "Origin92.exe",
+        "Origin93.exe",
         "OStat.dll",
         "Osts9.dll",
         "otext9.dll",
@@ -166,7 +166,7 @@ def BinFile64Release():
         "OPfm9_64.dll",
         "OPFMFuncs9_64.dll",
         "orespr9_64.dll",
-        "Origin92_64.exe",
+        "Origin93_64.exe",
         "OStat_64.dll",
         "Osts9_64.dll",
         "otext9_64.dll",
@@ -250,7 +250,7 @@ class DllJobThread(QThread):
 class CopyDllThread(DllJobThread):
     def beforeDoJobs(self, win32):
         platformpath = '32bit' if win32 else '64bit'
-        self.path = os.path.join(r'\\fs1\dev\92_dlls', platformpath)
+        self.path = os.path.join(r'\\fs1\dev\93_dlls', platformpath)
         try:
             shutil.rmtree(self.path)
         except FileNotFoundError:
