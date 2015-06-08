@@ -3,17 +3,17 @@ import re
 
 
 codes = {
-        'v':	'FUNC_SYS_VALUE_VAR_DEF({_name}, TYPE, _defaultVal)',
-        'vv':	'static bool FUNC_VALID_CHECK({_name})(double& value)\n{{\n\treturn true;\n}}\nFUNC_SYS_VALUE_VAR_DEF_VALID_CHECK({_name}, TYPE, _defaultVal)',
-        'gb':	'FUNC_SYS_VALUE_GSTATE_BIT({_name}, _field, _bit)',
-        'gbr':	'FUNC_SYS_VALUE_GSTATE_BIT_REVERSE({_name}, _field, _bit)',
-        'gv':	'FUNC_SYS_VALUE_GSTATE_VAR({_name}, _field)',
-        'gvv':	'static bool FUNC_VALID_CHECK({_name})(double& value)\n{{\n\treturn true;\n}}\nFUNC_SYS_VALUE_GSTATE_VAR_VALID_CHECK({_name}, _field)',
-        'f':	'FUNC_SYS_VALUE_FUNC_DEF({_name}, _func)',
-        'fr':	'FUNC_SYS_VALUE_READONLY({_name}, [](){return;})',
-        'fg':	'FUNC_SYS_VALUE_GENERAL({_name}, [](){return;}, [](){})',
-        'vc':	'static double FUNC_GET_CONVERT({_name})(int value)\n{{\n\treturn 0;\n}}\nstatic int FUNC_SET_CONVERT({_name})(double value)\n{{\n\treturn 0;\n}}\nFUNC_SYS_VALUE_VAR_DEF_CONVERT({_name}, TYPE, _defaultVal)',
-        'cb':	'FUNC_SYS_VALUE_COMMON_DWORD_BIT({_name}, _bit, _bReverseBVal)',
+        'v': 'FUNC_SYS_VALUE_VAR_DEF({_name}, TYPE, _defaultVal)',
+        'vv': 'static bool FUNC_VALID_CHECK({_name})(double& value)\n{{\n\treturn true;\n}}\nFUNC_SYS_VALUE_VAR_DEF_VALID_CHECK({_name}, TYPE, _defaultVal)',
+        'gb': 'FUNC_SYS_VALUE_GSTATE_BIT({_name}, _field, _bit)',
+        'gbr': 'FUNC_SYS_VALUE_GSTATE_BIT_REVERSE({_name}, _field, _bit)',
+        'gv': 'FUNC_SYS_VALUE_GSTATE_VAR({_name}, _field)',
+        'gvv': 'static bool FUNC_VALID_CHECK({_name})(double& value)\n{{\n\treturn true;\n}}\nFUNC_SYS_VALUE_GSTATE_VAR_VALID_CHECK({_name}, _field)',
+        'f': 'FUNC_SYS_VALUE_FUNC_DEF({_name}, _func)',
+        'fr': 'FUNC_SYS_VALUE_READONLY({_name}, [](){return;})',
+        'fg': 'FUNC_SYS_VALUE_GENERAL({_name}, [](){return;}, [](){})',
+        'vc': 'static double FUNC_GET_CONVERT({_name})(int value)\n{{\n\treturn 0;\n}}\nstatic int FUNC_SET_CONVERT({_name})(double value)\n{{\n\treturn 0;\n}}\nFUNC_SYS_VALUE_VAR_DEF_CONVERT({_name}, TYPE, _defaultVal)',
+        'cb': 'FUNC_SYS_VALUE_COMMON_DWORD_BIT({_name}, _bit, _bReverseBVal)',
         'z':'FUNC_SYS_VALUE_DEF({_name})\n{{\n\treturn 1;\n}}',
         }
 
@@ -24,18 +24,18 @@ table_sign = 'static SYSVALUE l_values[] = {'
 while True:
     user = input('''
 Code Type:
-v	FUNC_SYS_VALUE_VAR_DEF(_name, TYPE, _defaultVal)
-vv	FUNC_SYS_VALUE_VAR_DEF_VALID_CHECK(_name, TYPE, _defaultVal)
-gb	FUNC_SYS_VALUE_GSTATE_BIT(_name, _field, _bit)
-gbr	FUNC_SYS_VALUE_GSTATE_BIT_REVERSE(_name, _field, _bit)
-gv	FUNC_SYS_VALUE_GSTATE_VAR(_name, _field)
-gvv	FUNC_SYS_VALUE_GSTATE_VAR_VALID_CHECK(_name, _field)
-f	FUNC_SYS_VALUE_FUNC_DEF(_name, _func)
-fr	FUNC_SYS_VALUE_READONLY(_name, _func)
-fg	FUNC_SYS_VALUE_GENERAL(_name, _funcGet, _funcSet)
-vc	FUNC_SYS_VALUE_VAR_DEF_CONVERT(_name, TYPE, _defaultVal)
-cb	FUNC_SYS_VALUE_COMMON_DWORD_BIT(_name, _bit, _bReverseBVal)
-z	FUNC_SYS_VALUE_DEF(_name)
+v     FUNC_SYS_VALUE_VAR_DEF(_name, TYPE, _defaultVal)
+vv    FUNC_SYS_VALUE_VAR_DEF_VALID_CHECK(_name, TYPE, _defaultVal)
+gb    FUNC_SYS_VALUE_GSTATE_BIT(_name, _field, _bit)
+gbr   FUNC_SYS_VALUE_GSTATE_BIT_REVERSE(_name, _field, _bit)
+gv    FUNC_SYS_VALUE_GSTATE_VAR(_name, _field)
+gvv   FUNC_SYS_VALUE_GSTATE_VAR_VALID_CHECK(_name, _field)
+f     FUNC_SYS_VALUE_FUNC_DEF(_name, _func)
+fr    FUNC_SYS_VALUE_READONLY(_name, _func)
+fg    FUNC_SYS_VALUE_GENERAL(_name, _funcGet, _funcSet)
+vc    FUNC_SYS_VALUE_VAR_DEF_CONVERT(_name, TYPE, _defaultVal)
+cb    FUNC_SYS_VALUE_COMMON_DWORD_BIT(_name, _bit, _bReverseBVal)
+z     FUNC_SYS_VALUE_DEF(_name)
 System Variable Name & Code type: ''')
     if len(user) == 0:
         break
