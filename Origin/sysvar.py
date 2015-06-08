@@ -22,8 +22,8 @@ def sys_value_format(name): return '\t\tSYS_VALUE_ENTRY({}),'.format(name)
 table_sign = 'static SYSVALUE l_values[] = {'
 
 while True:
-    user = input('''
-Code Type:
+    try:
+        user = input('''Code Type:
 v     FUNC_SYS_VALUE_VAR_DEF(_name, TYPE, _defaultVal)
 vv    FUNC_SYS_VALUE_VAR_DEF_VALID_CHECK(_name, TYPE, _defaultVal)
 gb    FUNC_SYS_VALUE_GSTATE_BIT(_name, _field, _bit)
@@ -37,32 +37,34 @@ vc    FUNC_SYS_VALUE_VAR_DEF_CONVERT(_name, TYPE, _defaultVal)
 cb    FUNC_SYS_VALUE_COMMON_DWORD_BIT(_name, _bit, _bReverseBVal)
 z     FUNC_SYS_VALUE_DEF(_name)
 System Variable Name & Code type: ''')
-    if len(user) == 0:
-        break
-    name, codetype = user.split(' ')
-    name = name.upper()
-
-    with open(okint2) as fr:
-        data = fr.read()
-
-    func_pos = data.find('template <class T, int N>')
-    data = data[:func_pos] + codes[codetype].format(_name=name) + '\n' + data[func_pos:]
-
-    table_begin = data.find(table_sign)
-    table_begin += len(table_sign)
-    table_end = data.find('}', table_begin)
-    table = data[table_begin:table_end]
-
-    sys_values = list(table.split('\n'))
-    for i,line in enumerate(sys_values):
-        m = re.search(r'SYS_VALUE_ENTRY\(([0-9A-Z]+)\)', line)
-        if m and name < m.group(1):
-            sys_values.insert(i, sys_value_format(name))
+        if len(user) == 0:
             break
-    else:
-            sys_values.insert(len(sys_values)-1, sys_value_format(name))
+        name, codetype = user.split(' ')
+        name = name.upper()
 
-    data = data[:table_begin] + '\n'.join(sys_values) + data[table_end:]
+        with open(okint2) as fr:
+            data = fr.read()
 
-    with open(okint2, 'w') as fw:
-        fw.write(data)
+        func_pos = data.find('template <class T, int N>')
+        data = data[:func_pos] + codes[codetype].format(_name=name) + '\n' + data[func_pos:]
+
+        table_begin = data.find(table_sign)
+        table_begin += len(table_sign)
+        table_end = data.find('}', table_begin)
+        table = data[table_begin:table_end]
+
+        sys_values = list(table.split('\n'))
+        for i,line in enumerate(sys_values):
+            m = re.search(r'SYS_VALUE_ENTRY\(([0-9A-Z]+)\)', line)
+            if m and name < m.group(1):
+                sys_values.insert(i, sys_value_format(name))
+                break
+        else:
+                sys_values.insert(len(sys_values)-1, sys_value_format(name))
+
+        data = data[:table_begin] + '\n'.join(sys_values) + data[table_end:]
+
+        with open(okint2, 'w') as fw:
+            fw.write(data)
+    except Exception as e:
+        print(repr(e))
