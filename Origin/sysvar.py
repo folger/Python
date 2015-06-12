@@ -4,6 +4,7 @@ import re
 
 codes = {
         'v': 'FUNC_SYS_VALUE_VAR_DEF({_name}, TYPE, _defaultVal)',
+        'vr': 'FUNC_SYS_VALUE_VAR_DEF_READONLY({_name}, TYPE, _defaultVal)',
         'vv': 'static bool FUNC_VALID_CHECK({_name})(double& value)\n{{\n\treturn true;\n}}\nFUNC_SYS_VALUE_VAR_DEF_VALID_CHECK({_name}, TYPE, _defaultVal)',
         'gb': 'FUNC_SYS_VALUE_GSTATE_BIT({_name}, _field, _bit)',
         'gbr': 'FUNC_SYS_VALUE_GSTATE_BIT_REVERSE({_name}, _field, _bit)',
@@ -17,14 +18,15 @@ codes = {
         'z':'FUNC_SYS_VALUE_DEF({_name})\n{{\n\treturn 1;\n}}',
         }
 
-okint2 = os.path.join(os.environ['Develop'], r'Source\vc32\okern96\okint2.cpp')
-def sys_value_format(name): return '\t\tSYS_VALUE_ENTRY({}),'.format(name)
+okSysValues = os.path.join(os.environ['Develop'], r'Source\vc32\okern96\okSysValues.cpp')
+def sys_value_format(name): return '\t\tSVE({}),'.format(name)
 table_sign = 'static SYSVALUE l_values[] = {'
 
 while True:
     try:
         user = input('''Code Type:
 v     FUNC_SYS_VALUE_VAR_DEF(_name, TYPE, _defaultVal)
+vr    FUNC_SYS_VALUE_VAR_DEF_READONLY(_name, TYPE, _defaultVal)
 vv    FUNC_SYS_VALUE_VAR_DEF_VALID_CHECK(_name, TYPE, _defaultVal)
 gb    FUNC_SYS_VALUE_GSTATE_BIT(_name, _field, _bit)
 gbr   FUNC_SYS_VALUE_GSTATE_BIT_REVERSE(_name, _field, _bit)
@@ -42,7 +44,7 @@ System Variable Name & Code type: ''')
         name, codetype = user.split(' ')
         name = name.upper()
 
-        with open(okint2) as fr:
+        with open(okSysValues) as fr:
             data = fr.read()
 
         func_pos = data.find('template <class T, int N>')
@@ -55,7 +57,7 @@ System Variable Name & Code type: ''')
 
         sys_values = list(table.split('\n'))
         for i,line in enumerate(sys_values):
-            m = re.search(r'SYS_VALUE_ENTRY\(([0-9A-Z]+)\)', line)
+            m = re.search(r'SVE\(([0-9A-Z]+)\)', line)
             if m and name < m.group(1):
                 sys_values.insert(i, sys_value_format(name))
                 break
@@ -64,7 +66,7 @@ System Variable Name & Code type: ''')
 
         data = data[:table_begin] + '\n'.join(sys_values) + data[table_end:]
 
-        with open(okint2, 'w') as fw:
+        with open(okSysValues, 'w') as fw:
             fw.write(data)
     except Exception as e:
         print(repr(e))
