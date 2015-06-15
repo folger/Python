@@ -19,7 +19,7 @@ codes = {
         }
 
 okSysValues = os.path.join(os.environ['Develop'], r'Source\vc32\okern96\okSysValues.cpp')
-def sys_value_format(name): return '\t\tSVE({}),'.format(name)
+def sys_value_format(name): return '\t\t_SVE({}),'.format(name)
 table_sign = 'static SYSVALUE l_values[] = {'
 
 while True:
@@ -57,7 +57,7 @@ System Variable Name & Code type: ''')
 
         sys_values = list(table.split('\n'))
         for i,line in enumerate(sys_values):
-            m = re.search(r'SVE\(([0-9A-Z]+)\)', line)
+            m = re.search(r'_SVE\(([0-9A-Z]+)\)', line)
             if m and name < m.group(1):
                 sys_values.insert(i, sys_value_format(name))
                 break
