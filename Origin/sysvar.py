@@ -32,6 +32,7 @@ codes = {
             'cv': 'SVE_CHAR_VALID_CHECK({_name}, _default)',
             'bv': 'SVE_BYTE_VALID_CHECK({_name}, _default)',
             'uv': 'SVE_USHORT_VALID_CHECK({_name}, _default)',
+            'dwv': 'SVE_DWORD_VALID_CHECK({_name}, _default)',
             'iv': 'SVE_INT_VALID_CHECK({_name}, _default)',
             'dv': 'SVE_DOUBLE_VALID_CHECK({_name}, _default)',
             'byv': 'SVE_BYTEREF_VALID_CHECK({_name}, _ref)',
