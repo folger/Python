@@ -3,42 +3,49 @@ import re
 
 
 codes = {
-        'v': 'FUNC_SYS_VALUE_VAR_DEF({_name}, TYPE, _defaultVal)',
-        'vr': 'FUNC_SYS_VALUE_VAR_DEF_READONLY({_name}, TYPE, _defaultVal)',
-        'vv': 'static bool FUNC_VALID_CHECK({_name})(double& value)\n{{\n\treturn true;\n}}\nFUNC_SYS_VALUE_VAR_DEF_VALID_CHECK({_name}, TYPE, _defaultVal)',
-        'gb': 'FUNC_SYS_VALUE_GSTATE_BIT({_name}, _field, _bit)',
-        'gbr': 'FUNC_SYS_VALUE_GSTATE_BIT_REVERSE({_name}, _field, _bit)',
-        'gv': 'FUNC_SYS_VALUE_GSTATE_VAR({_name}, _field)',
-        'gvv': 'static bool FUNC_VALID_CHECK({_name})(double& value)\n{{\n\treturn true;\n}}\nFUNC_SYS_VALUE_GSTATE_VAR_VALID_CHECK({_name}, _field)',
-        'f': 'FUNC_SYS_VALUE_FUNC_DEF({_name}, _func)',
-        'fr': 'FUNC_SYS_VALUE_READONLY({_name}, [](){{return;}})',
-        'fg': 'FUNC_SYS_VALUE_GENERAL({_name}, [](){{return;}}, [](double val){{;}})',
-        'vc': 'static double FUNC_GET_CONVERT({_name})(int value)\n{{\n\treturn 0;\n}}\nstatic int FUNC_SET_CONVERT({_name})(double value)\n{{\n\treturn 0;\n}}\nFUNC_SYS_VALUE_VAR_DEF_CONVERT({_name}, TYPE, _defaultVal)',
-        'cb': 'FUNC_SYS_VALUE_COMMON_DWORD_BIT({_name}, _bit, _bReverseBVal)',
-        'z':'FUNC_SYS_VALUE_DEF({_name})\n{{\n\treturn 1;\n}}',
+            'z': 'SVE({_name})',
+            'ia': 'SVE_INT_ACCESS({_name}, _fn)',
+            'r': 'SVE_READONLY({_name}, [](){return;})',
+            'g': 'SVE_GENERAL({_name}, [](){return;}, [](double val){;})',
+            'sb': 'SVE_SUB({_name}, _fn, _sub)',
+            'c': 'SVE_CHAR({_name}, _default)',
+            'by': 'SVE_BYTE({_name}, _default)',
+            's': 'SVE_SHORT({_name}, _default)',
+            'dw': 'SVE_DWORD({_name}, _default)',
+            'i': 'SVE_INT({_name}, _default)',
+            'd': 'SVE_DOUBLE({_name}, _default)',
+            'iro': 'SVE_INT_READONLY({_name}, _default)',
+            'cr': 'SVE_CHARREF({_name}, _ref)',
+            'br': 'SVE_BYTEREF({_name}, _ref)',
+            'sr': 'SVE_SHORTREF({_name}, _ref)',
+            'ur': 'SVE_USHORTREF({_name}, _ref)',
+            'ir': 'SVE_INTREF({_name}, _ref)',
+            'fr': 'SVE_FLOATREF({_name}, _ref)',
+            'br': 'SVE_BOOLREF({_name}, _ref)',
+            'dwr': 'SVE_DWORDREF({_name}, _ref)',
+            'dr': 'SVE_DOUBLEREF({_name}, _ref)',
+            'drb': 'SVE_DWORDREF_BIT({_name}, _ref, _bit)',
+            'drbr': 'SVE_DWORDREF_BIT_REVERSE({_name}, _ref, _bit)',
+            'brb': 'SVE_BYTEREF_BIT({_name}, _ref, _bit)',
+            'urb': 'SVE_USHORTREF_BIT({_name}, _ref, _bit)',
+            'cv': 'SVE_CHAR_VALID_CHECK({_name}, _default)',
+            'uv': 'SVE_USHORT_VALID_CHECK({_name}, _default)',
+            'iv': 'SVE_INT_VALID_CHECK({_name}, _default)',
+            'dv': 'SVE_DOUBLE_VALID_CHECK({_name}, _default)',
+            'byv': 'SVE_BYTEREF_VALID_CHECK({_name}, _ref)',
+            'urv': 'SVE_USHORTREF_VALID_CHECK({_name}, _ref)',
+            'irv': 'SVE_INTREF_VALID_CHECK({_name}, _ref)',
         }
 
 okSysValues = os.path.join(os.environ['Develop'], r'Source\vc32\okern96\okSysValues.cpp')
-def sys_value_format(name): return '\t\t_SVE({}),'.format(name)
-table_sign = 'static SYSVALUE l_values[] = {'
+def sys_value_format(name, codestype): return ('\t\t' + codes[codetype]).format(_name=name)
+table_sign = 'static SYSVALUE l_values[] ='
 
 while True:
     try:
-        user = input('''Code Type:
-v     FUNC_SYS_VALUE_VAR_DEF(_name, TYPE, _defaultVal)
-vr    FUNC_SYS_VALUE_VAR_DEF_READONLY(_name, TYPE, _defaultVal)
-vv    FUNC_SYS_VALUE_VAR_DEF_VALID_CHECK(_name, TYPE, _defaultVal)
-gb    FUNC_SYS_VALUE_GSTATE_BIT(_name, _field, _bit)
-gbr   FUNC_SYS_VALUE_GSTATE_BIT_REVERSE(_name, _field, _bit)
-gv    FUNC_SYS_VALUE_GSTATE_VAR(_name, _field)
-gvv   FUNC_SYS_VALUE_GSTATE_VAR_VALID_CHECK(_name, _field)
-f     FUNC_SYS_VALUE_FUNC_DEF(_name, _func)
-fr    FUNC_SYS_VALUE_READONLY(_name, _func)
-fg    FUNC_SYS_VALUE_GENERAL(_name, _funcGet, _funcSet)
-vc    FUNC_SYS_VALUE_VAR_DEF_CONVERT(_name, TYPE, _defaultVal)
-cb    FUNC_SYS_VALUE_COMMON_DWORD_BIT(_name, _bit, _bReverseBVal)
-z     FUNC_SYS_VALUE_DEF(_name)
-System Variable Name & Code type: ''')
+        user = input('''-------------------Code Type:-------------------
+{}
+System Variable Name & Code type: '''.format('\n'.join(['{}\t{}'.format(k, v) for k, v in codes.items()])))
         if len(user) == 0:
             break
         name, codetype = user.split(' ')
@@ -47,22 +54,19 @@ System Variable Name & Code type: ''')
         with open(okSysValues) as fr:
             data = fr.read()
 
-        func_pos = data.find('template <class T, int N>')
-        data = data[:func_pos] + codes[codetype].format(_name=name) + '\n' + data[func_pos:]
-
         table_begin = data.find(table_sign)
         table_begin += len(table_sign)
-        table_end = data.find('}', table_begin)
+        table_end = data.find('\t};', table_begin)
         table = data[table_begin:table_end]
 
         sys_values = list(table.split('\n'))
         for i,line in enumerate(sys_values):
-            m = re.search(r'_SVE\(([0-9A-Z]+)\)', line)
+            m = re.search(r'SVE_[^(]*\(([0-9A-Z]+),', line)
             if m and name < m.group(1):
-                sys_values.insert(i, sys_value_format(name))
+                sys_values.insert(i, sys_value_format(name, codetype))
                 break
         else:
-                sys_values.insert(len(sys_values)-1, sys_value_format(name))
+            sys_values.insert(len(sys_values)-1, sys_value_format(name, codetype))
 
         data = data[:table_begin] + '\n'.join(sys_values) + data[table_end:]
 
