@@ -11,6 +11,7 @@ codes = {
             'c': 'SVE_CHAR({_name}, _default)',
             'by': 'SVE_BYTE({_name}, _default)',
             's': 'SVE_SHORT({_name}, _default)',
+            'u': 'SVE_USHORT({_name}, _default)',
             'dw': 'SVE_DWORD({_name}, _default)',
             'i': 'SVE_INT({_name}, _default)',
             'd': 'SVE_DOUBLE({_name}, _default)',
@@ -29,6 +30,7 @@ codes = {
             'brb': 'SVE_BYTEREF_BIT({_name}, _ref, _bit)',
             'urb': 'SVE_USHORTREF_BIT({_name}, _ref, _bit)',
             'cv': 'SVE_CHAR_VALID_CHECK({_name}, _default)',
+            'bv': 'SVE_BYTE_VALID_CHECK({_name}, _default)',
             'uv': 'SVE_USHORT_VALID_CHECK({_name}, _default)',
             'iv': 'SVE_INT_VALID_CHECK({_name}, _default)',
             'dv': 'SVE_DOUBLE_VALID_CHECK({_name}, _default)',
@@ -38,7 +40,7 @@ codes = {
         }
 
 okSysValues = os.path.join(os.environ['Develop'], r'Source\vc32\okern96\okSysValues.cpp')
-def sys_value_format(name, codestype): return ('\t\t' + codes[codetype]).format(_name=name)
+def sys_value_format(name, codestype): return ('\t\t' + codes[codetype] + ',').format(_name=name)
 table_sign = 'static SYSVALUE l_values[] ='
 
 while True:
