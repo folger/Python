@@ -5,8 +5,8 @@ import re
 codes = {
             'z': 'SVE({_name})',
             'ia': 'SVE_INT_ACCESS({_name}, _fn)',
-            'r': 'SVE_READONLY({_name}, [](){return;})',
-            'g': 'SVE_GENERAL({_name}, [](){return;}, [](double val){;})',
+            'r': 'SVE_READONLY({_name}, [](){{return;}})',
+            'g': 'SVE_GENERAL({_name}, [](){{return;}}, [](double val){{;}})',
             'sb': 'SVE_SUB({_name}, _fn, _sub)',
             'c': 'SVE_CHAR({_name}, _default)',
             'by': 'SVE_BYTE({_name}, _default)',
