@@ -1,10 +1,12 @@
 import os
 import re
+from time import sleep
 
 
 codes = {
-            'z': 'SVE({_name})',
+            'z': 'SVE_({_name})',
             'ia': 'SVE_INT_ACCESS({_name}, _fn)',
+            'iar': 'SVE_INT_ACCESS_REVERSE({_name}, _fn)',
             'r': 'SVE_READONLY({_name}, [](){{return;}})',
             'g': 'SVE_GENERAL({_name}, [](){{return;}}, [](double val){{;}})',
             'sb': 'SVE_SUB({_name}, _fn, _sub)',
@@ -64,7 +66,7 @@ System Variable Name & Code type: '''.format('\n'.join(['{}\t{}'.format(k, v) fo
 
         sys_values = list(table.split('\n'))
         for i,line in enumerate(sys_values):
-            m = re.search(r'SVE_[^(]*\(([0-9A-Z]+),', line)
+            m = re.search(r'SVE_[^(]*\(([0-9A-Z]+)', line)
             if m and name < m.group(1):
                 sys_values.insert(i, sys_value_format(name, codetype))
                 break
@@ -75,5 +77,9 @@ System Variable Name & Code type: '''.format('\n'.join(['{}\t{}'.format(k, v) fo
 
         with open(okSysValues, 'w') as fw:
             fw.write(data)
-    except Exception as e:
-        print(repr(e))
+    except KeyError:
+        print('invalid code type')
+        sleep(2)
+    except ValueError as e:
+        print('please specify correct syntax : "sysname codetype"')
+        sleep(2)
