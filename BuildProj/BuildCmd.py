@@ -3,7 +3,7 @@ import os
 import BuildUtils
 
 
-platform = 'win32'
+platform = 'x64'
 configuration = 'Debug'
 
 
