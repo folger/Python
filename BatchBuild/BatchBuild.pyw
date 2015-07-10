@@ -263,7 +263,8 @@ class CopyDllThread(DllJobThread):
         os.makedirs(os.path.join(self.path, r'OriginC\Originlab'))
 
     def doJob(self, dll):
-        shutil.copyfile(os.path.join(self.binfolder, dll), os.path.join(self.path, dll))
+        shutil.copyfile(os.path.join(self.binfolder, dll),
+                        os.path.join(self.path, dll))
 
 
 class DeleteDllThread(DllJobThread):
@@ -304,7 +305,8 @@ class CopyFilesThread(QThread):
         try:
             for i, f in enumerate(files):
                 self.updated.emit(i, f)
-                shutil.copyfile(os.path.join(self.srcfolder, f), os.path.join(self.desfolder, f))
+                shutil.copyfile(os.path.join(self.srcfolder, f),
+                                os.path.join(self.desfolder, f))
         except WindowsError as e:
             self.error.emit(str(e))
         self.enabled.emit(True)
@@ -339,7 +341,8 @@ class BuildThread(QThread):
                 self.dummy.emit()  # to eat up possible KeyboardInterrupt
                 self.error.emit('Build Error, check Command Window')
                 break
-        self.updateStatus.emit(strftime("%Y-%m-%d %H:%M:%S", localtime()) if ret == 0 else "Build Failed")
+        self.updateStatus.emit(strftime("%Y-%m-%d %H:%M:%S", localtime())
+                               if ret == 0 else "Build Failed")
         if ret == 0:
             self.copydlls.emit()
         self.enabled.emit(True)
@@ -377,17 +380,22 @@ class BatchBuilder(QDialog):
         layout.addWidget(self.label_status)
         self.setLayout(layout)
 
-        self.loadSetting(MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val))
+        self.loadSetting(MAIN_WINDOW_GEOMETRY,
+                         lambda val: self.restoreGeometry(val))
 
-        def str2bool(s): return s == 'true' or s == 'True'
-        self.loadSetting(SLN_ORIGIN, lambda val: self.slnOrigin.setChecked(str2bool(val)))
-        self.loadSetting(SLN_VIEWER, lambda val: self.slnViewer.setChecked(str2bool(val)))
-        self.loadSetting(SLN_ORGLAB, lambda val: self.slnOrglab.setChecked(str2bool(val)))
-        self.loadSetting(CHECK_32_RELEASE, lambda val: self.check32Release.setChecked(str2bool(val)))
-        self.loadSetting(CHECK_32_DEBUG, lambda val: self.check32Debug.setChecked(str2bool(val)))
-        self.loadSetting(CHECK_64_RELEASE, lambda val: self.check64Release.setChecked(str2bool(val)))
-        self.loadSetting(CHECK_64_DEBUG, lambda val: self.check64Debug.setChecked(str2bool(val)))
-        self.loadSetting(CHECK_COPY_DLLS_AFTER_BUILD, lambda val: self.checkCopyAfterBuild.setChecked(str2bool(val)))
+        def setChecked(var):
+            def wrapper(val):
+                var.setChecked(val == 'true' or val == 'True')
+            return wrapper
+        self.loadSetting(SLN_ORIGIN, setChecked(self.slnOrigin))
+        self.loadSetting(SLN_VIEWER, setChecked(self.slnViewer))
+        self.loadSetting(SLN_ORGLAB, setChecked(self.slnOrglab))
+        self.loadSetting(CHECK_32_RELEASE, setChecked(self.check32Release))
+        self.loadSetting(CHECK_32_DEBUG, setChecked(self.check32Debug))
+        self.loadSetting(CHECK_64_RELEASE, setChecked(self.check64Release))
+        self.loadSetting(CHECK_64_DEBUG, setChecked(self.check64Debug))
+        self.loadSetting(CHECK_COPY_DLLS_AFTER_BUILD,
+                         setChecked(self.checkCopyAfterBuild))
         self.onConfigurationChanged()
 
     def createSolutionGroup(self):
@@ -411,10 +419,14 @@ class BatchBuilder(QDialog):
         self.check64Debug = QCheckBox('64bit Debug')
         self.check32Release.setChecked(True)
 
-        self.connect(self.check32Release, SIGNAL("clicked()"), self.onConfigurationChanged)
-        self.connect(self.check32Debug, SIGNAL("clicked()"), self.onConfigurationChanged)
-        self.connect(self.check64Release, SIGNAL("clicked()"), self.onConfigurationChanged)
-        self.connect(self.check64Debug, SIGNAL("clicked()"), self.onConfigurationChanged)
+        self.connect(self.check32Release, SIGNAL("clicked()"),
+                     self.onConfigurationChanged)
+        self.connect(self.check32Debug, SIGNAL("clicked()"),
+                     self.onConfigurationChanged)
+        self.connect(self.check64Release, SIGNAL("clicked()"),
+                     self.onConfigurationChanged)
+        self.connect(self.check64Debug, SIGNAL("clicked()"),
+                     self.onConfigurationChanged)
 
         layout = QGridLayout()
         layout.addWidget(self.check32Release, 0, 0)
@@ -432,7 +444,8 @@ class BatchBuilder(QDialog):
         self.btnDeleteBin = self.createButton('Delete Binaries (Release)')
         self.btnCopyPDB = self.createButton('Copy PDBs (Release)')
         self.btnCopyMAP = self.createButton('Copy MAPs (Release)')
-        self.checkCopyAfterBuild = QCheckBox('Copy files after Build (Release)')
+        self.checkCopyAfterBuild = QCheckBox('Copy files after Build '
+                                             '(Release)')
         self.checkCopyAfterBuild.setChecked(True)
 
         self.connect(self.btnBuild, SIGNAL("clicked()"), self.build)
@@ -460,57 +473,59 @@ class BatchBuilder(QDialog):
         return btn
 
     def build(self):
-        mythread = BuildThread(self)
-        mythread.enabled.connect(self.enableAll)
+        mt = BuildThread(self)
+        mt.enabled.connect(self.enableAll)
         if self.checkCopyAfterBuild.isChecked():
-            mythread.copydlls.connect(self.copyToFS1)
-        mythread.error.connect(self.errorReport)
-        mythread.dummy.connect(self.dummy)
-        mythread.updateStatus.connect(self.updateStatus)
-        mythread.build_configurations = self.getBuildConfigurations()
-        mythread.slnfiles = self.solutionFiles
-        mythread.start()
+            mt.copydlls.connect(self.copyToFS1)
+        mt.error.connect(self.errorReport)
+        mt.dummy.connect(self.dummy)
+        mt.updateStatus.connect(self.updateStatus)
+        mt.build_configurations = self.getBuildConfigurations()
+        mt.slnfiles = self.solutionFiles
+        mt.start()
 
     def copyToFS1(self):
-        mythread = CopyDllThread(self)
-        mythread.binfolder = self.binFolder
-        mythread.win32 = self.check32Release.isChecked()
-        mythread.x64 = self.check64Release.isChecked()
-        mythread.start()
+        mt = CopyDllThread(self)
+        mt.binfolder = self.binFolder
+        mt.win32 = self.check32Release.isChecked()
+        mt.x64 = self.check64Release.isChecked()
+        mt.start()
 
     def deleteBin(self):
-        mythread = DeleteDllThread(self)
-        mythread.binfolder = self.binFolder
-        mythread.win32 = self.check32Release.isChecked()
-        mythread.x64 = self.check64Release.isChecked()
-        mythread.start()
+        mt = DeleteDllThread(self)
+        mt.binfolder = self.binFolder
+        mt.win32 = self.check32Release.isChecked()
+        mt.x64 = self.check64Release.isChecked()
+        mt.start()
 
     def clean(self):
-        mythread = BuildThread(self)
-        mythread.enabled.connect(self.enableAll)
-        mythread.build_configurations = self.getBuildConfigurations(['/t:clean'])
-        mythread.slnfiles = self.solutionFiles
-        mythread.start()
+        mt = BuildThread(self)
+        mt.enabled.connect(self.enableAll)
+        mt.build_configurations = self.getBuildConfigurations(['/t:clean'])
+        mt.slnfiles = self.solutionFiles
+        mt.start()
 
     def copyPDB(self):
-        mythread = CopyFilesThread(self)
-        mythread.srcfolder = os.path.join(self.outFolder, 'PDB_Release')
-        mythread.desfolder = r'\\fs1\dev\PDBs\GZBuild'
-        mythread.start()
+        mt = CopyFilesThread(self)
+        mt.srcfolder = os.path.join(self.outFolder, 'PDB_Release')
+        mt.desfolder = r'\\fs1\dev\PDBs\GZBuild'
+        mt.start()
 
     def copyMAP(self):
-        mythread = CopyFilesThread(self)
-        mythread.srcfolder = os.path.join(self.outFolder, 'MapFiles')
-        mythread.desfolder = r'\\fs1\dev\Maps\GZBuild'
-        mythread.start()
+        mt = CopyFilesThread(self)
+        mt.srcfolder = os.path.join(self.outFolder, 'MapFiles')
+        mt.desfolder = r'\\fs1\dev\Maps\GZBuild'
+        mt.start()
 
     def onConfigurationChanged(self):
-        enableRelease = self.check32Release.isChecked() or self.check64Release.isChecked()
+        enableRelease = (self.check32Release.isChecked() or
+                         self.check64Release.isChecked())
         self.btnCopyToFS1.setEnabled(enableRelease)
         self.btnDeleteBin.setEnabled(enableRelease)
         self.checkCopyAfterBuild.setEnabled(enableRelease)
 
-        enable = enableRelease or self.check32Debug.isChecked() or self.check64Debug.isChecked()
+        enable = (enableRelease or self.check32Debug.isChecked() or
+                  self.check64Debug.isChecked())
         self.btnBuild.setEnabled(enable)
         self.btnClean.setEnabled(enable)
 
@@ -563,7 +578,9 @@ class BatchBuilder(QDialog):
 
     @property
     def developFolder(self):
-        return self._devFolder if len(self._devFolder) > 0 else os.environ['develop']
+        if self._devFolder:
+            return self._devFolder
+        return os.environ['develop']
 
     @property
     def binFolder(self):
@@ -627,8 +644,10 @@ class BatchBuilder(QDialog):
     def getBuildConfigurations(self, extra_option=[]):
         def getBuildConfiguration(win32, release):
             config = ['msbuild', '/m']
-            config.append('/p:configuration={}'.format('Release' if release else 'Debug'))
-            config.append('/p:platform={}'.format('Win32' if win32 else 'x64'))
+            config.append('/p:configuration={}'
+                          .format('Release' if release else 'Debug'))
+            config.append('/p:platform={}'
+                          .format('Win32' if win32 else 'x64'))
             return config + extra_option
 
         build_configurations = []
@@ -647,19 +666,29 @@ class BatchBuilder(QDialog):
 
     def closeEvent(self, event):
         if not self.slnOrigin.isEnabled():
-            QMessageBox.information(self, 'Cannot Quit', 'Please wait for building process finish')
+            QMessageBox.information(self, 'Cannot Quit',
+                                    'Please wait for building process finish')
             event.ignore()
         else:
             settings = QSettings()
-            settings.setValue(MAIN_WINDOW_GEOMETRY, self.saveGeometry())
-            settings.setValue(SLN_ORIGIN, self.slnOrigin.isChecked())
-            settings.setValue(SLN_VIEWER, self.slnViewer.isChecked())
-            settings.setValue(SLN_ORGLAB, self.slnOrglab.isChecked())
-            settings.setValue(CHECK_32_RELEASE, self.check32Release.isChecked())
-            settings.setValue(CHECK_32_DEBUG, self.check32Debug.isChecked())
-            settings.setValue(CHECK_64_RELEASE, self.check64Release.isChecked())
-            settings.setValue(CHECK_64_DEBUG, self.check64Debug.isChecked())
-            settings.setValue(CHECK_COPY_DLLS_AFTER_BUILD, self.checkCopyAfterBuild.isChecked())
+            settings.setValue(MAIN_WINDOW_GEOMETRY,
+                              self.saveGeometry())
+            settings.setValue(SLN_ORIGIN,
+                              self.slnOrigin.isChecked())
+            settings.setValue(SLN_VIEWER,
+                              self.slnViewer.isChecked())
+            settings.setValue(SLN_ORGLAB,
+                              self.slnOrglab.isChecked())
+            settings.setValue(CHECK_32_RELEASE,
+                              self.check32Release.isChecked())
+            settings.setValue(CHECK_32_DEBUG,
+                              self.check32Debug.isChecked())
+            settings.setValue(CHECK_64_RELEASE,
+                              self.check64Release.isChecked())
+            settings.setValue(CHECK_64_DEBUG,
+                              self.check64Debug.isChecked())
+            settings.setValue(CHECK_COPY_DLLS_AFTER_BUILD,
+                              self.checkCopyAfterBuild.isChecked())
 
     def loadSetting(self, key, func):
         settings = QSettings()
