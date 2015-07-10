@@ -1,3 +1,4 @@
+import sys
 import os
 import re
 from time import sleep
@@ -42,19 +43,44 @@ codes = {
             'irv': 'SVE_INTREF_VALID_CHECK({_name}, _ref)',
         }
 
-okSysValues = os.path.join(os.environ['Develop'], r'Source\vc32\okern96\okSysValues.cpp')
-def sys_value_format(name, codestype): return ('\t\t' + codes[codetype] + ',').format(_name=name)
+okSysValues = os.path.join(os.environ['Develop'],
+                           r'Source\vc32\okern96\okSysValues.cpp')
 table_sign = 'static SYSVALUE l_values[] ='
 
-while True:
-    try:
-        user = input('''-------------------Code Type:-------------------
-{}
-System Variable Name & Code type: '''.format('\n'.join(['{}\t{}'.format(k, v) for k, v in codes.items()])))
-        if len(user) == 0:
+
+def user_input():
+    while True:
+        user = input('-------------------Code Type:-------------------\n{}\n'
+                     'System Variable Name & Code type: '
+                     .format('\n'.join(['{}\t{}'.format(k, v)
+                             for k, v in codes.items()]))
+                     )
+        if not user:
             break
-        name, codetype = user.split(' ')
+        yield user
+
+
+def file_input(f):
+    def wrapper():
+        with open(f) as fr:
+            for line in fr:
+                line = line.rstrip()
+                if not line:
+                    break
+                yield line
+    return wrapper
+
+
+def sys_value_format(name, codetype, codemark):
+    return ('\t\t' + codes[codetype] + ',' + codemark).format(_name=name)
+
+
+inputs = file_input(sys.argv[1]) if len(sys.argv) > 1 else user_input
+for user in inputs():
+    try:
+        name, codetype, *more = user.split(',')
         name = name.upper()
+        codemark = more[0] if len(more) > 0 else ''
 
         with open(okSysValues) as fr:
             data = fr.read()
@@ -65,21 +91,23 @@ System Variable Name & Code type: '''.format('\n'.join(['{}\t{}'.format(k, v) fo
         table = data[table_begin:table_end]
 
         sys_values = list(table.split('\n'))
-        for i,line in enumerate(sys_values):
+        for i, line in enumerate(sys_values):
             m = re.search(r'SVE_[^(]*\(([0-9A-Z]+)', line)
             if m and name < m.group(1):
-                sys_values.insert(i, sys_value_format(name, codetype))
+                sys_values.insert(i,
+                                  sys_value_format(name, codetype, codemark))
                 break
         else:
-            sys_values.insert(len(sys_values)-1, sys_value_format(name, codetype))
+            sys_values.insert(len(sys_values) - 1,
+                              sys_value_format(name, codetype, codemark))
 
         data = data[:table_begin] + '\n'.join(sys_values) + data[table_end:]
 
         with open(okSysValues, 'w') as fw:
             fw.write(data)
     except KeyError:
-        print('invalid code type')
+        print('Invalid code type: "{}"'.format(codetype))
         sleep(2)
     except ValueError as e:
-        print('please specify correct syntax : "sysname codetype"')
+        print('Syntax wrong("{}")'.format(user))
         sleep(2)
