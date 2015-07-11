@@ -20,7 +20,7 @@ codes = {
             'd': 'SVE_DOUBLE({_name}, _default)',
             'iro': 'SVE_INT_READONLY({_name}, _default)',
             'cr': 'SVE_CHARREF({_name}, _ref)',
-            'br': 'SVE_BYTEREF({_name}, _ref)',
+            'byr': 'SVE_BYTEREF({_name}, _ref)',
             'sr': 'SVE_SHORTREF({_name}, _ref)',
             'ur': 'SVE_USHORTREF({_name}, _ref)',
             'ir': 'SVE_INTREF({_name}, _ref)',
@@ -38,7 +38,7 @@ codes = {
             'dwv': 'SVE_DWORD_VALID_CHECK({_name}, _default)',
             'iv': 'SVE_INT_VALID_CHECK({_name}, _default)',
             'dv': 'SVE_DOUBLE_VALID_CHECK({_name}, _default)',
-            'byv': 'SVE_BYTEREF_VALID_CHECK({_name}, _ref)',
+            'brv': 'SVE_BYTEREF_VALID_CHECK({_name}, _ref)',
             'urv': 'SVE_USHORTREF_VALID_CHECK({_name}, _ref)',
             'irv': 'SVE_INTREF_VALID_CHECK({_name}, _ref)',
         }
