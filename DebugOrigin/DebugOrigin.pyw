@@ -4,10 +4,11 @@ import subprocess
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-VS6Path = r'C:\Program Files (x86)\Microsoft Visual Studio\COMMON\MSDev98\Bin\MSDEV.EXE'
-VS2010Path = r'C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe'
+VS6Path = (r'C:\Program Files (x86)\Microsoft Visual Studio'
+           '\COMMON\MSDev98\Bin\MSDEV.EXE')
+VS2010Path = (r'C:\Program Files (x86)\Microsoft Visual Studio 10.0'
+              '\Common7\IDE\devenv.exe')
 VS2012Path = r'D:\VS2012\Common7\IDE\devenv.exe'
-
 MAIN_WINDOW_GEOMETRY = 'mainWindowGeometry'
 
 
@@ -23,45 +24,28 @@ class DebugOrigin(QDialog):
         self.setFixedSize(200, 320)
         self.setLayout(self.createButtons())
 
-        self.loadSetting(MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val))
+        self.loadSetting(MAIN_WINDOW_GEOMETRY,
+                         lambda val: self.restoreGeometry(val))
 
     def createButtons(self):
-        debug75 = self.createButton('Debug 7.5')
-        debug81 = self.createButton('Debug 8.1')
-        debug851 = self.createButton('Debug 8.5.1')
-        debug86 = self.createButton('Debug 8.6')
-        debug90sr1 = self.createButton('Debug 9.0 SR1')
-        debug90sr2 = self.createButton('Debug 9.0 SR2')
-        debug91sr0 = self.createButton('Debug 9.1 SR0')
-        debug91sr2 = self.createButton('Debug 9.1 SR2')
-        debug92sr0 = self.createButton('Debug 9.2 SR0')
-
-        self.connect(debug75, SIGNAL('clicked()'), self.debug75)
-        self.connect(debug81, SIGNAL('clicked()'), self.debug81)
-        self.connect(debug851, SIGNAL('clicked()'), self.debug851)
-        self.connect(debug86, SIGNAL('clicked()'), self.debug86)
-        self.connect(debug90sr1, SIGNAL('clicked()'), self.debug90sr1)
-        self.connect(debug90sr2, SIGNAL('clicked()'), self.debug90sr2)
-        self.connect(debug91sr0, SIGNAL('clicked()'), self.debug91sr0)
-        self.connect(debug91sr2, SIGNAL('clicked()'), self.debug91sr2)
-        self.connect(debug92sr0, SIGNAL('clicked()'), self.debug92sr0)
-
         layout = QVBoxLayout()
-        layout.addWidget(debug75)
-        layout.addWidget(debug81)
-        layout.addWidget(debug851)
-        layout.addWidget(debug86)
-        layout.addWidget(debug90sr1)
-        layout.addWidget(debug90sr2)
-        layout.addWidget(debug91sr0)
-        layout.addWidget(debug91sr2)
-        layout.addWidget(debug92sr0)
-        return layout
 
-    def createButton(self, text):
-        btn = QPushButton(text)
-        btn.setFixedHeight(30)
-        return btn
+        def create_button(label, func):
+            btn = QPushButton(label)
+            btn.setFixedHeight(30)
+            self.connect(btn, SIGNAL('clicked()'), func)
+            layout.addWidget(btn)
+
+        create_button('Debug 7.5', self.debug75)
+        create_button('Debug 8.1', self.debug81)
+        create_button('Debug 8.5.1', self.debug851)
+        create_button('Debug 8.6', self.debug86)
+        create_button('Debug 9.0 SR1', self.debug90sr1)
+        create_button('Debug 9.0 SR2', self.debug90sr2)
+        create_button('Debug 9.1 SR0', self.debug91sr0)
+        create_button('Debug 9.1 SR2', self.debug91sr2)
+        create_button('Debug 9.2 SR0', self.debug92sr0)
+        return layout
 
     def debug75(self):
         self.debugVS6(r'E:\C_75', 'Orgmain.dsw')
@@ -105,7 +89,8 @@ class DebugOrigin(QDialog):
         self.run(VS2010Path, os.path.join(r'C:\C\Vc32\orgmain', sln))
 
     def debugVS2012(self, source_path):
-        self.run(VS2012Path, os.path.join(source_path, r'vc32\orgmain\OriginAll.sln'))
+        self.run(VS2012Path,
+                 os.path.join(source_path, r'vc32\orgmain\OriginAll.sln'))
 
     def run(self, exe, sln):
         subprocess.Popen([exe, sln],
