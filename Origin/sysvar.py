@@ -42,9 +42,28 @@ codes = {
             'irv': 'SVE_INTREF_VALID_CHECK({_name}, _ref)',
         }
 
-okSysValues = os.path.join(os.environ['Develop'],
-                           r'Source\vc32\okern96\okSysValues.cpp')
-table_sign = 'static SYSVALUE l_values[] ='
+
+def sys_value_format(name, codetype, codemark, more):
+    pairs = {'_name': name}
+    if more:
+        if codetype in ('drb', 'drbr'):
+            with open(os.path.join(os.environ['Develop'],
+                                   r'Source\SDK\Gstate.h')) as fr:
+                pattern = re.compile(r'{}\s+O_QUERY_BOOL\((.*)\)'
+                                     .format(more[0]))
+                for line in fr:
+                    m = pattern.search(line)
+                    if m:
+                        pairs['_ref_bit'] = m.group(1)
+                        break
+                else:
+                        pairs['_ref_bit'] = ''
+        elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'iro'):
+            pairs['_default'] = ','.join(more)
+        elif codetype in ('ia', 'iar', 'sb'):
+            pairs['_fn'] = more[0]
+
+    return '\t\t' + codes[codetype].format(**pairs) + ',' + codemark
 
 
 def user_input():
@@ -59,45 +78,9 @@ def user_input():
         yield user
 
 
-def file_input(f):
-    def wrapper():
-        with open(f) as fr:
-            for line in fr:
-                line = line.rstrip()
-                if not line:
-                    break
-                yield line
-    return wrapper
-
-
-def sys_value_format(name, codetype, codemark, more):
-    result = ''
-    if more:
-        if codetype in ('drb', 'drbr'):
-            with open(os.path.join(os.environ['Develop'],
-                                   r'Source\SDK\Gstate.h')) as fr:
-                pattern = re.compile(r'{}\s+O_QUERY_BOOL\((.*)\)'
-                                     .format(more[0]))
-                for line in fr:
-                    m = pattern.search(line)
-                    if m:
-                        result = codes[codetype].format(_name=name,
-                                                        _ref_bit=m.group(1))
-                        break
-                else:
-                    result = codes[codetype].format(_name=name, _ref_bit='')
-        elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'iro'):
-            result = codes[codetype].format(_name=name, _default=','.join(more))
-        elif codetype in ('ia', 'iar', 'sb'):
-            result = codes[codetype].format(_name=name, _fn=more[0])
-
-    if not result:
-        result = codes[codetype].format(_name=name)
-    return '\t\t' + result + ',' + codemark
-
-
-inputs = file_input(sys.argv[1]) if len(sys.argv) > 1 else user_input
-for user in inputs():
+inputs = open(sys.argv[1]) if len(sys.argv) > 1 else user_input()
+for user in inputs:
+    user = user.rstrip()
     try:
         name, codetype, *more = user.split(',')
         name = name.upper()
@@ -105,6 +88,10 @@ for user in inputs():
         if more:
             codemark = more[0]
             more.pop(0)
+
+        okSysValues = os.path.join(os.environ['Develop'],
+                                   r'Source\vc32\okern96\okSysValues.cpp')
+        table_sign = 'static SYSVALUE l_values[] ='
 
         with open(okSysValues) as fr:
             data = fr.read()
