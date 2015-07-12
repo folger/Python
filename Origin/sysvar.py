@@ -3,7 +3,6 @@ import os
 import re
 from time import sleep
 
-
 codes = {
             'z': 'SVE_({_name})',
             'ia': 'SVE_INT_ACCESS({_name}, _fn)',
@@ -51,7 +50,7 @@ table_sign = 'static SYSVALUE l_values[] ='
 def user_input():
     while True:
         user = input('-------------------Code Type:-------------------\n{}\n'
-                     'System Variable Name & Code type: '
+                     'System Variable Name,Code type,code mark: '
                      .format('\n'.join(['{}\t{}'.format(k, v)
                              for k, v in codes.items()]))
                      )
