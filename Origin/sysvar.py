@@ -5,11 +5,13 @@ from time import sleep
 
 codes = {
             'z': 'SVE_({_name})',
-            'ia': 'SVE_INT_ACCESS({_name}, {_fn})',
-            'iar': 'SVE_INT_ACCESS_REVERSE({_name}, {_fn})',
+            'iag': 'SVE_INT_ACCESS_BY_GET({_name}, {_fn})',
+            'iagr': 'SVE_INT_ACCESS_BY_GET_REVERSE({_name}, {_fn})',
+            'ias': 'SVE_INT_ACCESS_BY_SET({_name}, {_fn})',
             'r': 'SVE_READONLY({_name}, [](){{return;}})',
             'g': 'SVE_GENERAL({_name}, [](){{return;}}, [](double val){{;}})',
             'sb': 'SVE_SUB({_name}, {_fn}, _sub)',
+            'sbr': 'SVE_SUB_READONLY({_name}, {_fn}, _sub)',
             'c': 'SVE_CHAR({_name}, {_default})',
             'by': 'SVE_BYTE({_name}, {_default})',
             's': 'SVE_SHORT({_name}, {_default})',
@@ -45,8 +47,8 @@ codes = {
 
 def sys_value_format(name, codetype, codemark, more):
     pairs = {'_name': name}
-    if more:
-        if codetype in ('drb', 'drbr'):
+    if codetype in ('drb', 'drbr'):
+        if more:
             with open(os.path.join(os.environ['Develop'],
                                    r'Source\SDK\Gstate.h')) as fr:
                 pattern = re.compile(r'{}\s+O_QUERY_BOOL\((.*)\)'
@@ -56,12 +58,12 @@ def sys_value_format(name, codetype, codemark, more):
                     if m:
                         pairs['_ref_bit'] = m.group(1)
                         break
-                else:
-                        pairs['_ref_bit'] = ''
-        elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'iro'):
-            pairs['_default'] = ','.join(more)
-        elif codetype in ('ia', 'iar', 'sb'):
-            pairs['_fn'] = more[0]
+        if len(pairs) == 1:
+            pairs['_ref_bit'] = ''
+    elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'iro'):
+        pairs['_default'] = ','.join(more)
+    elif codetype in ('iag', 'iagr', 'ias', 'sb', 'sbr'):
+        pairs['_fn'] = more[0] if more else ''
 
     return '\t\t' + codes[codetype].format(**pairs) + ',' + codemark
 
