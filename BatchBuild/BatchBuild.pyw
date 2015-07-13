@@ -438,39 +438,30 @@ class BatchBuilder(QDialog):
         return group
 
     def createActionGroup(self):
-        self.btnBuild = self.createButton('Build')
-        self.btnClean = self.createButton('Clean')
-        self.btnCopyToFS1 = self.createButton('Copy to fs1 (Release)')
-        self.btnDeleteBin = self.createButton('Delete Binaries (Release)')
-        self.btnCopyPDB = self.createButton('Copy PDBs (Release)')
-        self.btnCopyMAP = self.createButton('Copy MAPs (Release)')
+        layout = QVBoxLayout()
+
+        def create_button(label, func):
+            btn = QPushButton(label)
+            btn.setFixedHeight(30)
+            self.connect(btn, SIGNAL("clicked()"), func)
+            layout.addWidget(btn)
+            return btn
+
         self.checkCopyAfterBuild = QCheckBox('Copy files after Build '
                                              '(Release)')
         self.checkCopyAfterBuild.setChecked(True)
-
-        self.connect(self.btnBuild, SIGNAL("clicked()"), self.build)
-        self.connect(self.btnCopyToFS1, SIGNAL("clicked()"), self.copyToFS1)
-        self.connect(self.btnDeleteBin, SIGNAL("clicked()"), self.deleteBin)
-        self.connect(self.btnClean, SIGNAL("clicked()"), self.clean)
-        self.connect(self.btnCopyPDB, SIGNAL("clicked()"), self.copyPDB)
-        self.connect(self.btnCopyMAP, SIGNAL("clicked()"), self.copyMAP)
-
-        layout = QVBoxLayout()
         layout.addWidget(self.checkCopyAfterBuild)
-        layout.addWidget(self.btnBuild)
-        layout.addWidget(self.btnClean)
-        layout.addWidget(self.btnCopyToFS1)
-        layout.addWidget(self.btnDeleteBin)
-        layout.addWidget(self.btnCopyPDB)
-        layout.addWidget(self.btnCopyMAP)
+
+        self.btnBuild = create_button('Build', self.build)
+        self.btnClean = create_button('Clean', self.clean)
+        self.btnCopyToFS1 = create_button('Copy to fs1 (Release)', self.copyToFS1)
+        self.btnDeleteBin = create_button('Delete Binaries (Release)', self.deleteBin)
+        self.btnCopyPDB = create_button('Copy PDBs (Release)', self.copyPDB)
+        self.btnCopyMAP = create_button('Copy MAPs (Release)', self.copyMAP)
+
         group = QGroupBox('Action')
         group.setLayout(layout)
         return group
-
-    def createButton(self, text):
-        btn = QPushButton(text)
-        btn.setFixedHeight(30)
-        return btn
 
     def build(self):
         mt = BuildThread(self)
