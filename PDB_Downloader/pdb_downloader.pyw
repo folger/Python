@@ -156,14 +156,14 @@ class PDBDownloader(QDialog):
                 "ORserve9",
                 )
 
-        self.modules = QStandardItemModel()
+        self.moduleItems = QStandardItemModel()
         for m in modules:
             item = QStandardItem(m)
             item.setCheckState(Qt.Unchecked)
             item.setCheckable(True)
-            self.modules.appendRow(item)
+            self.moduleItems.appendRow(item)
         view = QListView()
-        view.setModel(self.modules)
+        view.setModel(self.moduleItems)
 
         self.resetChecks = QPushButton('Reset Checks')
         self.connect(self.resetChecks, SIGNAL("clicked()"), self.onResetChecks)
@@ -176,9 +176,13 @@ class PDBDownloader(QDialog):
         return group
 
     def onResetChecks(self):
-        for i in range(self.modules.rowCount()):
-            item = self.modules.item(i, 0)
-            item.setCheckState(Qt.Unchecked)
+        for module in self.modules():
+            module.setCheckState(Qt.Unchecked)
+
+    def modules(self):
+        for i in range(self.moduleItems.rowCount()):
+            item = self.moduleItems.item(i, 0)
+            yield item
 
     def reject(self):
         self.close()
