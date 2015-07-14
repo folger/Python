@@ -33,12 +33,12 @@ codes = {
             'drbr': 'SVE_DWORDREF_BIT_REVERSE({_name}, {_ref_bit})',
             'brb': 'SVE_BYTEREF_BIT({_name}, _ref, _bit)',
             'urb': 'SVE_USHORTREF_BIT({_name}, _ref, _bit)',
-            'cv': 'SVE_CHAR_VALID_CHECK({_name}, _default)',
-            'bv': 'SVE_BYTE_VALID_CHECK({_name}, _default)',
-            'uv': 'SVE_USHORT_VALID_CHECK({_name}, _default)',
-            'dwv': 'SVE_DWORD_VALID_CHECK({_name}, _default)',
-            'iv': 'SVE_INT_VALID_CHECK({_name}, _default)',
-            'dv': 'SVE_DOUBLE_VALID_CHECK({_name}, _default)',
+            'cv': 'SVE_CHAR_VALID_CHECK({_name}, {_default})',
+            'bv': 'SVE_BYTE_VALID_CHECK({_name}, {_default})',
+            'uv': 'SVE_USHORT_VALID_CHECK({_name}, {_default})',
+            'dwv': 'SVE_DWORD_VALID_CHECK({_name}, {_default})',
+            'iv': 'SVE_INT_VALID_CHECK({_name}, {_default})',
+            'dv': 'SVE_DOUBLE_VALID_CHECK({_name}, {_default})',
             'brv': 'SVE_BYTEREF_VALID_CHECK({_name}, _ref)',
             'urv': 'SVE_USHORTREF_VALID_CHECK({_name}, _ref)',
             'irv': 'SVE_INTREF_VALID_CHECK({_name}, _ref)',
@@ -60,7 +60,7 @@ def sys_value_format(name, codetype, codemark, more):
                         break
         if len(pairs) == 1:
             pairs['_ref_bit'] = ''
-    elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'iro'):
+    elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'iro', 'cv', 'bv', 'uv', 'dwv', 'iv', 'dv'):
         pairs['_default'] = ','.join(more)
     elif codetype in ('iag', 'iagr', 'ias', 'sb', 'sbr'):
         pairs['_fn'] = more[0] if more else ''
