@@ -8,15 +8,21 @@ from random import randint
 
 
 class PDBDownloader(QDialog):
+    stop = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
         with open('settings.json') as fr:
             settings = json.load(fr)
-        self.buildPrefix = settings['CurrentBuildPrefix']
+            self.curVer = settings['CurrentVersion']
+            self.buildPrefix = settings['CurrentBuildPrefix']
+            self.ftp = settings['FTP']
+            self.username = settings['Username']
+            self.password = settings['Password']
 
         self.setWindowTitle('PDB Downloader({})'.
-                            format(settings['CurrentVersion']))
+                            format(self.curVer))
         self.setFixedSize(250, 450)
 
         layout = QVBoxLayout()
@@ -31,11 +37,11 @@ class PDBDownloader(QDialog):
 
     def createBuildNumberLayout(self):
         label = QLabel('Build Number')
-        self.buildnumber = QLineEdit('100')
+        self.buildNum = QLineEdit('136')
 
         layout = QHBoxLayout()
         layout.addWidget(label)
-        layout.addWidget(self.buildnumber)
+        layout.addWidget(self.buildNum)
         return layout
 
     def createFileTypeGroup(self):
@@ -63,8 +69,9 @@ class PDBDownloader(QDialog):
         return group
 
     def createActionLayout(self):
-        self.filename = QLabel('ok9.pdb')
+        self.filename = QLabel('')
         self.start = QPushButton('Start')
+        self.connect(self.start, SIGNAL("clicked()"), self.onStart)
 
         layout = QHBoxLayout()
         layout.addWidget(self.filename)
@@ -179,16 +186,99 @@ class PDBDownloader(QDialog):
         for module in self.modules():
             module.setCheckState(Qt.Unchecked)
 
+    def onStart(self):
+        def files(module):
+            def _format(fm): return fm.format(module)
+            if self.pdb.isChecked():
+                if self.win32.isChecked():
+                    yield _format('{}.pdb.zip')
+                if self.x64.isChecked():
+                    yield _format('{}_64.pdb.zip')
+            if self.map.isChecked():
+                if self.win32.isChecked():
+                    yield _format('{}.map.zip')
+                if self.x64.isChecked():
+                    yield _format('{}_64.map.zip')
+
+        def all_files():
+            for module in self.modules():
+                if module.checkState() == Qt.Checked:
+                    for f in files(module.text()):
+                        filename = os.path.join(os.environ['home'],
+                                                'Desktop', f)
+                        ftp = ('ftp://{}:{}@{}/Builds/{}/'
+                               'MAP_and_PDB/{}{}/{}'
+                               ).format(self.username,
+                                        self.password,
+                                        self.ftp,
+                                        self.curVer,
+                                        self.buildPrefix,
+                                        self.buildNum.text(),
+                                        f)
+                        yield ftp, filename
+
+        dt = DownloadThread(self)
+        dt.setfilename.connect(self.setFileName)
+        dt.setrange.connect(self.setProgressRange)
+        dt.progress.connect(self.updateProgress)
+        dt.all_files = all_files
+        dt.start()
+
+    def setFileName(self, text):
+        self.filename.setText(text)
+
+    def updateProgress(self, val):
+        self.progress.setValue(val)
+
+    def setProgressRange(self, min, max):
+        if min == 0 and max == 0:
+            self.progress.reset()
+        else:
+            self.progress.setRange(min, max)
+
     def modules(self):
         for i in range(self.moduleItems.rowCount()):
-            item = self.moduleItems.item(i, 0)
-            yield item
+            yield self.moduleItems.item(i, 0)
 
     def reject(self):
         self.close()
 
     def closeEvent(self, event):
         pass
+
+
+class StopFetch(Exception):
+    pass
+
+
+class DownloadThread(QThread):
+    setfilename = pyqtSignal(str)
+    setrange = pyqtSignal(int, int)
+    progress = pyqtSignal(int)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.stop = False
+        parent.stop.connect(self.setStop)
+
+    def run(self):
+        for ftp, filename in self.all_files():
+            self.setfilename.emit(os.path.basename(filename))
+            try:
+                urlretrieve(ftp, filename, reporthook=self.progressHook)
+            except StopFetch:
+                break
+        self.setfilename.emit('')
+        self.setrange.emit(0, 0)
+
+    def progressHook(self, count, blocksize, totalsize):
+        if self.stop:
+            raise StopFetch
+        self.setrange.emit(0, totalsize-1)
+        self.progress.emit(count * blocksize)
+
+    def setStop(self):
+        self.stop = True
 
 
 app = QApplication(sys.argv)
