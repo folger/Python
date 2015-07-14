@@ -15,7 +15,8 @@ class PDBDownloader(QDialog):
             settings = json.load(fr)
         self.buildPrefix = settings['CurrentBuildPrefix']
 
-        self.setWindowTitle('PDB Downloader({})'.format(settings['CurrentVersion']))
+        self.setWindowTitle('PDB Downloader({})'.
+                            format(settings['CurrentVersion']))
         self.setFixedSize(250, 450)
 
         layout = QVBoxLayout()
@@ -73,6 +74,12 @@ class PDBDownloader(QDialog):
 
     def createModulesGroup(self):
         modules = (
+                "ok9",
+                "ou9",
+                "okUtil9",
+                "omocavc9",
+                "OCompiler9",
+                "Outl9",
                 "gsodbc9",
                 "Lababf32",
                 "libapr",
@@ -88,7 +95,6 @@ class PDBDownloader(QDialog):
                 "ocmathsp9",
                 "OCMmLink9",
                 "OCntrls9",
-                "OCompiler9",
                 "ocStatEx9",
                 "octree_Utils9",
                 "OCTree9",
@@ -110,14 +116,11 @@ class PDBDownloader(QDialog):
                 "oimg9",
                 "OImgLT9",
                 "OK3DGL9",
-                "ok9",
-                "okUtil9",
                 "OKXF9",
                 "OlbtEdit9",
                 "OLTmsg9",
                 "omail9",
                 "OMat9",
-                "omocavc9",
                 "ONAG_ex9",
                 "ONag9",
                 "ONLSF9",
@@ -139,9 +142,7 @@ class PDBDownloader(QDialog):
                 "OTools",
                 "OTreeEditor9",
                 "oTreeGrid9",
-                "ou9",
                 "OUim9",
-                "Outl9",
                 "OVideoReader9",
                 "OVideoWriter9",
                 "owxGrid9",
@@ -164,20 +165,26 @@ class PDBDownloader(QDialog):
         view = QListView()
         view.setModel(self.modules)
 
-        layout = QHBoxLayout()
+        self.resetChecks = QPushButton('Reset Checks')
+        self.connect(self.resetChecks, SIGNAL("clicked()"), self.onResetChecks)
+
+        layout = QVBoxLayout()
         layout.addWidget(view)
+        layout.addWidget(self.resetChecks)
         group = QGroupBox('Modules')
         group.setLayout(layout)
         return group
+
+    def onResetChecks(self):
+        for i in range(self.modules.rowCount()):
+            item = self.modules.item(i, 0)
+            item.setCheckState(Qt.Unchecked)
 
     def reject(self):
         self.close()
 
     def closeEvent(self, event):
-        for i in range(self.modules.rowCount()):
-            item = self.modules.item(i, 0)
-            if item.checkState() == Qt.Checked:
-                print(item.text())
+        pass
 
 
 app = QApplication(sys.argv)
