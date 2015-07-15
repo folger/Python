@@ -331,7 +331,10 @@ class DownloadThread(QThread):
         self.stop = True
 
 
+# somehow using QListView will crash
+# when exit, that why this is needed
 sip.setdestroyonexit(False)
+
 app = QApplication(sys.argv)
 app.setOrganizationDomain('originlab.com')
 app.setOrganizationName('originlab')
