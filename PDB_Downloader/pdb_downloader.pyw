@@ -1,11 +1,13 @@
 import sys
 import os
+import re
 import json
 import zipfile
 from urllib.request import urlretrieve
+from urllib.error import URLError
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from random import randint
+import sip
 
 
 class PDBDownloader(QDialog):
@@ -16,15 +18,15 @@ class PDBDownloader(QDialog):
 
         with open('settings.json') as fr:
             settings = json.load(fr)
-            self.curVer = settings['CurrentVersion']
             self.buildPrefix = settings['CurrentBuildPrefix']
+            self.curVer = re.search(r'Ir(\d+)', self.buildPrefix).group(1)
             self.ftp = settings['FTP']
             self.username = settings['Username']
             self.password = settings['Password']
 
         self.setWindowTitle('PDB Downloader({})'.
                             format(self.curVer))
-        self.setFixedSize(250, 450)
+        self.setFixedSize(250, 550)
 
         layout = QVBoxLayout()
         layout.addLayout(self.createBuildNumberLayout())
@@ -83,33 +85,37 @@ class PDBDownloader(QDialog):
     def createModulesGroup(self):
         modules = (
                 "ok9",
-                "ou9",
                 "okUtil9",
+                "Outl9",
+                "Origin93",
+                "ou9",
+                "OD9",
+                "O3DGL9",
+                "OK3DGL9",
+                "OCntrls9",
+                "ogrid9",
+                "OKXF9",
                 "omocavc9",
                 "OCompiler9",
-                "Outl9",
+                "ocMath9",
+                "octree_Utils9",
+                "ocUtils9",
                 "gsodbc9",
                 "Lababf32",
                 "libapr",
                 "libsie",
                 "MOCABaseTypes9",
                 "nlsf9",
-                "O3DGL9",
                 "oc3dx9",
                 "OCcontour9",
                 "ocim9",
                 "ocmath29",
-                "ocMath9",
                 "ocmathsp9",
                 "OCMmLink9",
-                "OCntrls9",
                 "ocStatEx9",
-                "octree_Utils9",
                 "OCTree9",
-                "ocUtils9",
                 "ocuv9",
                 "OCVImg",
-                "OD9",
                 "odbc9",
                 "odcfl9",
                 "oExtFile9",
@@ -117,14 +123,11 @@ class PDBDownloader(QDialog):
                 "OFFTW9",
                 "ofgp9",
                 "OFIO9",
-                "ogrid9",
                 "ohtmlhelp9",
                 "ohttp9",
                 "OIFileDlg9",
                 "oimg9",
                 "OImgLT9",
-                "OK3DGL9",
-                "OKXF9",
                 "OlbtEdit9",
                 "OLTmsg9",
                 "omail9",
@@ -143,7 +146,6 @@ class PDBDownloader(QDialog):
                 "OPfm9",
                 "OPFMFuncs9",
                 "orespr9",
-                "Origin93.exe",
                 "OStat",
                 "Osts9",
                 "otext9",
@@ -164,20 +166,20 @@ class PDBDownloader(QDialog):
                 "ORserve9",
                 )
 
-        self.moduleItems = QStandardItemModel()
+        self.view = QListView()
+        moduleItems = QStandardItemModel(self.view)
         for m in modules:
             item = QStandardItem(m)
             item.setCheckState(Qt.Unchecked)
             item.setCheckable(True)
-            self.moduleItems.appendRow(item)
-        view = QListView()
-        view.setModel(self.moduleItems)
+            moduleItems.appendRow(item)
+        self.view.setModel(moduleItems)
 
         self.resetChecks = QPushButton('Reset Checks')
         self.connect(self.resetChecks, SIGNAL("clicked()"), self.onResetChecks)
 
         layout = QVBoxLayout()
-        layout.addWidget(view)
+        layout.addWidget(self.view)
         layout.addWidget(self.resetChecks)
         group = QGroupBox('Modules')
         group.setLayout(layout)
@@ -188,6 +190,10 @@ class PDBDownloader(QDialog):
             module.setCheckState(Qt.Unchecked)
 
     def onStart(self):
+        if not self.pdb.isEnabled():
+            self.stop.emit()
+            return
+
         def files(module):
             def _format(fm): return fm.format(module)
             if self.pdb.isChecked():
@@ -226,6 +232,8 @@ class PDBDownloader(QDialog):
         dt.setfilename.connect(self.setFileName)
         dt.setrange.connect(self.setProgressRange)
         dt.progress.connect(self.updateProgress)
+        dt.enable.connect(self.enableGUI)
+        dt.error.connect(self.errorReport)
         dt.all_files = all_files
         dt.start()
 
@@ -242,14 +250,35 @@ class PDBDownloader(QDialog):
             self.progress.setRange(min, max)
 
     def modules(self):
-        for i in range(self.moduleItems.rowCount()):
-            yield self.moduleItems.item(i, 0)
+        moduleItems = self.view.model()
+        for i in range(moduleItems.rowCount()):
+            yield moduleItems.item(i, 0)
+
+    def enableGUI(self, enable):
+        self.buildNum.setEnabled(enable)
+        self.pdb.setEnabled(enable)
+        self.map.setEnabled(enable)
+        self.win32.setEnabled(enable)
+        self.x64.setEnabled(enable)
+        self.view.setEnabled(enable)
+        self.resetChecks.setEnabled(enable)
+        if enable:
+            self.start.setText('Start')
+        else:
+            self.start.setText('Stop')
+
+    def errorReport(self, title, error):
+        QMessageBox.information(self, title, error)
 
     def reject(self):
         self.close()
 
     def closeEvent(self, event):
-        pass
+        if not self.buildNum.isEnabled():
+            QMessageBox.information(self, 'Cannot Quit',
+                                    'Please wait for download finish '
+                                    'or click Stop button')
+            event.ignore()
 
 
 class StopFetch(Exception):
@@ -260,6 +289,8 @@ class DownloadThread(QThread):
     setfilename = pyqtSignal(str)
     setrange = pyqtSignal(int, int)
     progress = pyqtSignal(int)
+    enable = pyqtSignal(bool)
+    error = pyqtSignal(str, str)
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -267,18 +298,28 @@ class DownloadThread(QThread):
         parent.stop.connect(self.setStop)
 
     def run(self):
+        hasfile = False
+        self.enable.emit(False)
         for ftp, filename in self.all_files():
+            hasfile = True
             self.setfilename.emit(os.path.basename(filename))
             try:
                 urlretrieve(ftp, filename, reporthook=self.progressHook)
             except StopFetch:
                 os.remove(filename)
                 break
-            with zipfile.ZipFile(filename, 'r') as zf:
-                zf.extractall(os.path.dirname(filename))
-            os.remove(filename)
+            except URLError as e:
+                self.error.emit('FTP Error', str(e))
+            if os.path.isfile(filename):
+                with zipfile.ZipFile(filename, 'r') as zf:
+                    zf.extractall(os.path.dirname(filename))
+                os.remove(filename)
+        if not hasfile:
+            self.error.emit('Error', ('Please select at least one module, '
+                                      'and specify PDB/MAP, Win32/x64'))
         self.setfilename.emit('')
         self.setrange.emit(0, 0)
+        self.enable.emit(True)
 
     def progressHook(self, count, blocksize, totalsize):
         if self.stop:
@@ -290,10 +331,11 @@ class DownloadThread(QThread):
         self.stop = True
 
 
+sip.setdestroyonexit(False)
 app = QApplication(sys.argv)
 app.setOrganizationDomain('originlab.com')
 app.setOrganizationName('originlab')
-app.setApplicationName('BatchBuild')
+app.setApplicationName('PDBDownloader')
 app.setApplicationVersion('1.0.0')
 dlg = PDBDownloader()
 dlg.show()
