@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+import zipfile
 from urllib.request import urlretrieve
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -204,16 +205,20 @@ class PDBDownloader(QDialog):
             for module in self.modules():
                 if module.checkState() == Qt.Checked:
                     for f in files(module.text()):
+                        buildFolder = self.buildPrefix + self.buildNum.text()
                         filename = os.path.join(os.environ['home'],
-                                                'Desktop', f)
+                                                'Desktop', buildFolder, f)
+                        try:
+                            os.makedirs(os.path.dirname(filename))
+                        except FileExistsError:
+                            pass
                         ftp = ('ftp://{}:{}@{}/Builds/{}/'
-                               'MAP_and_PDB/{}{}/{}'
+                               'MAP_and_PDB/{}/{}'
                                ).format(self.username,
                                         self.password,
                                         self.ftp,
                                         self.curVer,
-                                        self.buildPrefix,
-                                        self.buildNum.text(),
+                                        buildFolder,
                                         f)
                         yield ftp, filename
 
@@ -267,7 +272,11 @@ class DownloadThread(QThread):
             try:
                 urlretrieve(ftp, filename, reporthook=self.progressHook)
             except StopFetch:
+                os.remove(filename)
                 break
+            with zipfile.ZipFile(filename, 'r') as zf:
+                zf.extractall(os.path.dirname(filename))
+            os.remove(filename)
         self.setfilename.emit('')
         self.setrange.emit(0, 0)
 
