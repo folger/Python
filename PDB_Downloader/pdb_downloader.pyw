@@ -3,6 +3,7 @@ import os
 import re
 import json
 import zipfile
+from subprocess import check_call, CalledProcessError
 from urllib.request import urlretrieve
 from urllib.error import URLError
 from PyQt4.QtGui import *
@@ -298,10 +299,11 @@ class DownloadThread(QThread):
         parent.stop.connect(self.setStop)
 
     def run(self):
-        hasfile = False
+        folder = ''
         self.enable.emit(False)
         for ftp, filename in self.all_files():
-            hasfile = True
+            if not folder:
+                folder = os.path.dirname(filename)
             self.setfilename.emit(os.path.basename(filename))
             try:
                 urlretrieve(ftp, filename, reporthook=self.progressHook)
@@ -314,7 +316,12 @@ class DownloadThread(QThread):
                 with zipfile.ZipFile(filename, 'r') as zf:
                     zf.extractall(os.path.dirname(filename))
                 os.remove(filename)
-        if not hasfile:
+        if folder:
+            try:
+                check_call(['explorer', folder])
+            except CalledProcessError:
+                pass
+        else:
             self.error.emit('Error', ('Please select at least one module, '
                                       'and specify PDB/MAP, Win32/x64'))
         self.setfilename.emit('')
