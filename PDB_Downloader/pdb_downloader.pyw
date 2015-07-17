@@ -20,6 +20,8 @@ class PDBDownloader(QDialog):
         with open('settings.json') as fr:
             settings = json.load(fr)
             self.buildPrefix = settings['CurrentBuildPrefix']
+            self.downloadPath = settings['DownloadPath']
+            self.buildPath = settings['BuildPath']
             self.curVer = re.search(r'Ir(\d+)', self.buildPrefix).group(1)
             self.ftp = settings['FTP']
             self.username = settings['Username']
@@ -40,8 +42,12 @@ class PDBDownloader(QDialog):
         self.setLayout(layout)
 
     def createBuildNumberLayout(self):
+        localBuildPath = os.path.join(self.buildPath, self.curVer, 'I')
+        latestBuild = max(build for build in
+                          os.listdir(localBuildPath) if build.startswith('Ir'))
         label = QLabel('Build Number')
-        self.buildNum = QLineEdit('136')
+        self.buildNum = QLineEdit(re.match(r'Ir\d+Sr\d_(\d+)',
+                                  latestBuild).group(1))
 
         layout = QHBoxLayout()
         layout.addWidget(label)
@@ -64,6 +70,7 @@ class PDBDownloader(QDialog):
         self.win32 = QCheckBox("Win32")
         self.win32.setChecked(True)
         self.x64 = QCheckBox("x64")
+        self.x64.setChecked(True)
 
         layout = QHBoxLayout()
         layout.addWidget(self.win32)
@@ -169,9 +176,9 @@ class PDBDownloader(QDialog):
 
         self.view = QListView()
         moduleItems = QStandardItemModel(self.view)
-        for m in modules:
+        for i, m in enumerate(modules):
             item = QStandardItem(m)
-            item.setCheckState(Qt.Unchecked)
+            item.setCheckState(Qt.Checked if i < 5 else Qt.Unchecked)
             item.setCheckable(True)
             moduleItems.appendRow(item)
         self.view.setModel(moduleItems)
@@ -209,16 +216,16 @@ class PDBDownloader(QDialog):
                     yield _format('{}_64.map.zip')
 
         def all_files():
+            buildFolder = self.buildPrefix + self.buildNum.text()
+            localPath = os.path.join(self.downloadPath, buildFolder)
+            try:
+                os.makedirs(localPath)
+            except FileExistsError:
+                pass
             for module in self.modules():
                 if module.checkState() == Qt.Checked:
                     for f in files(module.text()):
-                        buildFolder = self.buildPrefix + self.buildNum.text()
-                        filename = os.path.join(os.environ['home'],
-                                                'Desktop', buildFolder, f)
-                        try:
-                            os.makedirs(os.path.dirname(filename))
-                        except FileExistsError:
-                            pass
+                        filename = os.path.join(localPath, f)
                         ftp = ('ftp://{}:{}@{}/Builds/{}/'
                                'MAP_and_PDB/{}/{}'
                                ).format(self.username,
