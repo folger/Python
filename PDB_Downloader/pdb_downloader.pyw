@@ -21,6 +21,8 @@ class PDBDownloader(QDialog):
             settings = json.load(fr)
             self.buildPrefix = settings['CurrentBuildPrefix']
             self.downloadPath = settings['DownloadPath']
+            if not self.downloadPath:
+                self.downloadPath = os.path.join(os.environ['home'], 'Desktop')
             self.buildPath = settings['BuildPath']
             self.curVer = re.search(r'Ir(\d+)', self.buildPrefix).group(1)
             self.ftp = settings['FTP']
@@ -42,12 +44,17 @@ class PDBDownloader(QDialog):
         self.setLayout(layout)
 
     def createBuildNumberLayout(self):
-        localBuildPath = os.path.join(self.buildPath, self.curVer, 'I')
-        latestBuild = max(build for build in
-                          os.listdir(localBuildPath) if build.startswith('Ir'))
+        def latest_build_num():
+            if not self.buildPath:
+                return ''
+            localBuildPath = os.path.join(self.buildPath, self.curVer, 'I')
+            latestBuild = max(build for build in
+                              os.listdir(localBuildPath)
+                              if build.startswith('Ir'))
+            return re.match(r'Ir\d+Sr\d_(\d+)', latestBuild).group(1)
+
         label = QLabel('Build Number')
-        self.buildNum = QLineEdit(re.match(r'Ir\d+Sr\d_(\d+)',
-                                  latestBuild).group(1))
+        self.buildNum = QLineEdit(latest_build_num())
 
         layout = QHBoxLayout()
         layout.addWidget(label)
@@ -202,6 +209,10 @@ class PDBDownloader(QDialog):
             self.stop.emit()
             return
 
+        if not self.buildNum.text().lstrip().rstrip():
+            self.errorReport('Error', 'Please specify build number')
+            return
+
         def files(module):
             def _format(fm): return fm.format(module)
             if self.pdb.isChecked():
@@ -319,6 +330,7 @@ class DownloadThread(QThread):
                 break
             except URLError as e:
                 self.error.emit('FTP Error', str(e))
+                break
             if os.path.isfile(filename):
                 with zipfile.ZipFile(filename, 'r') as zf:
                     zf.extractall(os.path.dirname(filename))
