@@ -62,7 +62,8 @@ def sys_value_format(name, codetype, codemark, more):
                         break
         if len(pairs) == 1:
             pairs['_ref_bit'] = ''
-    elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'b', 'iro', 'cv', 'bv', 'uv', 'dwv', 'iv', 'dv'):
+    elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'b', 'iro', 'cv',
+                      'bv', 'uv', 'dwv', 'iv', 'dv'):
         pairs['_default'] = ','.join(more)
     elif codetype in ('iag', 'iagr', 'ias', 'sb', 'sbr', 'r'):
         pairs['_fn'] = more[0] if more else ''
