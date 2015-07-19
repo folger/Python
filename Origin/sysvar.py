@@ -8,8 +8,8 @@ codes = {
             'iag': 'SVE_INT_ACCESS_BY_GET({_name}, {_fn})',
             'iagr': 'SVE_INT_ACCESS_BY_GET_REVERSE({_name}, {_fn})',
             'ias': 'SVE_INT_ACCESS_BY_SET({_name}, {_fn})',
-            'r': 'SVE_READONLY({_name}, [](){{return;}})',
-            'g': 'SVE_GENERAL({_name}, [](){{return;}}, [](double val){{;}})',
+            'r': 'SVE_READONLY({_name}, [](){{return {_fn};}})',
+            'g': 'SVE_GENERAL({_name}, [](){{return}}, [](double val){{}})',
             'sb': 'SVE_SUB({_name}, {_fn}, _sub)',
             'sbr': 'SVE_SUB_READONLY({_name}, {_fn}, _sub)',
             'c': 'SVE_CHAR({_name}, {_default})',
@@ -17,8 +17,10 @@ codes = {
             's': 'SVE_SHORT({_name}, {_default})',
             'u': 'SVE_USHORT({_name}, {_default})',
             'dw': 'SVE_DWORD({_name}, {_default})',
+            'dw': 'SVE_DWORD({_name}, {_default})',
             'i': 'SVE_INT({_name}, {_default})',
             'd': 'SVE_DOUBLE({_name}, {_default})',
+            'b': 'SVE_BOOL({_name}, {_default})',
             'iro': 'SVE_INT_READONLY({_name}, {_default})',
             'cr': 'SVE_CHARREF({_name}, _ref)',
             'byr': 'SVE_BYTEREF({_name}, _ref)',
@@ -60,9 +62,9 @@ def sys_value_format(name, codetype, codemark, more):
                         break
         if len(pairs) == 1:
             pairs['_ref_bit'] = ''
-    elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'iro', 'cv', 'bv', 'uv', 'dwv', 'iv', 'dv'):
+    elif codetype in ('c', 'by', 's', 'u', 'dw', 'i', 'd', 'b', 'iro', 'cv', 'bv', 'uv', 'dwv', 'iv', 'dv'):
         pairs['_default'] = ','.join(more)
-    elif codetype in ('iag', 'iagr', 'ias', 'sb', 'sbr'):
+    elif codetype in ('iag', 'iagr', 'ias', 'sb', 'sbr', 'r'):
         pairs['_fn'] = more[0] if more else ''
 
     return '\t\t' + codes[codetype].format(**pairs) + ',' + codemark
