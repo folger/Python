@@ -98,11 +98,10 @@ class PDBDownloader(QDialog):
         return layout
 
     def createModulesGroup(self):
-        modules = (
+        modules = [
                 "ok9",
                 "okUtil9",
                 "Outl9",
-                "Origin93",
                 "ou9",
                 "OD9",
                 "O3DGL9",
@@ -179,7 +178,8 @@ class PDBDownloader(QDialog):
                 "OImage",
                 "libgif",
                 "ORserve9",
-                )
+        ]
+        modules.insert(0, 'Origin' + self.curVer)
 
         self.view = QListView()
         moduleItems = QStandardItemModel(self.view)
