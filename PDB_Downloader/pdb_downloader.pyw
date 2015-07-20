@@ -322,6 +322,8 @@ class DownloadThread(QThread):
         for ftp, filename in self.all_files():
             if not folder:
                 folder = os.path.dirname(filename)
+            if os.path.isfile(filename[:-4]):  # remove .zip
+                continue
             self.setfilename.emit(os.path.basename(filename))
             try:
                 urlretrieve(ftp, filename, reporthook=self.progressHook)
