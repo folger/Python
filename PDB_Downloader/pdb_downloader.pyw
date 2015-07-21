@@ -44,21 +44,16 @@ class PDBDownloader(QDialog):
         self.setLayout(layout)
 
     def createBuildNumberLayout(self):
-        def latest_build_num():
-            if not self.buildPath:
-                return ''
-            localBuildPath = os.path.join(self.buildPath, self.curVer, 'I')
-            latestBuild = max(build for build in
-                              os.listdir(localBuildPath)
-                              if build.startswith('Ir'))
-            return re.match(r'Ir\d+Sr\d_(\d+)', latestBuild).group(1)
-
         label = QLabel('Build Number')
-        self.buildNum = QLineEdit(latest_build_num())
+        self.buildNum = QLineEdit()
+        self.checkLatest = QPushButton('Latest')
+        self.connect(self.checkLatest, SIGNAL("clicked()"), self.onCheckLatest)
+        self.onCheckLatest()
 
         layout = QHBoxLayout()
         layout.addWidget(label)
         layout.addWidget(self.buildNum)
+        layout.addWidget(self.checkLatest)
         return layout
 
     def createFileTypeGroup(self):
@@ -89,6 +84,7 @@ class PDBDownloader(QDialog):
     def createActionLayout(self):
         self.filename = QLabel('')
         self.start = QPushButton('Start')
+        self.start.setDefault(True)
         self.connect(self.start, SIGNAL("clicked()"), self.onStart)
 
         layout = QHBoxLayout()
@@ -200,6 +196,17 @@ class PDBDownloader(QDialog):
         group.setLayout(layout)
         return group
 
+    def onCheckLatest(self):
+        def latest_build_num():
+            if not self.buildPath:
+                return ''
+            localBuildPath = os.path.join(self.buildPath, self.curVer, 'I')
+            latestBuild = max(build for build in
+                              os.listdir(localBuildPath)
+                              if build.startswith('Ir'))
+            return re.match(r'Ir\d+Sr\d_(\d+)', latestBuild).group(1)
+        self.buildNum.setText(latest_build_num())
+
     def onResetChecks(self):
         for module in self.modules():
             module.setCheckState(Qt.Unchecked)
@@ -275,6 +282,7 @@ class PDBDownloader(QDialog):
 
     def enableGUI(self, enable):
         self.buildNum.setEnabled(enable)
+        self.checkLatest.setEnabled(enable)
         self.pdb.setEnabled(enable)
         self.map.setEnabled(enable)
         self.win32.setEnabled(enable)
