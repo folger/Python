@@ -3,6 +3,7 @@ import os
 import re
 import json
 import zipfile
+import traceback
 from subprocess import check_call, CalledProcessError
 from urllib.request import urlretrieve
 from urllib.error import URLError
@@ -99,7 +100,7 @@ class PDBDownloader(QDialog):
                 "okUtil9",
                 "Outl9",
                 "ou9",
-                "OD9",
+                "od9",
                 "O3DGL9",
                 "OK3DGL9",
                 "OCntrls9",
@@ -181,7 +182,7 @@ class PDBDownloader(QDialog):
         moduleItems = QStandardItemModel(self.view)
         for i, m in enumerate(modules):
             item = QStandardItem(m)
-            item.setCheckState(Qt.Checked if i < 5 else Qt.Unchecked)
+            item.setCheckState(Qt.Checked if i < 8 else Qt.Unchecked)
             item.setCheckable(True)
             moduleItems.appendRow(item)
         self.view.setModel(moduleItems)
@@ -204,7 +205,7 @@ class PDBDownloader(QDialog):
             latestBuild = max(build for build in
                               os.listdir(localBuildPath)
                               if build.startswith('Ir'))
-            return re.match(r'Ir\d+Sr\d_(\d+)', latestBuild).group(1)
+            return re.match(r'Ir\d+Sr\d_([0-9a-z]+)', latestBuild).group(1)
         self.buildNum.setText(latest_build_num())
 
     def onResetChecks(self):
@@ -333,13 +334,17 @@ class DownloadThread(QThread):
             if os.path.isfile(filename[:-4]):  # remove .zip
                 continue
             self.setfilename.emit(os.path.basename(filename))
+            self.setrange.emit(0, 0)
             try:
                 urlretrieve(ftp, filename, reporthook=self.progressHook)
             except StopFetch:
                 os.remove(filename)
                 break
-            except URLError as e:
-                self.error.emit('FTP Error', str(e))
+            except Exception:
+                error_file = 'error.txt'
+                with open(error_file, 'w', encoding='utf8') as fw:
+                    print(traceback.format_exc(), file=fw)
+                check_call(['notepad', error_file])
                 break
             if os.path.isfile(filename):
                 with zipfile.ZipFile(filename, 'r') as zf:
