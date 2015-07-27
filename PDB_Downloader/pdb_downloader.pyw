@@ -4,7 +4,7 @@ import re
 import json
 import zipfile
 import traceback
-from subprocess import check_call, CalledProcessError
+from subprocess import check_call, CalledProcessError, Popen, PIPE, STDOUT
 from urllib.request import urlretrieve
 from urllib.error import URLError
 from PyQt4.QtGui import *
@@ -344,17 +344,18 @@ class DownloadThread(QThread):
                 error_file = 'error.txt'
                 with open(error_file, 'w', encoding='utf8') as fw:
                     print(traceback.format_exc(), file=fw)
-                check_call(['notepad', error_file])
+                Popen(['notepad', error_file], stdout=PIPE, stderr=STDOUT)
                 break
             if os.path.isfile(filename):
                 with zipfile.ZipFile(filename, 'r') as zf:
                     zf.extractall(os.path.dirname(filename))
                 os.remove(filename)
         if folder:
-            try:
-                check_call(['explorer', folder])
-            except CalledProcessError:
-                pass
+            if os.listdir(folder):
+                try:
+                    check_call(['explorer', folder])
+                except CalledProcessError:
+                    pass
         else:
             self.error.emit('Error', ('Please select at least one module, '
                                       'and specify PDB/MAP, Win32/x64'))
