@@ -454,8 +454,10 @@ class BatchBuilder(QDialog):
 
         self.btnBuild = create_button('Build', self.build)
         self.btnClean = create_button('Clean', self.clean)
-        self.btnCopyToFS1 = create_button('Copy to fs1 (Release)', self.copyToFS1)
-        self.btnDeleteBin = create_button('Delete Binaries (Release)', self.deleteBin)
+        self.btnCopyToFS1 = create_button('Copy to fs1 (Release)',
+                                          self.copyToFS1)
+        self.btnDeleteBin = create_button('Delete Binaries (Release)',
+                                          self.deleteBin)
         self.btnCopyPDB = create_button('Copy PDBs (Release)', self.copyPDB)
         self.btnCopyMAP = create_button('Copy MAPs (Release)', self.copyMAP)
 
@@ -575,36 +577,14 @@ class BatchBuilder(QDialog):
 
     @property
     def binFolder(self):
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                             r'Software\OriginLab\VS')
-        try:
-            return winreg.QueryValueEx(key, 'BuildBinDir')[0]
-        except WindowsError:
-            pass
-        finally:
-            winreg.CloseKey(key)
-        try:
-            return os.path.join(self.developFolder, 'Origin')
-        except KeyError:
-            print('Fail to detect binary folder')
-        return ''
+        return self.getFolder('BuildBinDir', 'Origin',
+                              'Fail to detect binary folder')
 
     @property
     def solutionFiles(self):
         def getSourceFolder():
-            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                                 r'Software\OriginLab\VS')
-            try:
-                return winreg.QueryValueEx(key, 'BuildCodeBaseDir')[0]
-            except WindowsError:
-                pass
-            finally:
-                winreg.CloseKey(key)
-            try:
-                return os.path.join(self.developFolder, 'Source')
-            except KeyError:
-                print('Fail to detect build source folder')
-            return ''
+            return self.getFolder('BuildCodeBaseDir', 'Source',
+                                  'Fail to detect build source folder')
 
         def getSln():
             if self.slnOrigin.isChecked():
@@ -618,18 +598,24 @@ class BatchBuilder(QDialog):
 
     @property
     def outFolder(self):
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                             r'Software\OriginLab\VS')
+        return self.getFolder('BuildOutDir', 'Out',
+                              'Fail to detect Out folder')
+
+    def getFolder(self, subkey, subfolder, error):
+        key = None
         try:
-            return winreg.QueryValueEx(key, 'BuildOutDir')[0]
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                                 r'Software\OriginLab\VS')
+            return winreg.QueryValueEx(key, subkey)[0]
         except WindowsError:
             pass
         finally:
-            winreg.CloseKey(key)
+            if key:
+                winreg.CloseKey(key)
         try:
-            return os.path.join(self.developFolder, 'Out')
+            return os.path.join(self.developFolder, subfolder)
         except KeyError:
-            print('Fail to detect Out folder')
+            print(error)
         return ''
 
     def getBuildConfigurations(self, extra_option=[]):
