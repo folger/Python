@@ -676,7 +676,7 @@ class BatchBuilder(QDialog):
 
 app = QApplication([])
 app.setOrganizationDomain('originlab.com')
-app.setOrganizationName('originlab')
+app.setOrganizationName('Originlab')
 app.setApplicationName('BatchBuild')
 app.setApplicationVersion('1.0.0')
 dlg = BatchBuilder(None, sys.argv[1] if len(sys.argv) > 1 else '')
