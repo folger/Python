@@ -130,6 +130,10 @@ class MyHTMLParser(HTMLParser):
         return description
 
 from urllib.request import urlopen
+try:
+    import bs4
+except Exception:
+    pass
 
 if __name__ == "__main__":
     with urlopen(url) as r:
@@ -138,3 +142,38 @@ if __name__ == "__main__":
         with open('parse_results.txt', 'w', encoding='utf-8') as fw:
             for result in parser.results:
                 print(result, file=fw)
+
+        # soup = bs4.BeautifulSoup(r.read().decode(), 'html.parser')
+        # contents = soup.find(style='border-bottom: solid 1px black').td
+        # with open('soup.txt', 'w', encoding='utf-8') as fw:
+            # for child in contents:
+                # if not isinstance(child, bs4.element.Tag):
+                    # continue
+                # if child.name == 'h2':
+                    # print(child.span.text, file=fw)
+                # else:
+                    # class_ = child.get('class')
+                    # if class_ in (['simple', 'LTFunc'], ['simple', 'FitFunc']):
+                        # fitfunc = class_ == ['simple', 'FitFunc']
+                        # funcs = []
+                        # descriptions = []
+                        # for func in child('a'):
+                            # tds = func.parent.parent('td')
+                            # if tds:
+                                # funcs.append(func)
+                                # rr = repr(tds[1]).encode().replace(b'\xc2\xa0', b' ').decode()
+                                # descriptions.append(rr
+                                                    # .replace('\xc2\xa0', ' ')
+                                                    # .replace('\r', '')
+                                                    # .replace('\n', '')
+                                                    # .replace('<td>', '')
+                                                    # .replace('</td>', '')
+                                                    # .replace('<ul>', '<dl>')
+                                                    # .replace('</ul>', '</dl>')
+                                                    # .replace('<li>', '<dd>')
+                                                    # .replace('<li>', '<dd>')
+                                                    # .replace('</li>', '</dd>')
+                                                    # .replace('&#160;', ' ')
+                                                    # )
+                        # for i, func in enumerate(funcs):
+                            # print(('\t' * 10).join([func.get('href'), ('nlf_' if fitfunc else '') + func.text, descriptions[i]]), file=fw)
