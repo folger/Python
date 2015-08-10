@@ -201,11 +201,14 @@ class PDBDownloader(QDialog):
         def latest_build_num():
             if not self.buildPath:
                 return ''
-            localBuildPath = os.path.join(self.buildPath, self.curVer, 'I')
-            latestBuild = max(build for build in
-                              os.listdir(localBuildPath)
-                              if build.startswith('Ir'))
-            return re.match(r'Ir\d+Sr\d_([0-9a-z]+)', latestBuild).group(1)
+            try:
+                localBuildPath = os.path.join(self.buildPath, self.curVer, 'I')
+                latestBuild = max(build for build in
+                                  os.listdir(localBuildPath)
+                                  if build.startswith('Ir'))
+                return re.match(r'Ir\d+Sr\d_([0-9a-z]+)', latestBuild).group(1)
+            except Exception:
+                report_error()
         self.buildNum.setText(latest_build_num())
 
     def onResetChecks(self):
@@ -341,10 +344,7 @@ class DownloadThread(QThread):
                 os.remove(filename)
                 break
             except Exception:
-                error_file = 'error.txt'
-                with open(error_file, 'w', encoding='utf8') as fw:
-                    print(traceback.format_exc(), file=fw)
-                Popen(['notepad', error_file], stdout=PIPE, stderr=STDOUT)
+                report_error()
                 break
             if os.path.isfile(filename):
                 with zipfile.ZipFile(filename, 'r') as zf:
@@ -371,6 +371,13 @@ class DownloadThread(QThread):
 
     def setStop(self):
         self.stop = True
+
+
+def report_error():
+    error_file = 'error.txt'
+    with open(error_file, 'w', encoding='utf-8-sig') as fw:
+        print(traceback.format_exc(), file=fw)
+    Popen(['notepad', error_file], stdout=PIPE, stderr=STDOUT)
 
 
 # somehow using QListView will crash
