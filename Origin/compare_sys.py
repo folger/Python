@@ -1,7 +1,6 @@
-import bs4
 import os
-import re
-from datetime import datetime
+import requests
+import bs4
 
 
 okSysValues = os.path.join(os.environ['Develop'],
@@ -9,14 +8,20 @@ okSysValues = os.path.join(os.environ['Develop'],
 with open(okSysValues) as f:
     data = f.read()
 
-with open(os.path.expanduser('~/Desktop/System Variable List.html'), encoding='utf-8') as f:
-    soup = bs4.BeautifulSoup(f, 'html.parser')
-    for table in soup(class_='simple'):
-        for tr in table.tbody.children:
-            if not isinstance(tr, bs4.element.Tag):
-                continue
-            td = tr.td
-            if td:
-                name = td.text.strip()[1:]
-                if data.find('(' + name + ',') < 0 and data.find('(' + name + ')') < 0:
-                    print(name)
+res = requests.get('http://www.originlab.com/doc/LabTalk/ref/sys-var-list')
+res.raise_for_status()
+soup = bs4.BeautifulSoup(res.text, 'html.parser')
+for table in soup(class_='simple'):
+    tbody = table.tbody
+    if not tbody:
+        tbody = table
+    for tr in tbody.children:
+        if not isinstance(tr, bs4.element.Tag):
+            continue
+        td = tr.td
+        if td:
+            name = td.text.strip()[1:]
+            if (data.find('(' + name + ',') < 0 and
+               data.find('(' + name + ')') < 0):
+                print(name)
+os.system('pause')
