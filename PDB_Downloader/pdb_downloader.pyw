@@ -25,7 +25,7 @@ class PDBDownloader(QDialog):
             if not self.downloadPath:
                 self.downloadPath = os.path.join(os.environ['home'], 'Desktop')
             self.buildPath = settings['BuildPath']
-            self.curVer = re.search(r'Ir(\d+)', self.buildPrefix).group(1)
+            self.curVer = re.match(r'Ir(\d+)', self.buildPrefix).group(1)
             self.ftp = settings['FTP']
             self.username = settings['Username']
             self.password = settings['Password']
