@@ -4,7 +4,7 @@ import re
 import json
 import zipfile
 import traceback
-from subprocess import check_call, CalledProcessError, Popen, PIPE, STDOUT
+from subprocess import check_call, CalledProcessError, Popen
 from urllib.request import urlretrieve
 from urllib.error import URLError
 from PyQt4.QtGui import *
@@ -377,7 +377,7 @@ def report_error():
     error_file = 'error.txt'
     with open(error_file, 'w', encoding='utf-8-sig') as fw:
         print(traceback.format_exc(), file=fw)
-    Popen(['notepad', error_file], stdout=PIPE, stderr=STDOUT)
+    Popen(['notepad', error_file])
 
 
 # somehow using QListView will crash
