@@ -10,6 +10,11 @@ from urllib.error import URLError
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sip
+try:
+    import ctypes
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+except Exception:
+    pass
 
 
 class PDBDownloader(QDialog):
@@ -33,6 +38,10 @@ class PDBDownloader(QDialog):
         self.setWindowTitle('PDB Downloader({})'.
                             format(self.curVer))
         self.setFixedSize(250, 550)
+
+        icon = QIcon()
+        icon.addPixmap(QPixmap('main.png'))
+        self.setWindowIcon(icon)
 
         layout = QVBoxLayout()
         layout.addLayout(self.createBuildNumberLayout())
