@@ -4,9 +4,13 @@ import subprocess
 import shutil
 import winreg
 from time import sleep, localtime, strftime
-
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+try:
+    import ctypes
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+except Exception:
+    pass
 
 
 def BinFile32Release():
