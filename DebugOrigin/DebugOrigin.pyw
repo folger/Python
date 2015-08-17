@@ -1,14 +1,20 @@
 import sys
 import os
+import json
 import subprocess
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+try:
+    import ctypes
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+except Exception:
+    pass
 
-VS6Path = (r'C:\Program Files (x86)\Microsoft Visual Studio'
-           '\COMMON\MSDev98\Bin\MSDEV.EXE')
-VS2010Path = (r'C:\Program Files (x86)\Microsoft Visual Studio 10.0'
-              '\Common7\IDE\devenv.exe')
-VS2012Path = r'D:\VS2012\Common7\IDE\devenv.exe'
+with open('settings.json') as f:
+    settings = json.load(f)
+    VS6PATH = settings['VS6Path']
+    VS2010PATH = settings['VS2010Path']
+    VS2012PATH = settings['VS2012Path']
 MAIN_WINDOW_GEOMETRY = 'mainWindowGeometry'
 
 
@@ -81,21 +87,19 @@ class DebugOrigin(QDialog):
         os.symlink(os.path.join(source_path, 'C'), r'C:\C', True)
         os.symlink(os.path.join(source_path, 'FlexLM'), r'C:\FlexLM', True)
         os.symlink(os.path.join(source_path, 'buildtmp'), r'D:\buildtmp', True)
-        self.run(VS6Path, os.path.join(r'C:\C\Vc32\orgmain', dsw))
+        self.run(VS6PATH, os.path.join(r'C:\C\Vc32\orgmain', dsw))
 
     def debugVS2010(self, source_path, sln):
         self.removeLinkFolder(r'C:\C')
         os.symlink(source_path, r'C:\C', True)
-        self.run(VS2010Path, os.path.join(r'C:\C\Vc32\orgmain', sln))
+        self.run(VS2010PATH, os.path.join(r'C:\C\Vc32\orgmain', sln))
 
     def debugVS2012(self, source_path):
-        self.run(VS2012Path,
+        self.run(VS2012PATH,
                  os.path.join(source_path, r'vc32\orgmain\OriginAll.sln'))
 
     def run(self, exe, sln):
-        subprocess.Popen([exe, sln],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
+        subprocess.Popen([exe, sln])
 
     def removeLinkFolder(self, folder):
         try:
