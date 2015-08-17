@@ -1,6 +1,7 @@
 {
 	"SourcePath": "",
 	"MsBuild": "",
+	"VSPath": "",
 	"Bin32Release": [
         "gsodbc9.dll",
         "Lababf32.dll",

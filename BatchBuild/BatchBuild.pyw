@@ -18,6 +18,7 @@ with open('settings.json') as f:
     settings = json.load(f)
     SOURCEPATH = settings['SourcePath']
     MSBUILD = settings['MsBuild']
+    VSPATH = settings['VSPath']
     BinFile32Release = settings['Bin32Release']
     BinFile64Release = settings['Bin64Release']
 
@@ -185,7 +186,7 @@ class BatchBuilder(QDialog):
         super().__init__(parent)
         self._devFolder = devFolder
         self.setWindowTitle(self.developFolder)
-        self.setFixedSize(250, 460)
+        self.setFixedSize(250, 500)
 
         icon = QIcon()
         icon.addPixmap(QPixmap('main.ico'))
@@ -282,6 +283,7 @@ class BatchBuilder(QDialog):
                                           self.deleteBin)
         self.btnCopyPDB = create_button('Copy PDBs (Release)', self.copyPDB)
         self.btnCopyMAP = create_button('Copy MAPs (Release)', self.copyMAP)
+        self.btnOpenSln = create_button('Open Solution in Visual Studio', self.openSln)
 
         group = QGroupBox('Action')
         group.setLayout(layout)
@@ -331,6 +333,9 @@ class BatchBuilder(QDialog):
         mt.srcfolder = os.path.join(self.outFolder, 'MapFiles')
         mt.desfolder = r'\\fs1\dev\Maps\GZBuild'
         mt.start()
+
+    def openSln(self):
+        subprocess.Popen([VSPATH, self.solutionFiles[1]]) # the first one is CrashRpt
 
     def onConfigurationChanged(self):
         enableRelease = (self.check32Release.isChecked() or
