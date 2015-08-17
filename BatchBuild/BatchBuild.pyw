@@ -351,6 +351,7 @@ class BatchBuilder(QDialog):
 
         self.btnCopyPDB.setEnabled(True)
         self.btnCopyMAP.setEnabled(True)
+        self.btnOpenSln.setEnabled(True)
 
     def updateProgress(self, val, name):
         self.progress.setValue(val)
@@ -383,6 +384,7 @@ class BatchBuilder(QDialog):
             self.btnClean.setEnabled(False)
             self.btnCopyPDB.setEnabled(False)
             self.btnCopyMAP.setEnabled(False)
+            self.btnOpenSln.setEnabled(False)
 
     def errorReport(self, s):
         QMessageBox.information(self, 'Error', s)
