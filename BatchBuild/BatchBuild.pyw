@@ -23,9 +23,6 @@ with open('settings.json') as f:
     BinFile64Release = settings['Bin64Release']
 
 
-assert(len(BinFile32Release)+1 == len(BinFile64Release))
-
-
 class DllJobThread(QThread):
     setrange = pyqtSignal(int, int)
     updated = pyqtSignal(int, str)
@@ -283,7 +280,8 @@ class BatchBuilder(QDialog):
                                           self.deleteBin)
         self.btnCopyPDB = create_button('Copy PDBs (Release)', self.copyPDB)
         self.btnCopyMAP = create_button('Copy MAPs (Release)', self.copyMAP)
-        self.btnOpenSln = create_button('Open Solution in Visual Studio', self.openSln)
+        self.btnOpenSln = create_button('Open Solution in Visual Studio',
+                                        self.openSln)
 
         group = QGroupBox('Action')
         group.setLayout(layout)
@@ -335,7 +333,8 @@ class BatchBuilder(QDialog):
         mt.start()
 
     def openSln(self):
-        subprocess.Popen([VSPATH, self.solutionFiles[1]]) # the first one is CrashRpt
+        # the first one is CrashRpt
+        subprocess.Popen([VSPATH, self.solutionFiles[1]])
 
     def onConfigurationChanged(self):
         enableRelease = (self.check32Release.isChecked() or
