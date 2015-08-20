@@ -19,8 +19,8 @@ with open('settings.json') as f:
     SOURCEPATH = settings['SourcePath']
     MSBUILD = settings['MsBuild']
     VSPATH = settings['VSPath']
-    BinFile32Release = settings['Bin32Release']
-    BinFile64Release = settings['Bin64Release']
+    BINFILE32RELEASE = settings['Bin32Release']
+    BINFILE64RELEASE = settings['Bin64Release']
 
 
 class DllJobThread(QThread):
@@ -55,7 +55,7 @@ class DllJobThread(QThread):
         self.enabled.emit(True)
 
     def doJobs(self, win32):
-        dlls = BinFile32Release if win32 else BinFile64Release
+        dlls = BINFILE32RELEASE if win32 else BINFILE64RELEASE
         self.setrange.emit(0, len(dlls)-1)
         self.beforeDoJobs(win32)
         oldstatus = []
