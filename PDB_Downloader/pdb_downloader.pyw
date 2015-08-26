@@ -22,6 +22,7 @@ class PDBDownloader(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.selfclose = False
 
         with open('settings.json') as fr:
             settings = json.load(fr)
@@ -304,6 +305,8 @@ class PDBDownloader(QDialog):
         self.resetChecks.setEnabled(enable)
         if enable:
             self.start.setText('Start')
+            if self.selfclose:
+                self.close()
         else:
             self.start.setText('Stop')
 
@@ -393,11 +396,15 @@ def report_error():
 # when exit, that why this is needed
 sip.setdestroyonexit(False)
 
-app = QApplication(sys.argv)
+app = QApplication([])
 app.setOrganizationDomain('originlab.com')
 app.setOrganizationName('originlab')
 app.setApplicationName('PDBDownloader')
 app.setApplicationVersion('1.0.0')
 dlg = PDBDownloader()
+onetime = sys.argv[1] if len(sys.argv) > 1 else 0
+dlg.selfclose = onetime != 0
 dlg.show()
+if onetime:
+    dlg.onStart()
 app.exec_()
