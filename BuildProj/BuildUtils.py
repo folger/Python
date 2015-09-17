@@ -54,9 +54,9 @@ def build(return_output, project, platform, configuration, extra_args=""):
         pCompileError = re.compile('^ +[^(]+\(\d+\): .*?error C\d+:')
         for index, line in reverse_enumerate(lines):
             line = line.rstrip()
-            if line == 'Build FAILED.':
+            if line in ('Build FAILED.', '生成失败。'):
                 break
-            elif line == 'Build succeeded.':
+            elif line in ('Build succeeded.', '已成功生成。'):
                 return ''
         else:
             return ''
