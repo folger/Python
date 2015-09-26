@@ -223,6 +223,12 @@ class BatchBuilder(QDialog):
         self.slnViewer = QRadioButton('Viewer')
         self.slnOrglab = QRadioButton('OrgLab')
         self.slnOrigin.setChecked(True)
+        self.connect(self.slnOrigin, SIGNAL("clicked()"),
+                     self.onConfigurationChanged)
+        self.connect(self.slnViewer, SIGNAL("clicked()"),
+                     self.onConfigurationChanged)
+        self.connect(self.slnOrglab, SIGNAL("clicked()"),
+                     self.onConfigurationChanged)
 
         layout = QHBoxLayout()
         layout.addWidget(self.slnOrigin)
@@ -300,6 +306,8 @@ class BatchBuilder(QDialog):
         mt.start()
 
     def copyToFS1(self):
+        if not self.slnOrigin.isChecked():
+            return
         mt = CopyDllThread(self)
         mt.binfolder = self.binFolder
         mt.win32 = self.check32Release.isChecked()
@@ -339,17 +347,18 @@ class BatchBuilder(QDialog):
     def onConfigurationChanged(self):
         enableRelease = (self.check32Release.isChecked() or
                          self.check64Release.isChecked())
-        self.btnCopyToFS1.setEnabled(enableRelease)
-        self.btnDeleteBin.setEnabled(enableRelease)
-        self.checkCopyAfterBuild.setEnabled(enableRelease)
+        enableCopyDlls = enableRelease and self.slnOrigin.isChecked()
+        self.btnCopyToFS1.setEnabled(enableCopyDlls)
+        self.btnDeleteBin.setEnabled(enableCopyDlls)
+        self.checkCopyAfterBuild.setEnabled(enableCopyDlls)
 
         enable = (enableRelease or self.check32Debug.isChecked() or
                   self.check64Debug.isChecked())
         self.btnBuild.setEnabled(enable)
         self.btnClean.setEnabled(enable)
 
-        self.btnCopyPDB.setEnabled(True)
-        self.btnCopyMAP.setEnabled(True)
+        self.btnCopyPDB.setEnabled(enableCopyDlls)
+        self.btnCopyMAP.setEnabled(enableCopyDlls)
         self.btnOpenSln.setEnabled(True)
 
     def updateProgress(self, val, name):
