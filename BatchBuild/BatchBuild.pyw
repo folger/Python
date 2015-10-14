@@ -41,9 +41,6 @@ class DllJobThread(QThread):
         self.updateStatus.connect(parent.updateStatus)
 
     def run(self):
-        # 32bit only dlls : Lababf32.dll
-        # 64bit only dlls : OABFFIO64.dll, OCallFN64.dll
-
         self.enabled.emit(False)
         try:
             if self.win32:
@@ -145,7 +142,7 @@ class BuildThread(QThread):
         for slnfile in self.slnfiles:
             is_crashrpt = slnfile.find('CrashRpt') > 0
             ret = 0
-            for config in self.build_configurations:
+            for config in self.buildConfigurations:
                 skip = False
                 if is_crashrpt:
                     for c in config:
@@ -175,7 +172,7 @@ CHECK_32_RELEASE = 'check32Release'
 CHECK_32_DEBUG = 'check32Debug'
 CHECK_64_RELEASE = 'check64Release'
 CHECK_64_DEBUG = 'check64Debug'
-CHECK_COPY_DLLS_AFTER_BUILD = 'copyDllsAfterBuild'
+CHECK_COPY_DLLS = 'copyDllsAfterBuild'
 
 
 class BatchBuilder(QDialog):
@@ -190,75 +187,73 @@ class BatchBuilder(QDialog):
         self.setWindowIcon(icon)
 
         self.progress = QProgressBar()
-        self.label_status = QLabel()
+        self.labelStatus = QLabel()
 
         layout = QVBoxLayout()
         layout.addWidget(self.createSolutionGroup())
         layout.addWidget(self.createConfigurationGroup())
         layout.addWidget(self.createActionGroup())
         layout.addWidget(self.progress)
-        layout.addWidget(self.label_status)
+        layout.addWidget(self.labelStatus)
         self.setLayout(layout)
-
-        self.loadSetting(MAIN_WINDOW_GEOMETRY,
-                         lambda val: self.restoreGeometry(val))
 
         def setChecked(var):
             def wrapper(val):
                 var.setChecked(val == 'true' or val == 'True')
             return wrapper
-        self.loadSetting(SLN_ORIGIN, setChecked(self.slnOrigin))
-        self.loadSetting(SLN_VIEWER, setChecked(self.slnViewer))
-        self.loadSetting(SLN_ORGLAB, setChecked(self.slnOrglab))
-        self.loadSetting(CHECK_32_RELEASE, setChecked(self.check32Release))
-        self.loadSetting(CHECK_32_DEBUG, setChecked(self.check32Debug))
-        self.loadSetting(CHECK_64_RELEASE, setChecked(self.check64Release))
-        self.loadSetting(CHECK_64_DEBUG, setChecked(self.check64Debug))
-        self.loadSetting(CHECK_COPY_DLLS_AFTER_BUILD,
-                         setChecked(self.checkCopyAfterBuild))
+        all_settings = (
+            (MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val)),
+            (SLN_ORIGIN, setChecked(self.slnOrigin)),
+            (SLN_VIEWER, setChecked(self.slnViewer)),
+            (SLN_ORGLAB, setChecked(self.slnOrglab)),
+            (CHECK_32_RELEASE, setChecked(self.check32Release)),
+            (CHECK_32_DEBUG, setChecked(self.check32Debug)),
+            (CHECK_64_RELEASE, setChecked(self.check64Release)),
+            (CHECK_64_DEBUG, setChecked(self.check64Debug)),
+            (CHECK_COPY_DLLS, setChecked(self.checkCopyAfterBuild)))
+        settings = QSettings()
+        for key, func in all_settings:
+            value = settings.value(key)
+            if value:
+                func(value)
+
         self.onConfigurationChanged()
 
     def createSolutionGroup(self):
-        self.slnOrigin = QRadioButton('Origin')
-        self.slnViewer = QRadioButton('Viewer')
-        self.slnOrglab = QRadioButton('OrgLab')
-        self.slnOrigin.setChecked(True)
-        self.connect(self.slnOrigin, SIGNAL("clicked()"),
-                     self.onConfigurationChanged)
-        self.connect(self.slnViewer, SIGNAL("clicked()"),
-                     self.onConfigurationChanged)
-        self.connect(self.slnOrglab, SIGNAL("clicked()"),
-                     self.onConfigurationChanged)
-
         layout = QHBoxLayout()
-        layout.addWidget(self.slnOrigin)
-        layout.addWidget(self.slnViewer)
-        layout.addWidget(self.slnOrglab)
+
+        def createRadio(label):
+            radio = QRadioButton(label)
+            self.connect(radio, SIGNAL("clicked()"),
+                         self.onConfigurationChanged)
+            layout.addWidget(radio)
+            return radio
+
+        self.slnOrigin = createRadio('Origin')
+        self.slnViewer = createRadio('Viewer')
+        self.slnOrglab = createRadio('OrgLab')
+        self.slnOrigin.setChecked(True)
+
         group = QGroupBox('Solution')
         group.setLayout(layout)
         return group
 
     def createConfigurationGroup(self):
-        self.check32Release = QCheckBox('32bit Release')
-        self.check32Debug = QCheckBox('32bit Debug')
-        self.check64Release = QCheckBox('64bit Release')
-        self.check64Debug = QCheckBox('64bit Debug')
+        layout = QGridLayout()
+
+        def createCheck(label, row, col):
+            check = QCheckBox(label)
+            self.connect(check, SIGNAL("clicked()"),
+                         self.onConfigurationChanged)
+            layout.addWidget(check, row, col)
+            return check
+
+        self.check32Release = createCheck('32bit Release', 0, 0)
+        self.check64Release = createCheck('64bit Release', 0, 1)
+        self.check32Debug = createCheck('32bit Debug', 1, 0)
+        self.check64Debug = createCheck('64bit Debug', 1, 1)
         self.check32Release.setChecked(True)
 
-        self.connect(self.check32Release, SIGNAL("clicked()"),
-                     self.onConfigurationChanged)
-        self.connect(self.check32Debug, SIGNAL("clicked()"),
-                     self.onConfigurationChanged)
-        self.connect(self.check64Release, SIGNAL("clicked()"),
-                     self.onConfigurationChanged)
-        self.connect(self.check64Debug, SIGNAL("clicked()"),
-                     self.onConfigurationChanged)
-
-        layout = QGridLayout()
-        layout.addWidget(self.check32Release, 0, 0)
-        layout.addWidget(self.check64Release, 0, 1)
-        layout.addWidget(self.check32Debug, 1, 0)
-        layout.addWidget(self.check64Debug, 1, 1)
         group = QGroupBox('Configuration')
         group.setLayout(layout)
         return group
@@ -266,7 +261,7 @@ class BatchBuilder(QDialog):
     def createActionGroup(self):
         layout = QVBoxLayout()
 
-        def create_button(label, func):
+        def createButton(label, func):
             btn = QPushButton(label)
             btn.setFixedHeight(30)
             self.connect(btn, SIGNAL("clicked()"), func)
@@ -278,16 +273,16 @@ class BatchBuilder(QDialog):
         self.checkCopyAfterBuild.setChecked(True)
         layout.addWidget(self.checkCopyAfterBuild)
 
-        self.btnBuild = create_button('Build', self.build)
-        self.btnClean = create_button('Clean', self.clean)
-        self.btnCopyToFS1 = create_button('Copy to fs1 (Release)',
-                                          self.copyToFS1)
-        self.btnDeleteBin = create_button('Delete Binaries (Release)',
-                                          self.deleteBin)
-        self.btnCopyPDB = create_button('Copy PDBs (Release)', self.copyPDB)
-        self.btnCopyMAP = create_button('Copy MAPs (Release)', self.copyMAP)
-        self.btnOpenSln = create_button('Open Solution in Visual Studio',
-                                        self.openSln)
+        self.btnBuild = createButton('Build', self.build)
+        self.btnClean = createButton('Clean', self.clean)
+        self.btnCopyToFS1 = createButton('Copy to fs1 (Release)',
+                                         self.copyToFS1)
+        self.btnDeleteBin = createButton('Delete Binaries (Release)',
+                                         self.deleteBin)
+        self.btnCopyPDB = createButton('Copy PDBs (Release)', self.copyPDB)
+        self.btnCopyMAP = createButton('Copy MAPs (Release)', self.copyMAP)
+        self.btnOpenSln = createButton('Open Solution in Visual Studio',
+                                       self.openSln)
 
         group = QGroupBox('Action')
         group.setLayout(layout)
@@ -301,7 +296,7 @@ class BatchBuilder(QDialog):
         mt.error.connect(self.errorReport)
         mt.dummy.connect(self.dummy)
         mt.updateStatus.connect(self.updateStatus)
-        mt.build_configurations = self.getBuildConfigurations()
+        mt.buildConfigurations = self.getBuildConfigurations()
         mt.slnfiles = self.solutionFiles
         mt.start()
 
@@ -324,7 +319,7 @@ class BatchBuilder(QDialog):
     def clean(self):
         mt = BuildThread(self)
         mt.enabled.connect(self.enableAll)
-        mt.build_configurations = self.getBuildConfigurations(['/t:clean'])
+        mt.buildConfigurations = self.getBuildConfigurations(['/t:clean'])
         mt.slnfiles = self.solutionFiles
         mt.start()
 
@@ -348,51 +343,42 @@ class BatchBuilder(QDialog):
         enableRelease = (self.check32Release.isChecked() or
                          self.check64Release.isChecked())
         enableCopyDlls = enableRelease and self.slnOrigin.isChecked()
-        self.btnCopyToFS1.setEnabled(enableCopyDlls)
-        self.btnDeleteBin.setEnabled(enableCopyDlls)
-        self.checkCopyAfterBuild.setEnabled(enableCopyDlls)
+        for btn in (self.btnCopyToFS1, self.btnDeleteBin,
+                    self.checkCopyAfterBuild,
+                    self.btnCopyPDB, self.btnCopyMAP):
+            btn.setEnabled(enableCopyDlls)
 
         enable = (enableRelease or self.check32Debug.isChecked() or
                   self.check64Debug.isChecked())
-        self.btnBuild.setEnabled(enable)
-        self.btnClean.setEnabled(enable)
+        for btn in (self.btnBuild, self.btnClean):
+            btn.setEnabled(enable)
 
-        self.btnCopyPDB.setEnabled(enableCopyDlls)
-        self.btnCopyMAP.setEnabled(enableCopyDlls)
         self.btnOpenSln.setEnabled(True)
 
     def updateProgress(self, val, name):
         self.progress.setValue(val)
-        self.label_status.setText(name)
+        self.labelStatus.setText(name)
 
     def setProgressRange(self, min, max):
         if min == 0 and max == 0:
             self.progress.reset()
-            self.label_status.setText('')
+            self.labelStatus.setText('')
         else:
             self.progress.setRange(min, max)
 
     def enableAll(self, enable):
-        self.slnOrigin.setEnabled(enable)
-        self.slnViewer.setEnabled(enable)
-        self.slnOrglab.setEnabled(enable)
-
-        self.check32Release.setEnabled(enable)
-        self.check32Debug.setEnabled(enable)
-        self.check64Release.setEnabled(enable)
-        self.check64Debug.setEnabled(enable)
+        for btn in (self.slnOrigin, self.slnViewer, self.slnOrglab,
+                    self.check32Release, self.check32Debug,
+                    self.check64Release, self.check64Debug):
+            btn.setEnabled(enable)
 
         if enable:
             self.onConfigurationChanged()
         else:
-            self.checkCopyAfterBuild.setEnabled(False)
-            self.btnBuild.setEnabled(False)
-            self.btnCopyToFS1.setEnabled(False)
-            self.btnDeleteBin.setEnabled(False)
-            self.btnClean.setEnabled(False)
-            self.btnCopyPDB.setEnabled(False)
-            self.btnCopyMAP.setEnabled(False)
-            self.btnOpenSln.setEnabled(False)
+            for btn in (self.checkCopyAfterBuild, self.btnBuild,
+                        self.btnCopyToFS1, self.btnDeleteBin, self.btnClean,
+                        self.btnCopyPDB, self.btnCopyMAP, self.btnOpenSln):
+                btn.setEnabled(False)
 
     def errorReport(self, s):
         QMessageBox.information(self, 'Error', s)
@@ -401,10 +387,10 @@ class BatchBuilder(QDialog):
         pass
 
     def updateStatus(self, s):
-        self.label_status.setText(s)
+        self.labelStatus.setText(s)
 
     def getStatus(self, oldstatus):
-        oldstatus.append(self.label_status.text())
+        oldstatus.append(self.labelStatus.text())
 
     @property
     def developFolder(self):
@@ -430,8 +416,9 @@ class BatchBuilder(QDialog):
                 return 'OrgViewer.sln'
             if self.slnOrglab.isChecked():
                 return 'OrgLab.sln'
-        return [os.path.join(getSourceFolder(), r'CrashRpt\CrashRpt.sln'),
-                os.path.join(getSourceFolder(), r'vc32\orgmain', getSln())]
+        return [os.path.join(getSourceFolder(), *args)
+                for args in ((r'CrashRpt\CrashRpt.sln',),
+                             (r'vc32\orgmain', getSln()))]
 
     @property
     def outFolder(self):
@@ -455,25 +442,22 @@ class BatchBuilder(QDialog):
             print(error)
         return ''
 
-    def getBuildConfigurations(self, extra_option=[]):
-        def getBuildConfiguration(win32, release):
-            config = [MSBUILD, '/m']
-            config.append('/p:configuration={}'
-                          .format('Release' if release else 'Debug'))
-            config.append('/p:platform={}'
-                          .format('Win32' if win32 else 'x64'))
-            return config + extra_option
-
-        build_configurations = []
-        if self.check32Release.isChecked():
-            build_configurations.append(getBuildConfiguration(True, True))
-        if self.check32Debug.isChecked():
-            build_configurations.append(getBuildConfiguration(True, False))
-        if self.check64Release.isChecked():
-            build_configurations.append(getBuildConfiguration(False, True))
-        if self.check64Debug.isChecked():
-            build_configurations.append(getBuildConfiguration(False, False))
-        return build_configurations
+    def getBuildConfigurations(self, extraOption=[]):
+        buildConfigurations = []
+        configurations = (
+            (self.check32Release, True, True),
+            (self.check32Debug, True, False),
+            (self.check64Release, False, True),
+            (self.check64Debug, False, False))
+        for check, win32, release in configurations:
+            if check.isChecked():
+                config = [MSBUILD, '/m']
+                config.append('/p:configuration={}'
+                              .format('Release' if release else 'Debug'))
+                config.append('/p:platform={}'
+                              .format('Win32' if win32 else 'x64'))
+                buildConfigurations.append(config + extraOption)
+        return buildConfigurations
 
     def reject(self):
         self.close()
@@ -485,30 +469,18 @@ class BatchBuilder(QDialog):
             event.ignore()
         else:
             settings = QSettings()
-            settings.setValue(MAIN_WINDOW_GEOMETRY,
-                              self.saveGeometry())
-            settings.setValue(SLN_ORIGIN,
-                              self.slnOrigin.isChecked())
-            settings.setValue(SLN_VIEWER,
-                              self.slnViewer.isChecked())
-            settings.setValue(SLN_ORGLAB,
-                              self.slnOrglab.isChecked())
-            settings.setValue(CHECK_32_RELEASE,
-                              self.check32Release.isChecked())
-            settings.setValue(CHECK_32_DEBUG,
-                              self.check32Debug.isChecked())
-            settings.setValue(CHECK_64_RELEASE,
-                              self.check64Release.isChecked())
-            settings.setValue(CHECK_64_DEBUG,
-                              self.check64Debug.isChecked())
-            settings.setValue(CHECK_COPY_DLLS_AFTER_BUILD,
-                              self.checkCopyAfterBuild.isChecked())
-
-    def loadSetting(self, key, func):
-        settings = QSettings()
-        value = settings.value(key)
-        if value:
-            func(value)
+            all_settings = (
+                (MAIN_WINDOW_GEOMETRY, self.saveGeometry()),
+                (SLN_ORIGIN, self.slnOrigin.isChecked()),
+                (SLN_VIEWER, self.slnViewer.isChecked()),
+                (SLN_ORGLAB, self.slnOrglab.isChecked()),
+                (CHECK_32_RELEASE, self.check32Release.isChecked()),
+                (CHECK_32_DEBUG, self.check32Debug.isChecked()),
+                (CHECK_64_RELEASE, self.check64Release.isChecked()),
+                (CHECK_64_DEBUG, self.check64Debug.isChecked()),
+                (CHECK_COPY_DLLS, self.checkCopyAfterBuild.isChecked()))
+            for key, value in all_settings:
+                settings.setValue(key, value)
 
 
 app = QApplication([])
