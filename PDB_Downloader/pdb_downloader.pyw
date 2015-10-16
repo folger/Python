@@ -9,6 +9,7 @@ from urllib.request import urlretrieve
 from urllib.error import URLError
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from folstools.qt.utils import *
 import sip
 try:
     import ctypes
@@ -67,6 +68,7 @@ class PDBDownloader(QDialog):
         layout.addWidget(self.checkLatest)
         return layout
 
+    @create_group('File Type')
     def createFileTypeGroup(self):
         self.pdb = QCheckBox("PDB")
         self.pdb.setChecked(True)
@@ -75,10 +77,9 @@ class PDBDownloader(QDialog):
         layout = QHBoxLayout()
         layout.addWidget(self.pdb)
         layout.addWidget(self.map)
-        group = QGroupBox('File Type')
-        group.setLayout(layout)
-        return group
+        return layout
 
+    @create_group('Platform')
     def createPlatformGroup(self):
         self.win32 = QCheckBox("Win32")
         self.win32.setChecked(True)
@@ -88,9 +89,7 @@ class PDBDownloader(QDialog):
         layout = QHBoxLayout()
         layout.addWidget(self.win32)
         layout.addWidget(self.x64)
-        group = QGroupBox('Platform')
-        group.setLayout(layout)
-        return group
+        return layout
 
     def createActionLayout(self):
         self.filename = QLabel('')
@@ -104,6 +103,7 @@ class PDBDownloader(QDialog):
         layout.addWidget(self.start)
         return layout
 
+    @create_group('Modules')
     def createModulesGroup(self):
         modules = [
                 "ok9",
@@ -203,9 +203,7 @@ class PDBDownloader(QDialog):
         layout = QVBoxLayout()
         layout.addWidget(self.view)
         layout.addWidget(self.resetChecks)
-        group = QGroupBox('Modules')
-        group.setLayout(layout)
-        return group
+        return layout
 
     def onCheckLatest(self):
         def latest_build_num():

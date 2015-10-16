@@ -7,6 +7,7 @@ import winreg
 from time import sleep, localtime, strftime
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from folstools.qt.utils import *
 try:
     import ctypes
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
@@ -219,6 +220,7 @@ class BatchBuilder(QDialog):
 
         self.onConfigurationChanged()
 
+    @create_group('Solution')
     def createSolutionGroup(self):
         layout = QHBoxLayout()
 
@@ -233,11 +235,9 @@ class BatchBuilder(QDialog):
         self.slnViewer = createRadio('Viewer')
         self.slnOrglab = createRadio('OrgLab')
         self.slnOrigin.setChecked(True)
+        return layout
 
-        group = QGroupBox('Solution')
-        group.setLayout(layout)
-        return group
-
+    @create_group('Configuration')
     def createConfigurationGroup(self):
         layout = QGridLayout()
 
@@ -253,11 +253,9 @@ class BatchBuilder(QDialog):
         self.check32Debug = createCheck('32bit Debug', 1, 0)
         self.check64Debug = createCheck('64bit Debug', 1, 1)
         self.check32Release.setChecked(True)
+        return layout
 
-        group = QGroupBox('Configuration')
-        group.setLayout(layout)
-        return group
-
+    @create_group('Action')
     def createActionGroup(self):
         layout = QVBoxLayout()
 
@@ -283,10 +281,7 @@ class BatchBuilder(QDialog):
         self.btnCopyMAP = createButton('Copy MAPs (Release)', self.copyMAP)
         self.btnOpenSln = createButton('Open Solution in Visual Studio',
                                        self.openSln)
-
-        group = QGroupBox('Action')
-        group.setLayout(layout)
-        return group
+        return layout
 
     def build(self):
         mt = BuildThread(self)
