@@ -165,7 +165,6 @@ class BuildThread(QThread):
             self.copydlls.emit()
         self.enabled.emit(True)
 
-MAIN_WINDOW_GEOMETRY = 'mainWindowGeometry'
 SLN_ORIGIN = 'slnOrigin'
 SLN_VIEWER = 'slnViewer'
 SLN_ORGLAB = 'slnOrglab'
@@ -202,7 +201,7 @@ class BatchBuilder(QDialog):
             def wrapper(val):
                 var.setChecked(val == 'true' or val == 'True')
             return wrapper
-        all_settings = (
+        load_settings(
             (MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val)),
             (SLN_ORIGIN, setChecked(self.slnOrigin)),
             (SLN_VIEWER, setChecked(self.slnViewer)),
@@ -212,11 +211,6 @@ class BatchBuilder(QDialog):
             (CHECK_64_RELEASE, setChecked(self.check64Release)),
             (CHECK_64_DEBUG, setChecked(self.check64Debug)),
             (CHECK_COPY_DLLS, setChecked(self.checkCopyAfterBuild)))
-        settings = QSettings()
-        for key, func in all_settings:
-            value = settings.value(key)
-            if value:
-                func(value)
 
         self.onConfigurationChanged()
 
@@ -463,8 +457,7 @@ class BatchBuilder(QDialog):
                                     'Please wait for building process finish')
             event.ignore()
         else:
-            settings = QSettings()
-            all_settings = (
+            save_settings(
                 (MAIN_WINDOW_GEOMETRY, self.saveGeometry()),
                 (SLN_ORIGIN, self.slnOrigin.isChecked()),
                 (SLN_VIEWER, self.slnViewer.isChecked()),
@@ -474,9 +467,6 @@ class BatchBuilder(QDialog):
                 (CHECK_64_RELEASE, self.check64Release.isChecked()),
                 (CHECK_64_DEBUG, self.check64Debug.isChecked()),
                 (CHECK_COPY_DLLS, self.checkCopyAfterBuild.isChecked()))
-            for key, value in all_settings:
-                settings.setValue(key, value)
-
 
 app = QApplication([])
 app.setOrganizationDomain('originlab.com')
