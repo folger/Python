@@ -4,6 +4,7 @@ import json
 import subprocess
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from folstools.qt.utils import *
 try:
     import ctypes
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
@@ -15,7 +16,6 @@ with open('settings.json') as f:
     VS6PATH = settings['VS6Path']
     VS2010PATH = settings['VS2010Path']
     VS2012PATH = settings['VS2012Path']
-MAIN_WINDOW_GEOMETRY = 'mainWindowGeometry'
 
 
 class DebugOrigin(QDialog):
@@ -30,8 +30,8 @@ class DebugOrigin(QDialog):
         self.setFixedSize(200, 320)
         self.setLayout(self.createButtons())
 
-        self.loadSetting(MAIN_WINDOW_GEOMETRY,
-                         lambda val: self.restoreGeometry(val))
+        load_settings((MAIN_WINDOW_GEOMETRY,
+                       lambda val: self.restoreGeometry(val)))
 
     def createButtons(self):
         layout = QVBoxLayout()
@@ -111,14 +111,7 @@ class DebugOrigin(QDialog):
         self.close()
 
     def closeEvent(self, event):
-        settings = QSettings()
-        settings.setValue(MAIN_WINDOW_GEOMETRY, self.saveGeometry())
-
-    def loadSetting(self, key, func):
-        settings = QSettings()
-        value = settings.value(key)
-        if value is not None:
-            func(value)
+        save_settings((MAIN_WINDOW_GEOMETRY, self.saveGeometry()))
 
 app = QApplication(sys.argv)
 app.setOrganizationDomain('originlab.com')
