@@ -8,11 +8,6 @@ from time import sleep, localtime, strftime
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from folstools.qt.utils import *
-try:
-    import ctypes
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
-except Exception:
-    pass
 
 
 with open('settings.json') as f:
