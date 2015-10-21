@@ -220,9 +220,9 @@ class BatchBuilder(QDialog):
             layout.addWidget(radio)
             return radio
 
-        self.slnOrigin = createRadio('Origin')
-        self.slnViewer = createRadio('Viewer')
-        self.slnOrglab = createRadio('OrgLab')
+        self.slnOrigin = createRadio('&Origin')
+        self.slnViewer = createRadio('&Viewer')
+        self.slnOrglab = createRadio('Or&gLab')
         self.slnOrigin.setChecked(True)
         return layout
 
@@ -237,10 +237,10 @@ class BatchBuilder(QDialog):
             layout.addWidget(check, row, col)
             return check
 
-        self.check32Release = createCheck('32bit Release', 0, 0)
-        self.check64Release = createCheck('64bit Release', 0, 1)
-        self.check32Debug = createCheck('32bit Debug', 1, 0)
-        self.check64Debug = createCheck('64bit Debug', 1, 1)
+        self.check32Release = createCheck('&32bit Release', 0, 0)
+        self.check64Release = createCheck('&64bit Release', 0, 1)
+        self.check32Debug = createCheck('3&2bit Debug', 1, 0)
+        self.check64Debug = createCheck('6&4bit Debug', 1, 1)
         self.check32Release.setChecked(True)
         return layout
 
@@ -255,13 +255,13 @@ class BatchBuilder(QDialog):
             layout.addWidget(btn)
             return btn
 
-        self.checkCopyAfterBuild = QCheckBox('Copy files after Build '
+        self.checkCopyAfterBuild = QCheckBox('Copy &files after Build '
                                              '(Release)')
         self.checkCopyAfterBuild.setChecked(True)
         layout.addWidget(self.checkCopyAfterBuild)
 
-        self.btnBuild = createButton('Build', self.build)
-        self.btnClean = createButton('Clean', self.clean)
+        self.btnBuild = createButton('&Build', self.build)
+        self.btnClean = createButton('&Clean', self.clean)
         self.btnCopyToFS1 = createButton('Copy to fs1 (Release)',
                                          self.copyToFS1)
         self.btnDeleteBin = createButton('Delete Binaries (Release)',

@@ -56,11 +56,12 @@ class PDBDownloader(QDialog):
         self.setLayout(layout)
 
     def createBuildNumberLayout(self):
-        label = QLabel('Build Number')
         self.buildNum = QLineEdit()
-        self.checkLatest = QPushButton('Latest')
+        self.checkLatest = QPushButton('&Latest')
         self.connect(self.checkLatest, SIGNAL("clicked()"), self.onCheckLatest)
         self.onCheckLatest()
+        label = QLabel('B&uild Number')
+        label.setBuddy(self.buildNum)
 
         layout = QHBoxLayout()
         layout.addWidget(label)
@@ -70,9 +71,9 @@ class PDBDownloader(QDialog):
 
     @create_group('File Type')
     def createFileTypeGroup(self):
-        self.pdb = QCheckBox("PDB")
+        self.pdb = QCheckBox("&PDB")
         self.pdb.setChecked(True)
-        self.map = QCheckBox("MAP")
+        self.map = QCheckBox("&MAP")
 
         layout = QHBoxLayout()
         layout.addWidget(self.pdb)
@@ -81,9 +82,9 @@ class PDBDownloader(QDialog):
 
     @create_group('Platform')
     def createPlatformGroup(self):
-        self.win32 = QCheckBox("Win32")
+        self.win32 = QCheckBox("Win&32")
         self.win32.setChecked(True)
-        self.x64 = QCheckBox("x64")
+        self.x64 = QCheckBox("x&64")
         self.x64.setChecked(True)
 
         layout = QHBoxLayout()
@@ -93,7 +94,7 @@ class PDBDownloader(QDialog):
 
     def createActionLayout(self):
         self.filename = QLabel('')
-        self.start = QPushButton('Start')
+        self.start = QPushButton('&Start')
         self.start.setDefault(True)
         self.connect(self.start, SIGNAL("clicked()"), self.onStart)
 
@@ -197,7 +198,7 @@ class PDBDownloader(QDialog):
             moduleItems.appendRow(item)
         self.view.setModel(moduleItems)
 
-        self.resetChecks = QPushButton('Reset Checks')
+        self.resetChecks = QPushButton('&Reset Checks')
         self.connect(self.resetChecks, SIGNAL("clicked()"), self.onResetChecks)
 
         layout = QVBoxLayout()
@@ -302,11 +303,11 @@ class PDBDownloader(QDialog):
         self.view.setEnabled(enable)
         self.resetChecks.setEnabled(enable)
         if enable:
-            self.start.setText('Start')
+            self.start.setText('&Start')
             if self.selfclose:
                 self.close()
         else:
-            self.start.setText('Stop')
+            self.start.setText('&Stop')
 
     def errorReport(self, title, error):
         QMessageBox.information(self, title, error)
