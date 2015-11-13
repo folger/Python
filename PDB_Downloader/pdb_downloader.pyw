@@ -4,6 +4,7 @@ import re
 import json
 import zipfile
 import traceback
+from functools import partial
 from subprocess import check_call, CalledProcessError, Popen
 from urllib.request import urlretrieve
 from urllib.error import URLError
@@ -198,12 +199,15 @@ class PDBDownloader(QDialog):
             moduleItems.appendRow(item)
         self.view.setModel(moduleItems)
 
-        self.resetChecks = QPushButton('&Reset Checks')
-        self.connect(self.resetChecks, SIGNAL("clicked()"), self.onResetChecks)
+        self.checkAll = QPushButton('&Check All')
+        self.unCheckAll = QPushButton('Uncheck &All')
+        self.connect(self.checkAll, SIGNAL("clicked()"), partial(self.onChecks, True))
+        self.connect(self.unCheckAll, SIGNAL("clicked()"), partial(self.onChecks, False))
 
         layout = QVBoxLayout()
         layout.addWidget(self.view)
-        layout.addWidget(self.resetChecks)
+        layout.addWidget(self.checkAll)
+        layout.addWidget(self.unCheckAll)
         return layout
 
     def onCheckLatest(self):
@@ -220,9 +224,9 @@ class PDBDownloader(QDialog):
                 report_error()
         self.buildNum.setText(latest_build_num())
 
-    def onResetChecks(self):
+    def onChecks(self, checked):
         for module in self.modules():
-            module.setCheckState(Qt.Unchecked)
+            module.setCheckState(Qt.Checked if checked else Qt.Unchecked)
 
     def onStart(self):
         if not self.pdb.isEnabled():
@@ -301,13 +305,13 @@ class PDBDownloader(QDialog):
         self.win32.setEnabled(enable)
         self.x64.setEnabled(enable)
         self.view.setEnabled(enable)
-        self.resetChecks.setEnabled(enable)
+        self.checkAll.setEnabled(enable)
         if enable:
             self.start.setText('&Start')
             if self.selfclose:
                 self.close()
         else:
-            self.start.setText('&Stop')
+            self.start.setText('S&top')
 
     def errorReport(self, title, error):
         QMessageBox.information(self, title, error)
@@ -356,7 +360,7 @@ class DownloadThread(QThread):
                 break
             except Exception:
                 report_error()
-                break
+                continue
             if os.path.isfile(filename):
                 with zipfile.ZipFile(filename, 'r') as zf:
                     zf.extractall(os.path.dirname(filename))
