@@ -26,11 +26,12 @@ class GenerateHTML:
                     return True
             return False
 
+        fitting_function_prefixs = {'E': 'Fitting Functions', 'J': 'フィット関数', 'G': 'Fitting Functions'}
         for func in self.funcs:
             entries = func.split("\t"*10)
             if len(entries) == 1:  # category
                 funcs_done.clear()
-                fitfunc = func.startswith('Fitting Functions')
+                fitfunc = func.startswith(fitting_function_prefixs[self.lang])
                 if fitfunc:
                     if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
                         fitfunc_categoryname = func.split('-')[1].lstrip()
@@ -61,5 +62,5 @@ class GenerateHTML:
 
         if len(s):
             s += '</table>'
-        s = s.replace(LTFuncsHTMLParser.image_path, './images/')
+        s = s.replace(LTFuncsHTMLParser.get_image_path(self.lang), './images/')
         return s

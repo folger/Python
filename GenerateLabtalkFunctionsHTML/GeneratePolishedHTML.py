@@ -26,25 +26,21 @@ def generate_HTML(lang, htmlType):
         }
         return htmls[lang]
 
-    def httplink(lang):
-        return LTFuncsHTMLParser.url
+    parser = LTFuncsHTMLParser.MyHTMLParser()
+    parser.feed(LTFuncsHTMLParser.get_page_source(lang))
 
-    with urlopen(httplink(lang)) as r:
-        parser = LTFuncsHTMLParser.MyHTMLParser()
-        parser.feed(r.read().decode())
+    # print('\n'.join(parser.results))
+    generate = GenerateHTML(lang, parser.results)
 
-        # print('\n'.join(parser.results))
-        generate = GenerateHTML(lang, parser.results)
-
-        with open(os.path.join(currentpath, basicHTML()), encoding='utf-8-sig') as fr:
-            s = fr.read()
-            if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
-                s = s.replace('navigate("//select:" + ui.item.fprefix + ui.item.label);', 'navigate("//select:" + ui.item.category + "|" + ui.item.label);')
-            gs = generate.Exec(htmlType).replace('/images/docwiki/math', './images')
-            s = s.replace('<div style="display: none" id="labtalkFunctions"></div>',
-                          '<div style="display: none" id="labtalkFunctions">' + gs + '</div>')
-            with open(htmlfile(), 'w', encoding='utf-8-sig') as fw:
-                fw.write(s)
+    with open(os.path.join(currentpath, basicHTML()), encoding='utf-8-sig') as fr:
+        s = fr.read()
+        if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
+            s = s.replace('navigate("//select:" + ui.item.fprefix + ui.item.label);', 'navigate("//select:" + ui.item.category + "|" + ui.item.label);')
+        gs = generate.Exec(htmlType).replace('/images/docwiki/math', './images')
+        s = s.replace('<div style="display: none" id="labtalkFunctions"></div>',
+                      '<div style="display: none" id="labtalkFunctions">' + gs + '</div>')
+        with open(htmlfile(), 'w', encoding='utf-8-sig') as fw:
+            fw.write(s)
 
     return (True, "%s generated" % htmlfile())
 

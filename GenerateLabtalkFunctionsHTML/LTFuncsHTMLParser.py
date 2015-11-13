@@ -1,11 +1,45 @@
 from html.parser import HTMLParser
+import requests
+import bs4
 
 #url = 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions'
 #http_prefix = 'http://wikis'
 #image_path = '/images/ltwiki/math/'
 url = 'http://zaphod-w/doc/LabTalk/guide/LT-Supported-Functions'
 http_prefix = 'http://zaphod-w'
-image_path = r'/doc\en/LabTalk/images/LabTalk-Supported_Functions/'
+image_path = r'/doc\{}/LabTalk/images/LabTalk-Supported_Functions/'
+
+
+def get_url(lang):
+    return url
+
+
+def get_http_prefix(lang):
+    return http_prefix
+
+
+lang_map = {'E': 'en', 'J': 'ja', 'G': 'de'}
+def get_image_path(lang):
+    return image_path.format(lang_map[lang])
+
+
+def get_page_source(lang):
+    r = requests.get(get_url(lang))
+    soup = bs4.BeautifulSoup(r.text, 'html.parser')
+    hiddens = soup('input', type='hidden')
+
+    data = {}
+    for hidden in hiddens:
+        data[hidden['name']] = hidden['value']
+    data['ToolkitScriptManager1_HiddenField'] = 'ToolkitScriptManager1_HiddenField:;;AjaxControlToolkit, Version=3.5.50508.0, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e:en:3656afa9-406a-4247-9088-5766fe2d8372:de1feab2:f9cec9bc:a67c2700:f2c8e708:720a52bf:589eaa30:698129cf:59fb9c6f'
+    data['__EVENTTARGET'] = 'Header1$LanguageSwitch2'
+    data['Header1$TextBoxSearch'] = 'Search'
+    data['Header1$LanguageSwitch2'] = lang_map[lang]
+    data['TheContentPage$ctl00$ctl00$TextBox_SearchInput'] = ''
+    data['TheContentPage$ctl00$ctl00$DropDownList_Book'] = 'LabTalk'
+
+    r = requests.post(url, data)
+    return r.text
 
 
 class MyHTMLParser(HTMLParser):
@@ -55,7 +89,7 @@ class MyHTMLParser(HTMLParser):
                         if attr[0] == 'href':
                             funclink = attr[1]
                             if not funclink.startswith('http://'):
-                                funclink = http_prefix + funclink
+                                funclink = 'http://www.originlab.com' + funclink
                             self.description += funclink
                             self.description += "\t" * 10
                             break
@@ -136,44 +170,44 @@ except Exception:
     pass
 
 if __name__ == "__main__":
-    with urlopen(url) as r:
-        parser = MyHTMLParser()
-        parser.feed(r.read().decode())
-        with open('parse_results.txt', 'w', encoding='utf-8') as fw:
-            for result in parser.results:
-                print(result, file=fw)
+    lang = 'E'
+    parser = MyHTMLParser()
+    parser.feed(get_page_source(lang))
+    with open('parse_results_{}.txt'.format(lang), 'w', encoding='utf-8') as fw:
+        for result in parser.results:
+            print(result, file=fw)
 
-        # soup = bs4.BeautifulSoup(r.read().decode(), 'html.parser')
-        # contents = soup.find(style='border-bottom: solid 1px black').td
-        # with open('soup.txt', 'w', encoding='utf-8') as fw:
-            # for child in contents:
-                # if not isinstance(child, bs4.element.Tag):
-                    # continue
-                # if child.name == 'h2':
-                    # print(child.span.text, file=fw)
-                # else:
-                    # class_ = child.get('class')
-                    # if class_ in (['simple', 'LTFunc'], ['simple', 'FitFunc']):
-                        # fitfunc = class_ == ['simple', 'FitFunc']
-                        # funcs = []
-                        # descriptions = []
-                        # for func in child('a'):
-                            # tds = func.parent.parent('td')
-                            # if tds:
-                                # funcs.append(func)
-                                # rr = repr(tds[1]).encode().replace(b'\xc2\xa0', b' ').decode()
-                                # descriptions.append(rr
-                                                    # .replace('\xc2\xa0', ' ')
-                                                    # .replace('\r', '')
-                                                    # .replace('\n', '')
-                                                    # .replace('<td>', '')
-                                                    # .replace('</td>', '')
-                                                    # .replace('<ul>', '<dl>')
-                                                    # .replace('</ul>', '</dl>')
-                                                    # .replace('<li>', '<dd>')
-                                                    # .replace('<li>', '<dd>')
-                                                    # .replace('</li>', '</dd>')
-                                                    # .replace('&#160;', ' ')
-                                                    # )
-                        # for i, func in enumerate(funcs):
-                            # print(('\t' * 10).join([func.get('href'), ('nlf_' if fitfunc else '') + func.text, descriptions[i]]), file=fw)
+    # soup = bs4.BeautifulSoup(r.read().decode(), 'html.parser')
+    # contents = soup.find(style='border-bottom: solid 1px black').td
+    # with open('soup.txt', 'w', encoding='utf-8') as fw:
+        # for child in contents:
+            # if not isinstance(child, bs4.element.Tag):
+                # continue
+            # if child.name == 'h2':
+                # print(child.span.text, file=fw)
+            # else:
+                # class_ = child.get('class')
+                # if class_ in (['simple', 'LTFunc'], ['simple', 'FitFunc']):
+                    # fitfunc = class_ == ['simple', 'FitFunc']
+                    # funcs = []
+                    # descriptions = []
+                    # for func in child('a'):
+                        # tds = func.parent.parent('td')
+                        # if tds:
+                            # funcs.append(func)
+                            # rr = repr(tds[1]).encode().replace(b'\xc2\xa0', b' ').decode()
+                            # descriptions.append(rr
+                                                # .replace('\xc2\xa0', ' ')
+                                                # .replace('\r', '')
+                                                # .replace('\n', '')
+                                                # .replace('<td>', '')
+                                                # .replace('</td>', '')
+                                                # .replace('<ul>', '<dl>')
+                                                # .replace('</ul>', '</dl>')
+                                                # .replace('<li>', '<dd>')
+                                                # .replace('<li>', '<dd>')
+                                                # .replace('</li>', '</dd>')
+                                                # .replace('&#160;', ' ')
+                                                # )
+                    # for i, func in enumerate(funcs):
+                        # print(('\t' * 10).join([func.get('href'), ('nlf_' if fitfunc else '') + func.text, descriptions[i]]), file=fw)

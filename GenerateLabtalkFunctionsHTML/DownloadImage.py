@@ -18,7 +18,8 @@ def download_images(lang):
     if not os.path.isfile(htmlfile):
         return (False, "%s is needed to download images" % htmlfile)
 
-    imagefolder = os.path.join(currentpath, 'images')
+    imagelang = 'images'
+    imagefolder = os.path.join(currentpath, imagelang)
     try:
         rmtree(imagefolder)
     except FileNotFoundError:
@@ -30,7 +31,7 @@ def download_images(lang):
 
     def download(images, imagesfail):
         for image in images:
-            image = image.replace('<img src="./images/', LTFuncsHTMLParser.http_prefix + LTFuncsHTMLParser.image_path)
+            image = image.replace('<img src="./{}/'.format(imagelang), LTFuncsHTMLParser.get_http_prefix(lang) + LTFuncsHTMLParser.get_image_path(lang))
             slash = image.rfind('/')
             imagename = image[slash+1:]
 
