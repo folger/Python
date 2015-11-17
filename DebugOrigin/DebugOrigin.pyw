@@ -46,6 +46,7 @@ class DebugOrigin(QDialog):
         create_button('Debug 9.1 SR0', self.debug91sr0)
         create_button('Debug 9.1 SR2', self.debug91sr2)
         create_button('Debug 9.2 SR0', self.debug92sr0)
+        create_button('Debug 9.3 SR0', self.debug93sr0)
         return layout
 
     def debug75(self):
@@ -74,6 +75,9 @@ class DebugOrigin(QDialog):
 
     def debug92sr0(self):
         self.debugVS2012(r'E:\C_92SR0\Source')
+
+    def debug93sr0(self):
+        self.debugVS2012(r'D:\C_93SR0\Source')
 
     def debugVS6(self, source_path, dsw):
         self.removeLinkFolder(r'C:\C')
