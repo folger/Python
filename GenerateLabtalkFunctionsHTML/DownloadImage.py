@@ -30,6 +30,7 @@ def download_images(lang):
     os.mkdir(imagefolder)
 
     def download(images, imagesfail):
+
         for image in images:
             image = image.replace('<img src="./{}/'.format(imagelang), LTFuncsHTMLParser.get_http_prefix(lang) + LTFuncsHTMLParser.get_image_path(lang))
             slash = image.rfind('/')
@@ -37,16 +38,14 @@ def download_images(lang):
 
             try:
                 urlretrieve(image, os.path.join(imagefolder, imagename))
-            except (urllib.error.URLError, urllib.error.HTTPError) as e:
-                imagesfail.append(image)
             except Exception as e:
-                return (False, "Failed to download %s : %s" % (imagename, e))
+                imagesfail.append(image)
 
         return (True, "All images downloaded")
 
     with open(htmlfile, encoding='utf-8-sig') as fr:
         s = fr.read()
-        images = re.findall('<img src="[^"]+', s)
+        images = list(set(re.findall('<img src="[^"]+', s)))
 
         subprocess.Popen(r'explorer %s' % imagefolder)
 
