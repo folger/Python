@@ -49,12 +49,12 @@ class GenerateHTML:
                     funclink = entries[i*2].strip()
                     funcname = entries[i*2+1].strip()
                     description = entries[-1].strip()
-                    funcnamenoargs = funcname.split('(')[0].lower()
+                    funcnametest = funcname
                     if fitfunc:
-                        funcnamenoargs = 'nlf_' + funcnamenoargs
-                    if funcnamenoargs in funcs_done:
+                        funcnametest = 'nlf_' + funcnametest
+                    if funcnametest in funcs_done:
                         continue
-                    funcs_done.add(funcnamenoargs)
+                    funcs_done.add(funcnametest)
                     if not funclink.startswith('http://'):
                         funclink = 'http://wikis' + funclink
                     s += '    <tr>\n        <td><a href="%s" fprefix="%s">%s</a></td>\n        <td>%s</td>\n    </tr>\n' \
