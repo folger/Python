@@ -72,9 +72,9 @@ class MyHTMLParser(HTMLParser):
                 elif self.h2:
                     self.category = True
         elif tag == "table":
-            if attrs and attrs[0][0] == 'class' and (attrs[0][1] == 'simple LTFunc' or attrs[0][1] == 'simple FitFunc'):
+            if attrs and attrs[0][0] == 'class' and (attrs[0][1] == 'simple-LTFunc' or attrs[0][1] == 'simple-FitFunc'):
                 self.table = True
-                self.FitFunc = attrs[0][1] == 'simple FitFunc'
+                self.FitFunc = attrs[0][1] == 'simple-FitFunc'
 
         if self.table:
             if tag == "tr":
