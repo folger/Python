@@ -20,7 +20,7 @@ class GenerateHTMLDlg(QDialog):
         downloadImageBtn = QPushButton("Download Images")
 
         layout = QVBoxLayout()
-        #layout.addLayout(self.createLanguageGroup())
+        layout.addLayout(self.createLanguageGroup())
         #layout.addWidget(self.createHTMLGroup())
         layout.addWidget(generateBtn)
         layout.addWidget(downloadImageBtn)
@@ -33,7 +33,7 @@ class GenerateHTMLDlg(QDialog):
     def createLanguageGroup(self):
         langLabel = QLabel("Language")
         self.langCombo = QComboBox()
-        self.langCombo.addItems(["E", "G", "J"])
+        self.langCombo.addItems(["E", "G", "J", "All"])
 
         layout = QHBoxLayout()
         layout.addWidget(langLabel)
@@ -62,7 +62,9 @@ class GenerateHTMLDlg(QDialog):
             #htmlType = HTMLType.NLFIT
         #result = GeneratePolishedHTML.generate_HTML(self.langCombo.currentText(), htmlType)
         #self.reportResult(result)
-        for language in ('E', 'G', 'J'):
+        language = self.langCombo.currentText()
+        languages = ('E', 'G', 'J') if language == "All" else (language,)
+        for language in languages:
             for htmlType in (HTMLType.SCV, HTMLType.FO, HTMLType.NLFIT):
                 GeneratePolishedHTML.generate_HTML(language, htmlType)
         self.reportResult((True, 'Done'))
