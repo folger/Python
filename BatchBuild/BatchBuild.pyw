@@ -15,6 +15,7 @@ with open('settings.json') as f:
     SOURCEPATH = settings['SourcePath']
     MSBUILD = settings['MsBuild']
     VSPATH = settings['VSPath']
+    COPYDLLPATH = settings['CopyDllPath']
     BINFILE32RELEASE = settings['Bin32Release']
     BINFILE64RELEASE = settings['Bin64Release']
 
@@ -63,7 +64,7 @@ class DllJobThread(QThread):
 class CopyDllThread(DllJobThread):
     def beforeDoJobs(self, win32):
         platformpath = '32bit' if win32 else '64bit'
-        self.path = os.path.join(r'\\fs1\dev\93_dlls', platformpath)
+        self.path = os.path.join(COPYDLLPATH, platformpath)
         try:
             shutil.rmtree(self.path)
         except FileNotFoundError:

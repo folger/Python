@@ -2,6 +2,7 @@
 	"SourcePath": "",
 	"MsBuild": "",
 	"VSPath": "",
+	"CopyDllPath": "",
 	"Bin32Release": [
         "gsodbc9.dll",
         "Lababf32.dll",
