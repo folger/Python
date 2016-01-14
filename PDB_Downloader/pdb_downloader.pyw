@@ -4,6 +4,7 @@ import re
 import json
 import zipfile
 import traceback
+import tempfile
 from functools import partial
 from subprocess import check_call, CalledProcessError, Popen
 from urllib.request import urlretrieve
@@ -96,97 +97,104 @@ class PDBDownloader(QDialog):
     def createActionLayout(self):
         self.filename = QLabel('')
         self.start = QPushButton('&Start')
+        self.start.setFixedSize(50, 24)
         self.start.setDefault(True)
-        self.connect(self.start, SIGNAL("clicked()"), self.onStart)
+        self.connect(self.start, SIGNAL("clicked()"),
+                     partial(self.onStart, False))
+        self.showAddresses = QPushButton('S&how')
+        self.showAddresses.setFixedSize(50, 24)
+        self.connect(self.showAddresses, SIGNAL("clicked()"),
+                     partial(self.onStart, True))
 
         layout = QHBoxLayout()
         layout.addWidget(self.filename)
         layout.addStretch()
+        layout.addWidget(self.showAddresses)
         layout.addWidget(self.start)
         return layout
 
     @create_group('Modules')
     def createModulesGroup(self):
         modules = [
-                "ok9",
-                "okUtil9",
-                "Outl9",
-                "ou9",
-                "od9",
-                "O3DGL9",
-                "OK3DGL9",
-                "OCntrls9",
-                "ogrid9",
-                "OKXF9",
-                "omocavc9",
-                "OCompiler9",
-                "ocMath9",
-                "octree_Utils9",
-                "ocUtils9",
-                "gsodbc9",
-                "Lababf32",
-                "libapr",
-                "libsie",
-                "MOCABaseTypes9",
-                "nlsf9",
-                "oc3dx9",
-                "OCcontour9",
-                "ocim9",
-                "ocmath29",
-                "ocmathsp9",
-                "OCMmLink9",
-                "ocStatEx9",
-                "OCTree9",
-                "ocuv9",
-                "OCVImg",
-                "odbc9",
-                "odcfl9",
-                "oExtFile9",
-                "offt9",
-                "OFFTW9",
-                "ofgp9",
-                "ofio9",
-                "ohtmlhelp9",
-                "ohttp9",
-                "OIFileDlg9",
-                "oimg9",
-                "OImgLT9",
-                "OlbtEdit9",
-                "OLTmsg9",
-                "omail9",
-                "omat9",
-                "ONAG_ex9",
-                "ONAG9",
-                "ONLSF9",
-                "OODBC9",
-                "OODR9",
-                "ooff60",
-                "OPack9",
-                "OPattern_Utils9",
-                "opencv_core",
-                "opencv_highgui",
-                "opencv_imgproc",
-                "opfm9",
-                "OPFMFuncs9",
-                "orespr9",
-                "OStat",
-                "Osts9",
-                "otext9",
-                "OTools",
-                "OTreeEditor9",
-                "oTreeGrid9",
-                "OUim9",
-                "OVideoReader9",
-                "OVideoWriter9",
-                "owxGrid9",
-                "wxbase28",
-                "wxmsw28_core",
-                "oErrMsg",
-                "nlsfWiz9",
-                "OImgProc",
-                "OImage",
-                "libgif",
-                "ORserve9",
+            "ok9",
+            "okUtil9",
+            "Outl9",
+            "ou9",
+            "od9",
+            "O3DGL9",
+            "OK3DGL9",
+            "OCntrls9",
+            "ogrid9",
+            "OKXF9",
+            "omocavc9",
+            "OCompiler9",
+            "ocMath9",
+            "octree_Utils9",
+            "ocUtils9",
+            "gsodbc9",
+            "Lababf32",
+            "libapr",
+            "libsie",
+            "MOCABaseTypes9",
+            "nlsf9",
+            "oc3dx9",
+            "OCcontour9",
+            "ocim9",
+            "ocmath29",
+            "ocmathsp9",
+            "OCMmLink9",
+            "ocStatEx9",
+            "OCTree9",
+            "ocuv9",
+            "OCVImg",
+            "odbc9",
+            "odcfl9",
+            "oExtFile9",
+            "offt9",
+            "OFFTW9",
+            "ofgp9",
+            "ofio9",
+            "ohtmlhelp9",
+            "ohttp9",
+            "OIFileDlg9",
+            "oimg9",
+            "OImgLT9",
+            "OlbtEdit9",
+            "OLTmsg9",
+            "omail9",
+            "omat9",
+            "ONAG_ex9",
+            "ONAG9",
+            "ONLSF9",
+            "OODBC9",
+            "OODR9",
+            "ooff60",
+            "OPack9",
+            "OPattern_Utils9",
+            "opencv_core",
+            "opencv_highgui",
+            "opencv_imgproc",
+            "opfm9",
+            "OPFMFuncs9",
+            "orespr9",
+            "OStat",
+            "Osts9",
+            "otext9",
+            "OTools",
+            "OTreeEditor9",
+            "oTreeGrid9",
+            "OUim9",
+            "OVideoReader9",
+            "OVideoWriter9",
+            "owxGrid9",
+            "wxbase28",
+            "wxmsw28_core",
+            "oErrMsg",
+            "nlsfWiz9",
+            "OImgProc",
+            "OImage",
+            "libgif",
+            "ORserve9",
         ]
         modules.insert(0, 'Origin' + self.curVer)
 
@@ -201,8 +209,10 @@ class PDBDownloader(QDialog):
 
         self.checkAll = QPushButton('&Check All')
         self.unCheckAll = QPushButton('Uncheck &All')
-        self.connect(self.checkAll, SIGNAL("clicked()"), partial(self.onChecks, True))
-        self.connect(self.unCheckAll, SIGNAL("clicked()"), partial(self.onChecks, False))
+        self.connect(self.checkAll, SIGNAL("clicked()"),
+                     partial(self.onChecks, True))
+        self.connect(self.unCheckAll, SIGNAL("clicked()"),
+                     partial(self.onChecks, False))
 
         layout = QVBoxLayout()
         layout.addWidget(self.view)
@@ -228,7 +238,7 @@ class PDBDownloader(QDialog):
         for module in self.modules():
             module.setCheckState(Qt.Checked if checked else Qt.Unchecked)
 
-    def onStart(self):
+    def onStart(self, showaddresses):
         if not self.pdb.isEnabled():
             self.stop.emit()
             return
@@ -238,7 +248,8 @@ class PDBDownloader(QDialog):
             return
 
         def files(module):
-            def _format(fm): return fm.format(module)
+            def _format(fm):
+                return fm.format(module)
             if self.pdb.isChecked():
                 if self.win32.isChecked():
                     yield _format('{}.pdb.zip')
@@ -270,6 +281,13 @@ class PDBDownloader(QDialog):
                                         buildFolder,
                                         f)
                         yield ftp, filename
+
+        if showaddresses:
+            with open(os.path.join(tempfile.gettempdir(), 'pdb_ftps.txt'), 'w') as f:
+                for ftp, __ in all_files():
+                    print(ftp, file=f)
+                Popen(['notepad', f.name])
+            return
 
         dt = DownloadThread(self)
         dt.setfilename.connect(self.setFileName)
@@ -381,7 +399,7 @@ class DownloadThread(QThread):
     def progressHook(self, count, blocksize, totalsize):
         if self.stop:
             raise StopFetch
-        self.setrange.emit(0, totalsize-1)
+        self.setrange.emit(0, totalsize - 1)
         self.progress.emit(count * blocksize)
 
     def setStop(self):
