@@ -41,7 +41,7 @@ class PDBDownloader(QDialog):
 
         self.setWindowTitle('PDB Downloader({})'.
                             format(self.curVer))
-        self.setFixedSize(250, 550)
+        self.setFixedWidth(250)
 
         icon = QIcon()
         icon.addPixmap(QPixmap('main.png'))
@@ -97,12 +97,12 @@ class PDBDownloader(QDialog):
     def createActionLayout(self):
         self.filename = QLabel('')
         self.start = QPushButton('&Start')
-        self.start.setFixedSize(50, 24)
+        self.start.setFixedWidth(50)
         self.start.setDefault(True)
         self.connect(self.start, SIGNAL("clicked()"),
                      partial(self.onStart, False))
         self.showAddresses = QPushButton('S&how')
-        self.showAddresses.setFixedSize(50, 24)
+        self.showAddresses.setFixedWidth(50)
         self.connect(self.showAddresses, SIGNAL("clicked()"),
                      partial(self.onStart, True))
 
