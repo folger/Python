@@ -1,5 +1,67 @@
 {
 	"VS6Path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\COMMON\\MSDev98\\Bin\\MSDEV.EXE",
 	"VS2010Path": "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\Common7\\IDE\\devenv.exe",
-	"VS2012Path": "D:\\VS2012\\Common7\\IDE\\devenv.exe"
+	"VS2012Path": "D:\\VS2012\\Common7\\IDE\\devenv.exe",
+	"Builds": [
+		{
+			"Name": "Debug 7.5",
+			"IDE": "VS6",
+			"Location": "E:\\C_75",
+			"Project": "Orgmain.dsw"
+		},
+		{
+			"Name": "Debug 8.1",
+			"IDE": "VS6",
+			"Location": "E:\\C_81",
+			"Project": "Orgmain.dsw"
+		},
+		{
+			"Name": "Debug 8.5.1",
+			"IDE": "VS6",
+			"Location": "E:\\C_851",
+			"Project": "Orgmain.dsw"
+		},
+		{
+			"Name": "Debug 8.6",
+			"IDE": "VS2010",
+			"Location": "E:\\C_86sr0_32",
+			"Project": "originVS2010Frequent.sln"
+		},
+		{
+			"Name": "Debug 9.0 SR1",
+			"IDE": "VS2010",
+			"Location": "E:\\C_90SR1",
+			"Project": "originVS2010All.sln"
+		},
+		{
+			"Name": "Debug 9.0 SR2",
+			"IDE": "VS2010",
+			"Location": "E:\\C_90SR2",
+			"Project": "originVS2010All.sln"
+		},
+		{
+			"Name": "Debug 9.1 SR0",
+			"IDE": "VS2012",
+			"Location": "E:\\C_91SR0",
+			"Project": ""
+		},
+		{
+			"Name": "Debug 9.1 SR2",
+			"IDE": "VS2012",
+			"Location": "E:\\C_91SR2",
+			"Project": ""
+		},
+		{
+			"Name": "Debug 9.2 SR0",
+			"IDE": "VS2012",
+			"Location": "E:\\C_92SR0\\Source",
+			"Project": ""
+		},
+		{
+			"Name": "Debug 9.3 SR0",
+			"IDE": "VS2012",
+			"Location": "D:\\C_93SR0\\Source",
+			"Project": ""
+		}
+	]
 }
