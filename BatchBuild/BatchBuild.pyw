@@ -50,7 +50,7 @@ class DllJobThread(QThread):
 
     def doJobs(self, win32):
         dlls = BINFILE32RELEASE if win32 else BINFILE64RELEASE
-        self.setrange.emit(0, len(dlls)-1)
+        self.setrange.emit(0, len(dlls) - 1)
         self.beforeDoJobs(win32)
         oldstatus = []
         self.getStatus.emit(oldstatus)
@@ -82,7 +82,8 @@ class CopyDllThread(DllJobThread):
 
 
 class DeleteDllThread(DllJobThread):
-    def beforeDoJobs(self, win32): pass
+    def beforeDoJobs(self, win32):
+        pass
 
     def doJob(self, dll):
         if dll.lower().endswith('dbghelp.dll'):
@@ -115,7 +116,7 @@ class CopyFilesThread(QThread):
 
         files = os.listdir(self.srcfolder)
         self.enabled.emit(False)
-        self.setrange.emit(0, len(files)-1)
+        self.setrange.emit(0, len(files) - 1)
         try:
             for i, f in enumerate(files):
                 self.updated.emit(i, f)
@@ -464,11 +465,12 @@ class BatchBuilder(QDialog):
                 (CHECK_64_DEBUG, self.check64Debug.isChecked()),
                 (CHECK_COPY_DLLS, self.checkCopyAfterBuild.isChecked()))
 
+dev_folder = sys.argv[1] if len(sys.argv) else ''
 app = QApplication([])
 app.setOrganizationDomain('originlab.com')
 app.setOrganizationName('Originlab')
-app.setApplicationName('BatchBuild')
+app.setApplicationName('BatchBuild({})'.format(dev_folder.replace('\\', '/')))
 app.setApplicationVersion('1.0.0')
-dlg = BatchBuilder(None, sys.argv[1] if len(sys.argv) > 1 else '')
+dlg = BatchBuilder(None, dev_folder)
 dlg.show()
 app.exec_()
