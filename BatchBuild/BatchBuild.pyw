@@ -1,4 +1,5 @@
 import sys
+import re
 import os
 import json
 import subprocess
@@ -15,9 +16,11 @@ with open('settings.json') as f:
     SOURCEPATH = settings['SourcePath']
     MSBUILD = settings['MsBuild']
     VSPATH = settings['VSPath']
-    COPYDLLPATH = settings['CopyDllPath']
     BINFILE32RELEASE = settings['Bin32Release']
     BINFILE64RELEASE = settings['Bin64Release']
+
+
+ORIGINFILEPATTERN = re.compile(r'(Origin)(\d+)((_64)?)')
 
 
 class DllJobThread(QThread):
@@ -55,16 +58,22 @@ class DllJobThread(QThread):
         oldstatus = []
         self.getStatus.emit(oldstatus)
         for i, dll in enumerate(dlls):
-            self.updated.emit(i, dll)
+            self.updated.emit(i, ORIGINFILEPATTERN.sub(lambda m: m.group(1) +
+                                                       self.version() +
+                                                       m.group(3), dll))
             self.doJob(dll)
         self.setrange.emit(0, 0)
         self.updateStatus.emit(oldstatus[0])
+
+    def version(self):
+        return self.parent().version.text()
 
 
 class CopyDllThread(DllJobThread):
     def beforeDoJobs(self, win32):
         platformpath = '32bit' if win32 else '64bit'
-        self.path = os.path.join(COPYDLLPATH, platformpath)
+        self.path = os.path.join(r'\\fs1\Dev\{}_dlls'
+                                 .format(self.version()), platformpath)
         try:
             shutil.rmtree(self.path)
         except FileNotFoundError:
@@ -244,6 +253,14 @@ class BatchBuilder(QDialog):
         self.check32Debug = createCheck('3&2bit Debug', 1, 0)
         self.check64Debug = createCheck('6&4bit Debug', 1, 1)
         self.check32Release.setChecked(True)
+
+        layout.addWidget(QLabel('Version'), 2, 0)
+        for dll in BINFILE32RELEASE:
+            m = ORIGINFILEPATTERN.match(dll)
+            if m:
+                version = m.group(2)
+        self.version = QLineEdit(version)
+        layout.addWidget(self.version, 2, 1)
         return layout
 
     @create_group('Action')
@@ -354,6 +371,7 @@ class BatchBuilder(QDialog):
 
     def enableAll(self, enable):
         for btn in (self.slnOrigin, self.slnViewer, self.slnOrglab,
+                    self.version,
                     self.check32Release, self.check32Debug,
                     self.check64Release, self.check64Debug):
             btn.setEnabled(enable)
@@ -465,7 +483,7 @@ class BatchBuilder(QDialog):
                 (CHECK_64_DEBUG, self.check64Debug.isChecked()),
                 (CHECK_COPY_DLLS, self.checkCopyAfterBuild.isChecked()))
 
-dev_folder = sys.argv[1] if len(sys.argv) else ''
+dev_folder = sys.argv[1] if len(sys.argv) > 1 else ''
 app = QApplication([])
 app.setOrganizationDomain('originlab.com')
 app.setOrganizationName('Originlab')

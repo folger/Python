@@ -2,7 +2,6 @@
 	"SourcePath": "",
 	"MsBuild": "",
 	"VSPath": "",
-	"CopyDllPath": "\\\\fs1\\Dev\\94_dlls",
 	"Bin32Release": [
         "gsodbc9.dll",
         "Lababf32.dll",
