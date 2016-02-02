@@ -178,6 +178,7 @@ CHECK_32_RELEASE = 'check32Release'
 CHECK_32_DEBUG = 'check32Debug'
 CHECK_64_RELEASE = 'check64Release'
 CHECK_64_DEBUG = 'check64Debug'
+VERSION = 'version'
 CHECK_COPY_DLLS = 'copyDllsAfterBuild'
 
 
@@ -216,6 +217,7 @@ class BatchBuilder(QDialog):
             (CHECK_32_DEBUG, setChecked(self.check32Debug)),
             (CHECK_64_RELEASE, setChecked(self.check64Release)),
             (CHECK_64_DEBUG, setChecked(self.check64Debug)),
+            (VERSION, self.version.setText),
             (CHECK_COPY_DLLS, setChecked(self.checkCopyAfterBuild)))
 
         self.onConfigurationChanged()
@@ -481,6 +483,7 @@ class BatchBuilder(QDialog):
                 (CHECK_32_DEBUG, self.check32Debug.isChecked()),
                 (CHECK_64_RELEASE, self.check64Release.isChecked()),
                 (CHECK_64_DEBUG, self.check64Debug.isChecked()),
+                (VERSION, self.version.text()),
                 (CHECK_COPY_DLLS, self.checkCopyAfterBuild.isChecked()))
 
 dev_folder = sys.argv[1] if len(sys.argv) > 1 else ''
