@@ -204,21 +204,17 @@ class BatchBuilder(QDialog):
         layout.addWidget(self.labelStatus)
         self.setLayout(layout)
 
-        def setChecked(var):
-            def wrapper(val):
-                var.setChecked(val == 'true' or val == 'True')
-            return wrapper
         load_settings(
             (MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val)),
-            (SLN_ORIGIN, setChecked(self.slnOrigin)),
-            (SLN_VIEWER, setChecked(self.slnViewer)),
-            (SLN_ORGLAB, setChecked(self.slnOrglab)),
-            (CHECK_32_RELEASE, setChecked(self.check32Release)),
-            (CHECK_32_DEBUG, setChecked(self.check32Debug)),
-            (CHECK_64_RELEASE, setChecked(self.check64Release)),
-            (CHECK_64_DEBUG, setChecked(self.check64Debug)),
+            (SLN_ORIGIN, settings_set_checked(self.slnOrigin)),
+            (SLN_VIEWER, settings_set_checked(self.slnViewer)),
+            (SLN_ORGLAB, settings_set_checked(self.slnOrglab)),
+            (CHECK_32_RELEASE, settings_set_checked(self.check32Release)),
+            (CHECK_32_DEBUG, settings_set_checked(self.check32Debug)),
+            (CHECK_64_RELEASE, settings_set_checked(self.check64Release)),
+            (CHECK_64_DEBUG, settings_set_checked(self.check64Debug)),
             (VERSION, self.version.setText),
-            (CHECK_COPY_DLLS, setChecked(self.checkCopyAfterBuild)))
+            (CHECK_COPY_DLLS, settings_set_checked(self.checkCopyAfterBuild)))
 
         self.onConfigurationChanged()
 
