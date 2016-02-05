@@ -20,6 +20,14 @@ except Exception:
     pass
 
 
+BUILDPREFIX = 'BuildPrefix'
+PDB = 'PDB'
+MAP = 'MAP'
+WIN32 = 'Win32'
+X64 = 'x64'
+ORIGIN = 'Origin'
+
+
 class PDBDownloader(QDialog):
     stop = pyqtSignal()
 
@@ -27,20 +35,20 @@ class PDBDownloader(QDialog):
         super().__init__(parent)
         self.selfclose = False
 
+        self.build_prefix = QSettings().value(BUILDPREFIX)
+        if not self.build_prefix:
+            self.build_prefix = 'Ir94Sr0_'
+
         with open('settings.json') as fr:
             settings = json.load(fr)
-            self.buildPrefix = settings['CurrentBuildPrefix']
             self.downloadPath = settings['DownloadPath']
             if not self.downloadPath:
                 self.downloadPath = os.path.join(os.environ['home'], 'Desktop')
             self.buildPath = settings['BuildPath']
-            self.curVer = re.match(r'Ir(\d+)', self.buildPrefix).group(1)
             self.ftp = settings['FTP']
             self.username = settings['Username']
             self.password = settings['Password']
 
-        self.setWindowTitle('PDB Downloader({})'.
-                            format(self.curVer))
         self.setFixedWidth(250)
 
         icon = QIcon()
@@ -57,18 +65,34 @@ class PDBDownloader(QDialog):
         layout.addLayout(self.createActionLayout())
         self.setLayout(layout)
 
+        load_settings(
+            (MAIN_WINDOW_GEOMETRY, lambda val: self.restoreGeometry(val)),
+            (BUILDPREFIX, self.buildPrefix.setText),
+            (PDB, settings_set_checked(self.pdb)),
+            (MAP, settings_set_checked(self.map)),
+            (WIN32, settings_set_checked(self.win32)),
+            (X64, settings_set_checked(self.x64)))
+
+        self.updateWindowTitle()
+
     def createBuildNumberLayout(self):
+        layout = QGridLayout()
+
+        self.buildPrefix = QLineEdit(self.build_prefix)
+        label = QLabel('Build P&refix')
+        label.setBuddy(self.buildPrefix)
+        layout.addWidget(label, 0, 0)
+        layout.addWidget(self.buildPrefix, 0, 1, 1, 2)
+
         self.buildNum = QLineEdit()
         self.checkLatest = QPushButton('&Latest')
         self.connect(self.checkLatest, SIGNAL("clicked()"), self.onCheckLatest)
         self.onCheckLatest()
         label = QLabel('B&uild Number')
         label.setBuddy(self.buildNum)
-
-        layout = QHBoxLayout()
-        layout.addWidget(label)
-        layout.addWidget(self.buildNum)
-        layout.addWidget(self.checkLatest)
+        layout.addWidget(label, 1, 0)
+        layout.addWidget(self.buildNum, 1, 1)
+        layout.addWidget(self.checkLatest, 1, 2)
         return layout
 
     @create_group('File Type')
@@ -116,6 +140,7 @@ class PDBDownloader(QDialog):
     @create_group('Modules')
     def createModulesGroup(self):
         modules = [
+            ORIGIN,
             "ok9",
             "okUtil9",
             "Outl9",
@@ -196,7 +221,6 @@ class PDBDownloader(QDialog):
             "libgif",
             "ORserve9",
         ]
-        modules.insert(0, 'Origin' + self.curVer)
 
         self.view = QListView()
         moduleItems = QStandardItemModel(self.view)
@@ -220,12 +244,20 @@ class PDBDownloader(QDialog):
         layout.addWidget(self.unCheckAll)
         return layout
 
+    def curVer(self):
+        m = re.match(r'Ir(\d+)', self.buildPrefix.text())
+        return m.group(1) if m else ''
+
+    def updateWindowTitle(self):
+        self.setWindowTitle('PDB Downloader({})'.format(self.curVer()))
+
     def onCheckLatest(self):
         def latest_build_num():
             if not self.buildPath:
                 return ''
             try:
-                localBuildPath = os.path.join(self.buildPath, self.curVer, 'I')
+                localBuildPath = os.path.join(self.buildPath,
+                                              self.curVer(), 'I')
                 latestBuild = max(build for build in
                                   os.listdir(localBuildPath)
                                   if build.startswith('Ir'))
@@ -233,6 +265,7 @@ class PDBDownloader(QDialog):
             except Exception:
                 report_error()
         self.buildNum.setText(latest_build_num())
+        self.updateWindowTitle()
 
     def onChecks(self, checked):
         for module in self.modules():
@@ -262,7 +295,7 @@ class PDBDownloader(QDialog):
                     yield _format('{}_64.map.zip')
 
         def all_files():
-            buildFolder = self.buildPrefix + self.buildNum.text()
+            buildFolder = self.buildPrefix.text() + self.buildNum.text()
             localPath = os.path.join(self.downloadPath, buildFolder)
             try:
                 os.makedirs(localPath)
@@ -270,20 +303,24 @@ class PDBDownloader(QDialog):
                 pass
             for module in self.modules():
                 if module.checkState() == Qt.Checked:
-                    for f in files(module.text()):
+                    mtext = module.text()
+                    if mtext == ORIGIN:
+                        mtext = mtext + self.curVer()
+                    for f in files(mtext):
                         filename = os.path.join(localPath, f)
                         ftp = ('ftp://{}:{}@{}/Builds/{}/'
                                'MAP_and_PDB/{}/{}'
                                ).format(self.username,
                                         self.password,
                                         self.ftp,
-                                        self.curVer,
+                                        self.curVer(),
                                         buildFolder,
                                         f)
                         yield ftp, filename
 
         if showaddresses:
-            with open(os.path.join(tempfile.gettempdir(), 'pdb_ftps.txt'), 'w') as f:
+            with open(os.path.join(tempfile.gettempdir(),
+                      'pdb_ftps.txt'), 'w') as f:
                 for ftp, __ in all_files():
                     print(ftp, file=f)
                 Popen(['notepad', f.name])
@@ -343,6 +380,14 @@ class PDBDownloader(QDialog):
                                     'Please wait for download finish '
                                     'or click Stop button')
             event.ignore()
+        else:
+            save_settings(
+                (MAIN_WINDOW_GEOMETRY, self.saveGeometry()),
+                (BUILDPREFIX, self.buildPrefix.text()),
+                (PDB, self.pdb.isChecked()),
+                (MAP, self.map.isChecked()),
+                (WIN32, self.win32.isChecked()),
+                (X64, self.x64.isChecked()))
 
 
 class StopFetch(Exception):
