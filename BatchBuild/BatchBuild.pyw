@@ -58,9 +58,10 @@ class DllJobThread(QThread):
         oldstatus = []
         self.getStatus.emit(oldstatus)
         for i, dll in enumerate(dlls):
-            self.updated.emit(i, ORIGINFILEPATTERN.sub(lambda m: m.group(1) +
-                                                       self.version() +
-                                                       m.group(3), dll))
+            dll = ORIGINFILEPATTERN.sub(lambda m: m.group(1) +
+                                        self.version() +
+                                        m.group(3), dll)
+            self.updated.emit(i, dll)
             self.doJob(dll)
         self.setrange.emit(0, 0)
         self.updateStatus.emit(oldstatus[0])
