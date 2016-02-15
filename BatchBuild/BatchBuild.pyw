@@ -16,6 +16,8 @@ with open('settings.json') as f:
     SOURCEPATH = settings['SourcePath']
     MSBUILD = settings['MsBuild']
     VSPATH = settings['VSPath']
+with open('dlls.json') as f:
+    settings = json.load(f)
     BINFILE32RELEASE = settings['Bin32Release']
     BINFILE64RELEASE = settings['Bin64Release']
 
