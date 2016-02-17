@@ -321,11 +321,14 @@ class BatchBuilder(QDialog):
         mt.start()
 
     def clean(self):
-        mt = BuildThread(self)
-        mt.enabled.connect(self.enableAll)
-        mt.buildConfigurations = self.getBuildConfigurations(['/t:clean'])
-        mt.slnfiles = self.solutionFiles
-        mt.start()
+        if QMessageBox.question(self, 'Think Hard !!', 'Clean Solution ?',
+                                QMessageBox.Yes | QMessageBox.No,
+                                QMessageBox.Yes) == QMessageBox.Yes:
+            mt = BuildThread(self)
+            mt.enabled.connect(self.enableAll)
+            mt.buildConfigurations = self.getBuildConfigurations(['/t:clean'])
+            mt.slnfiles = self.solutionFiles
+            mt.start()
 
     def copyPDB(self):
         mt = CopyFilesThread(self)
