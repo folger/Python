@@ -2,9 +2,13 @@ import os
 import fnmatch
 import re
 import subprocess
-
+import json
 import inspect
-currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
+
+
+with open(os.path.join(os.path.dirname(inspect.getfile(inspect.currentframe())), 'settings.json')) as f:
+    settings = json.load(f)
+    MSBUILD = settings['MsBuild']
 
 
 def get_projects():
@@ -40,7 +44,7 @@ def build(return_output, project, platform, configuration, extra_args=""):
         s = ''
         hasException = False
         try:
-            s = subprocess.check_output(['msbuild'] + args, shell=True, universal_newlines=True)
+            s = subprocess.check_output([MSBUILD] + args, shell=True, universal_newlines=True)
         except subprocess.CalledProcessError as e:
             s = e.output
             hasException = True
@@ -76,7 +80,7 @@ def build(return_output, project, platform, configuration, extra_args=""):
         return '\n'.join(errors)
     else:
         try:
-            subprocess.call(['msbuild'] + args, shell=True)
+            subprocess.call([MSBUILD] + args, shell=True)
         except subprocess.CalledProcessError:
             pass
 
