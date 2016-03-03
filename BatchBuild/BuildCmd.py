@@ -13,6 +13,9 @@ parser.add_argument('-p', '--platform',
 parser.add_argument('-c', '--configuration',
                     help='Build Configuration, can be Debug or Release, '
                     'Debug by default')
+parser.add_argument('-a', '--all-output',
+                    help='Diaplay all output, not just errors',
+                    action='store_true')
 args = parser.parse_args()
 if args.platform is None:
     args.platform = 'Win32'
@@ -28,7 +31,7 @@ def main():
                 file_name = args.file
                 for ff in BuildUtils.get_project_files(project_file):
                     if os.path.basename(ff).lower() == file_name.lower():
-                        print(BuildUtils.compile(True,
+                        print(BuildUtils.compile(not args.all_output,
                                                  project_file,
                                                  args.platform,
                                                  args.configuration,
@@ -39,7 +42,7 @@ def main():
                                      .format(file_name, args.project))
                 return
 
-            print(BuildUtils.build(True,
+            print(BuildUtils.build(not args.all_output,
                                    project_file,
                                    args.platform,
                                    args.configuration))
@@ -51,5 +54,7 @@ def main():
 
 try:
     main()
+    if args.all_output:
+        os.system('pause')
 except Exception as e:
     print(e)
