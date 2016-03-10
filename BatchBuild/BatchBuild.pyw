@@ -77,13 +77,18 @@ class CopyDllThread(DllJobThread):
         platformpath = '32bit' if win32 else '64bit'
         self.path = os.path.join(r'\\fs1\Dev\{}_dlls'
                                  .format(self.version()), platformpath)
-        try:
-            shutil.rmtree(self.path)
-        except FileNotFoundError:
-            pass
+        if not os.path.isdir(self.path):
+            os.mkdir(self.path)
+        for the_file in os.listdir(self.path):
+            file_path = os.path.join(self.path, the_file)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except:
+                pass
 
-        sleep(2)
-        os.mkdir(self.path)
         os.makedirs(os.path.join(self.path, platformpath, 'PyDLLs'))
         os.makedirs(os.path.join(self.path, platformpath, 'Py27DLLs'))
         os.makedirs(os.path.join(self.path, r'OriginC\Originlab'))
