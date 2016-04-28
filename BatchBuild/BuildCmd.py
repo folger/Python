@@ -23,7 +23,29 @@ if args.configuration is None:
     args.configuration = 'Debug'
 
 
+def guess_project_from_source_file(f):
+    path = os.path.dirname(f)
+    paths = path.split('/')
+    last_folder = paths[-1].lower()
+    if last_folder == 'sdk':
+        return 'oks70'
+    if last_folder == 'labutil':
+        return 'outl'
+    for ff in os.listdir(path):
+        if ff.endswith('.vcxproj'):
+            return os.path.splitext(ff)[0]
+    print('Failed to guess project from source file')
+    assert(False)
+
+
 def main():
+    if args.project == 'xxx':
+        if not args.file:
+            print('Source file is not specified, cannot guess project')
+            assert(False)
+        args.project = guess_project_from_source_file(args.file)
+    if args.file:
+        args.file = os.path.basename(args.file)
     for project, project_file in BuildUtils.get_projects():
         if os.path.splitext(project)[0].lower() == args.project.lower():
             print(os.path.dirname(project_file))
