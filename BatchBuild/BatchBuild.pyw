@@ -154,6 +154,7 @@ class BuildThread(QThread):
 
     def run(self):
         self.enabled.emit(False)
+        self.updateStatus.emit('Building ...')
         for slnfile in self.slnfiles:
             is_crashrpt = slnfile.find('CrashRpt') > 0
             ret = 0
