@@ -5,7 +5,8 @@ import json
 import subprocess
 import shutil
 import winreg
-from time import sleep, localtime, strftime
+from datetime import datetime as DT
+from time import sleep
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from folstools.qt.utils import *
@@ -155,6 +156,7 @@ class BuildThread(QThread):
     def run(self):
         self.enabled.emit(False)
         self.updateStatus.emit('Building ...')
+        start_time = DT.now()
         for slnfile in self.slnfiles:
             is_crashrpt = slnfile.find('CrashRpt') > 0
             ret = 0
@@ -174,8 +176,14 @@ class BuildThread(QThread):
                 self.dummy.emit()  # to eat up possible KeyboardInterrupt
                 self.error.emit('Build Error, check Command Window')
                 break
-        self.updateStatus.emit(strftime("%Y-%m-%d %H:%M:%S", localtime())
-                               if ret == 0 else "Build Failed")
+        if ret == 0:
+            end_time = DT.now()
+            elapsed = int((end_time - start_time).total_seconds())
+            msg = '{} ({}s)'.format(end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                                    elapsed)
+        else:
+            msg = 'Build Failed'
+        self.updateStatus.emit(msg)
         if ret == 0:
             self.copydlls.emit()
         self.enabled.emit(True)
