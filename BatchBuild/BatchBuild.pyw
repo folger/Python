@@ -5,11 +5,13 @@ import json
 import subprocess
 import shutil
 import winreg
+import threading
 from datetime import datetime as DT
 from time import sleep
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from folstools.qt.utils import *
+from folstools import dir_temp_change
 
 
 with open('settings.json') as f:
@@ -204,7 +206,7 @@ class BatchBuilder(QDialog):
         super().__init__(parent)
         self._devFolder = devFolder
         self.setWindowTitle(self.developFolder)
-        self.setFixedSize(250, 500)
+        self.setFixedSize(250, 550)
 
         icon = QIcon()
         icon.addPixmap(QPixmap('main.ico'))
@@ -294,7 +296,10 @@ class BatchBuilder(QDialog):
         self.checkCopyAfterBuild.setChecked(True)
         layout.addWidget(self.checkCopyAfterBuild)
 
+        self.btnPull = createButton('', self.pull)
+        self.updatePullLabel()
         self.btnBuild = createButton('&Build', self.build)
+        # self.btnBuild.setAutoDefault(True)
         self.btnClean = createButton('&Clean', self.clean)
         self.btnCopyToFS1 = createButton('Copy to fs1 (Release)',
                                          self.copyToFS1)
@@ -305,6 +310,10 @@ class BatchBuilder(QDialog):
         self.btnOpenSln = createButton('Open Solution in Visual Studio',
                                        self.openSln)
         return layout
+
+    def pull(self):
+        with dir_temp_change(dev_folder):
+            os.system('git pull')
 
     def build(self):
         mt = BuildThread(self)
@@ -374,6 +383,7 @@ class BatchBuilder(QDialog):
         for btn in (self.btnBuild, self.btnClean):
             btn.setEnabled(enable)
 
+        self.btnPull.setEnabled(True)
         self.btnOpenSln.setEnabled(True)
 
     def updateProgress(self, val, name):
@@ -397,7 +407,7 @@ class BatchBuilder(QDialog):
         if enable:
             self.onConfigurationChanged()
         else:
-            for btn in (self.checkCopyAfterBuild, self.btnBuild,
+            for btn in (self.checkCopyAfterBuild, self.btnPull, self.btnBuild,
                         self.btnCopyToFS1, self.btnDeleteBin, self.btnClean,
                         self.btnCopyPDB, self.btnCopyMAP, self.btnOpenSln):
                 btn.setEnabled(False)
@@ -481,6 +491,19 @@ class BatchBuilder(QDialog):
                 buildConfigurations.append(config + extraOption)
         return buildConfigurations
 
+    def updatePullLabel(self):
+        with dir_temp_change(dev_folder):
+            ret = subprocess.check_output('git branch').decode()
+        for s in ret.strip().split('\n'):
+            if s[0] == '*':
+                current_branch = s[2:]
+                break
+        if current_branch[0] != '(':
+            current_branch = '({})'.format(current_branch)
+        self.btnPull.setText('Pull from Git {}'.format(current_branch))
+        self.update_pull_timer = threading.Timer(3, self.updatePullLabel)
+        self.update_pull_timer.start()
+
     def reject(self):
         self.close()
 
@@ -490,6 +513,8 @@ class BatchBuilder(QDialog):
                                     'Please wait for building process finish')
             event.ignore()
         else:
+            if self.update_pull_timer:
+                self.update_pull_timer.cancel()
             save_settings(
                 (MAIN_WINDOW_GEOMETRY, self.saveGeometry()),
                 (SLN_ORIGIN, self.slnOrigin.isChecked()),
