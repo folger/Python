@@ -312,6 +312,7 @@ class BatchBuilder(QDialog):
         return layout
 
     def pull(self):
+        print('Pulling from Git ...')
         with dir_temp_change(dev_folder):
             os.system('git pull')
 
