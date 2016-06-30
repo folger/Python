@@ -1,6 +1,7 @@
 import sys
 import os
 from argparse import ArgumentParser
+from datetime import datetime as DT
 import BuildUtils
 
 
@@ -75,10 +76,14 @@ def main():
                              .format(file_name, args.project))
         return
 
-    print(BuildUtils.build(not args.all_output,
+    res = (BuildUtils.build(not args.all_output,
                            project_file,
                            args.platform,
                            args.configuration))
+    if not args.all_output:
+        print(res)
+    else:
+        print(DT.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 try:
     main()
