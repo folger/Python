@@ -19,6 +19,17 @@ with open('settings.json') as f:
     VSPATH = settings['VSPath']
 
 
+class GitPullThread(QThread):
+    enabled = pyqtSignal(bool)
+
+    def run(self):
+        self.enabled.emit(False)
+        print('Pulling from Git ...')
+        with dir_temp_change(dev_folder):
+            os.system('git pull')
+        self.enabled.emit(True)
+
+
 class BuildThread(QThread):
     enabled = pyqtSignal(bool)
     copydlls = pyqtSignal()
@@ -183,9 +194,9 @@ class BatchBuilder(QDialog):
         return layout
 
     def pull(self):
-        print('Pulling from Git ...')
-        with dir_temp_change(dev_folder):
-            os.system('git pull')
+        mt = GitPullThread(self)
+        mt.enabled.connect(self.enableAll)
+        mt.start()
 
     def build(self):
         mt = BuildThread(self)
