@@ -31,6 +31,8 @@ def guess_project_from_source_file(f):
     proj_name = ''
     if last_folder == 'sdk':
         proj_name = r'vc32\okstatic\oks70'
+    elif last_folder == 'modll':
+        proj_name = r'MFC\OMocavc\omocavc'
     elif last_folder == 'labutil':
         proj_name = r'vc32\outl'
     else:
