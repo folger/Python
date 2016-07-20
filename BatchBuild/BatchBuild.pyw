@@ -21,12 +21,15 @@ with open('settings.json') as f:
 
 class GitPullThread(QThread):
     enabled = pyqtSignal(bool)
+    dummy = pyqtSignal()
 
     def run(self):
         self.enabled.emit(False)
         print('Pulling from Git ...')
         with dir_temp_change(dev_folder):
-            os.system('git pull')
+            ret = subprocess.call('git pull')
+            if ret != 0:
+                self.dummy.emit()  # to eat up possible KeyboardInterrupt
         self.enabled.emit(True)
 
 
@@ -196,6 +199,7 @@ class BatchBuilder(QDialog):
     def pull(self):
         mt = GitPullThread(self)
         mt.enabled.connect(self.enableAll)
+        mt.dummy.connect(self.dummy)
         mt.start()
 
     def build(self):
