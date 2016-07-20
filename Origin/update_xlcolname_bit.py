@@ -24,20 +24,24 @@ def ogw_in_exe():
                 yield os.path.join(root, f)
 
 
-# begins = [0x1b, 0x2e, 0x33, 0x18, 0x1b, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x57, 0x43, 0x1b, 0x1b, 0x57, 0x43, 0x1b, 0x17, 0x1b, 0x3c, 0x20, 0x20, 0x1b, 0x17, 0x1f, 0x20, 0x17]
+ORIGIN = os.path.join(os.environ['Develop'], 'Origin', 'Origin94d.exe')
+LOAD_OTW = 'win -t d '
+LOAD_OGW = 'doc -a '
+
 # for f in otw_in_exe(''):
-# begins = [0x1b, 0x1b, 0x1b, 0x1b]
-# for f in otw_in_exe('Localization\\E'):
-begins = [0x694d, 0xd53, 0x8dd8f, 0x88b8, 0xc16c, 0x694d, 0xd53, 0xec19, 0x4f25, 0x992b, 0x7983, 0x2c64, 0xf5c, 0xf24, 0x8875, 0x3ad4, 0x3c78, 0x864f, 0x820]
+# for f in otw_in_exe('Localization\\J'):
 for f in ogw_in_exe():
+    # os.system('{} -rs {}"{}";doc -ss;exit'.format(ORIGIN, LOAD_OTW, f))
+    os.system('{} -rs {}"{}";doc -ss;exit'.format(ORIGIN, LOAD_OGW, f))
+    with open(os.path.expanduser('~/Desktop/offset.txt')) as fr:
+        offset = int(fr.read().strip())
     with open(f, 'rb') as fr:
         data = fr.read()
-    length = struct.unpack('i', data[begins[i]:begins[i]+4])[0]
+    length = struct.unpack('i', data[offset:offset+4])[0]
     if length >= 0xc3:
-        pos = begins[i] + 0x8d
+        pos = offset + 0x8d
         with open(f, 'wb') as fw:
-            fw.write(data[:pos] + bytes([data[pos]|0x40]) + data[pos+1:])
-    else:
+            fw.write(data[:pos] + bytes([data[pos]&~0x40]) + data[pos+1:])
         print(f)
-    i += 1
-    # print(f)
+    else:
+        print('Fail ~~~~~~~~ ' + f)
