@@ -52,19 +52,19 @@
 			"Project": ""
 		},
 		{
-			"Name": "Debug 9.2 SR0",
+			"Name": "Debug 9.2 SR0 (2015)",
 			"IDE": "VS2012",
 			"Location": "E:\\C_92SR0\\Source",
 			"Project": ""
 		},
 		{
-			"Name": "Debug 9.3 SR0",
+			"Name": "Debug 9.3 SR0 (2016)",
 			"IDE": "VS2012",
 			"Location": "D:\\C_93SR0\\Source",
 			"Project": ""
 		},
 		{
-			"Name": "Debug 9.3 SR1",
+			"Name": "Debug 9.3 SR1 (2016)",
 			"IDE": "VS2012",
 			"Location": "D:\\C_93SR1\\Source",
 			"Project": ""
