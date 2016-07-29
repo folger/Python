@@ -80,6 +80,7 @@ def build(return_output, project, platform, configuration, extra_args=""):
         return '\n'.join(errors)
     else:
         try:
+            os.system('title ' + ' '.join(args))
             subprocess.call([MSBUILD] + args, shell=True)
         except subprocess.CalledProcessError:
             pass
