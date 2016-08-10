@@ -27,7 +27,7 @@ class GitPullThread(QThread):
         self.enabled.emit(False)
         print('Pulling from Git ...')
         with dir_temp_change(dev_folder):
-            ret = subprocess.call('git pull')
+            ret = subprocess.call('git pull --rebase')
             if ret != 0:
                 self.dummy.emit()  # to eat up possible KeyboardInterrupt
         self.enabled.emit(True)
