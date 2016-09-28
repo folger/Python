@@ -6,6 +6,7 @@ from urllib.request import urlretrieve
 import urllib.error
 from shutil import rmtree
 from time import sleep
+import bs4
 import LTFuncsHTMLParser
 
 import inspect
@@ -32,7 +33,7 @@ def download_images(lang):
     def download(images, imagesfail):
 
         for image in images:
-            image = image.replace('<img src="./{}/'.format(imagelang), LTFuncsHTMLParser.get_http_prefix(lang) + LTFuncsHTMLParser.get_image_path(lang))
+            image = image.replace('./{}/'.format(imagelang), LTFuncsHTMLParser.get_http_prefix(lang) + LTFuncsHTMLParser.get_image_path(lang))
             slash = image.rfind('/')
             imagename = image[slash+1:]
 
@@ -45,7 +46,8 @@ def download_images(lang):
 
     with open(htmlfile, encoding='utf-8-sig') as fr:
         s = fr.read()
-        images = list(set(re.findall('<img src="[^"]+', s)))
+        soup = bs4.BeautifulSoup(s, 'html.parser')
+        images = list(set(img['src'] for img in soup('img')))
 
         subprocess.Popen(r'explorer %s' % imagefolder)
 

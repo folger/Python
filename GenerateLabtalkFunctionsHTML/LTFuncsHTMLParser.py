@@ -1,3 +1,4 @@
+import re
 from html.parser import HTMLParser
 import requests
 import bs4
@@ -44,7 +45,13 @@ def get_page_source(lang):
     return r.text
 
 
-class MyHTMLParser(HTMLParser):
+def polishDescription(description):
+    for s, v, in (('<ul>', '<dl>'), ('</ul>', '</dl>'), ('<li>', '<dd>'), ('</li>', '</dd>'), ('&#160;', ' ')):
+        description = description.replace(s, v)
+    return description
+
+
+class MyHTMLParserOld(HTMLParser):
     def __init__(self):
         super(MyHTMLParser, self).__init__()
 
@@ -121,7 +128,7 @@ class MyHTMLParser(HTMLParser):
                     # print(self.description.strip())
                     description = self.description.strip()
                     if len(description) != 0:
-                        self.results.append(self.polishDescription(description))
+                        self.results.append(polishDescription(description))
             elif tag == "a":
                 if self.isFunction():
                     self.a = False
@@ -160,10 +167,43 @@ class MyHTMLParser(HTMLParser):
     def isDescription(self):
         return self.col == 2
 
-    def polishDescription(self, description):
-        for s, v, in (('<ul>', '<dl>'), ('</ul>', '</dl>'), ('<li>', '<dd>'), ('</li>', '</dd>'), ('&#160;', ' ')):
-            description = description.replace(s, v)
-        return description
+
+
+class MyHTMLParser:
+    def feed(self, text):
+        self.results = []
+        soup = bs4.BeautifulSoup(text, 'html.parser')
+        td = soup(class_='firstHeading')[0].parent
+        for t in td:
+            if isinstance(t, bs4.NavigableString):
+                continue
+            if t.name == 'h2':
+                category = t.span.text
+                subcategory = ''
+                fitfunc = False
+            elif t.name == 'h3':
+                subcategory = t.span.text
+            elif t.name == 'table' and t['class'] and t['class'][0].startswith('simple-'):
+                fitfunc = t['class'][0] == 'simple-FitFunc'
+                self.results.append(category + ' - ' + subcategory if subcategory else category)
+
+                for tr in t('tr'):
+                    tds = tr('td')
+                    if len(tds) != 2:
+                        continue
+                    result = []
+
+                    a = tds[0].a
+                    result.append('http://www.originlab.com' + a['href'].strip())
+                    result.append(('nlf_' if fitfunc else '') + a.text.strip())
+                    description = str(tds[1]).strip()
+                    description = description.replace('\xa0', ' ')
+                    description = (description.replace('<td>', '')
+                                              .replace('</td>', '')
+                                              .replace('\n', ''))
+                    result.append(polishDescription(description))
+
+                    self.results.append((10 * '\t').join(result))
 
 
 if __name__ == "__main__":
