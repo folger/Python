@@ -11,6 +11,8 @@ import LTFuncsHTMLParser
 
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
+if not currentpath:
+    currentpath = os.getcwd()
 
 
 def download_images(lang):
@@ -31,11 +33,12 @@ def download_images(lang):
     os.mkdir(imagefolder)
 
     def download(images, imagesfail):
-
         for image in images:
-            image = image.replace('./{}/'.format(imagelang), LTFuncsHTMLParser.get_http_prefix(lang) + LTFuncsHTMLParser.get_image_path(lang))
+            image = image.replace('./{}/'.format(imagelang),
+                                  (LTFuncsHTMLParser.get_http_prefix(lang) +
+                                   LTFuncsHTMLParser.get_image_path(lang)))
             slash = image.rfind('/')
-            imagename = image[slash+1:]
+            imagename = image[slash + 1:]
 
             try:
                 urlretrieve(image, os.path.join(imagefolder, imagename))
