@@ -2,9 +2,9 @@ from html.parser import HTMLParser
 import requests
 import bs4
 
-#url = 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions'
-#http_prefix = 'http://wikis'
-#image_path = '/images/ltwiki/math/'
+# url = 'http://wikis/ltwiki/index.php?title=Script%3ALabTalk-Supported_Functions'
+# http_prefix = 'http://wikis'
+# image_path = '/images/ltwiki/math/'
 url = 'http://zaphod-w/doc/LabTalk/guide/LT-Supported-Functions'
 http_prefix = 'http://zaphod-w'
 image_path = r'/doc\{}/LabTalk/images/LabTalk-Supported_Functions/'
@@ -19,6 +19,8 @@ def get_http_prefix(lang):
 
 
 lang_map = {'E': 'en', 'J': 'ja', 'G': 'de'}
+
+
 def get_image_path(lang):
     return image_path.format(lang_map[lang])
 
@@ -163,7 +165,6 @@ class MyHTMLParser(HTMLParser):
             description = description.replace(s, v)
         return description
 
-from urllib.request import urlopen
 
 if __name__ == "__main__":
     lang = 'E'
