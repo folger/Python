@@ -1,12 +1,10 @@
 @echo off
 
-set folder=bin
-
-rmdir /s /q %folder% 2>nul
-mkdir %folder%
+rmdir /s /q bin 2>nul
+mkdir bin
 
 set srcfile=GenerateHTML
-pyinstaller --distpath %folder% --onefile --noupx %srcfile%.py
+pyinstaller --distpath bin --onefile --noupx %srcfile%.py
 
 rmdir /s /q build 2>nul
 del /q %srcfile%.spec 2>nul
