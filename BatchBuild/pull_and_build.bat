@@ -22,8 +22,16 @@ if not %errorlevel%==0 (
 call "%VS110COMNTOOLS%..\..\VC\vcvarsall.bat"
 title Building Win32 ...
 msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=Release /p:Platform=Win32 /m
+if not %errorlevel%==0 (
+	pause
+	exit /b
+)
 title Building x64 ...
 msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=Release /p:Platform=x64 /m
+if not %errorlevel%==0 (
+	pause
+	exit /b
+)
 
 popd
 
