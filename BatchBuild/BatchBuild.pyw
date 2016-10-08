@@ -58,6 +58,7 @@ class BuildThread(QThread):
                             break
                 if skip:
                     continue
+                os.system('title ' + str(config[2:] + [slnfile]))
                 ret = subprocess.call(config + [slnfile])
                 if ret != 0:
                     break
