@@ -1,5 +1,7 @@
 @echo off
 
+pushd %~dp0
+
 pushd %1
 
 title Pulling from git ...
