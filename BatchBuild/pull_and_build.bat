@@ -42,4 +42,6 @@ python CopyDlls.py %1 %2 Win32
 title Copying x64 dlls ...
 python CopyDlls.py %1 %2 x64
 
+title Done (%date% %time%)
+
 pause
