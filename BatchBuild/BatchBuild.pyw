@@ -94,7 +94,7 @@ class BatchBuilder(QDialog):
         super().__init__(parent)
         self._devFolder = devFolder
         self.setWindowTitle(self.developFolder)
-        self.setFixedSize(250, 550)
+        self.setFixedSize(250, 570)
 
         icon = QIcon()
         icon.addPixmap(QPixmap('main.ico'))
@@ -197,6 +197,8 @@ class BatchBuilder(QDialog):
         self.btnCopyMAP = createButton('Copy MAPs (Release)', self.copyMAP)
         self.btnOpenSln = createButton('Open Solution in Visual Studio',
                                        self.openSln)
+        self.btnOpenSourceFolder = createButton('Open Source Folder',
+                                                self.openSourceFolder)
         return layout
 
     def pull(self):
@@ -258,6 +260,10 @@ class BatchBuilder(QDialog):
     def openSln(self):
         # the first one is CrashRpt
         subprocess.Popen([VSPATH, self.solutionFiles[1]])
+
+    def openSourceFolder(self):
+        os.system('explorer "{}"'
+                  .format(os.path.join(self._devFolder, 'Source')))
 
     def onConfigurationChanged(self):
         enableRelease = (self.check32Release.isChecked() or
