@@ -22,25 +22,23 @@ if not %errorlevel%==0 (
 )
 
 call "%VS110COMNTOOLS%..\..\VC\vcvarsall.bat"
-title Building Win32 ...
-msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=Release /p:Platform=Win32 /m
-if not %errorlevel%==0 (
-	pause
-	exit /b
-)
-title Building x64 ...
-msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=Release /p:Platform=x64 /m
-if not %errorlevel%==0 (
-	pause
-	exit /b
-)
 
+set platforms=Win32 x64
+
+for %%a in (%platforms%) do (
+	title Building %%a ...
+	msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=Release /p:Platform=%%a /m
+	if not %errorlevel%==0 (
+		pause
+		exit /b
+	)
+)
 popd
 
-title Copying Win32 dlls ...
-python CopyDlls.py %1 %2 Win32
-title Copying x64 dlls ...
-python CopyDlls.py %1 %2 x64
+for %%a in (%platforms%) do (
+	title Copying %%a dlls ...
+	python CopyDlls.py %1 %2 %%a
+)
 
 title Done (%date% %time%)
 
