@@ -160,10 +160,7 @@ class BatchBuilder(QDialog):
         self.check32Release.setChecked(True)
 
         layout.addWidget(QLabel('Version'), 2, 0)
-        for dll in BatchBuildUtils.BINFILE32RELEASE:
-            m = BatchBuildUtils.ORIGINFILEPATTERN.match(dll)
-            if m:
-                version = m.group(2)
+        version = '94'
         self.version = QLineEdit(version)
         layout.addWidget(self.version, 2, 1)
         return layout
