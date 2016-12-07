@@ -8,8 +8,8 @@ title Pulling from git ...
 
 for /f %%a in ('git status --short') do set gitstatus=%%a
 if not [%gitstatus%]==[] (
-	echo Repo has unstaged changes, will be reseted !!!
-	git reset --hard
+	echo Repo has unstaged changes, will be stashed !!!
+	git stash
 )
 git gc
 :startpull
