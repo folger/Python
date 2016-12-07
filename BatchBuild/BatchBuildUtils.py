@@ -115,7 +115,8 @@ def get_origin_binaries(folder, win32, version):
                         sI = props['StringFileInfo']
                         if sI['CompanyName'] == 'OriginLab Corporation':
                             v = sI['ProductVersion'].replace('.', '')
-                            if v == version:
+                            fileflags = props['FixedFileInfo']['FileFlags']
+                            if v == version and (fileflags & 1) == 0:
                                 yield ff.replace(folder + '\\', '')
                     except:
                         pass
@@ -124,5 +125,5 @@ def get_origin_binaries(folder, win32, version):
 if __name__ == '__main__':
     for f in get_origin_binaries(os.path.join(os.getenv('Develop'), 'Origin'),
                                  True,
-                                 '94'):
+                                 '95'):
         print(f)
