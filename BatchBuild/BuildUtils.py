@@ -22,12 +22,12 @@ def get_projects():
 
 
 def get_project_files(project):
-    p = re.compile('"([^"]+\.(c|cpp|cxx))"', re.I)
+    p = re.compile('<(\w+) Include="([^"]+\.(c|cpp|cxx|rc))"', re.I)
     with open(project, encoding='utf-8') as f:
         for line in f:
             m = p.search(line)
             if m:
-                yield m.group(1)
+                yield (m.group(1), m.group(2))
 
 
 def build(return_output, project, platform, configuration, extra_args=""):
@@ -55,7 +55,7 @@ def build(return_output, project, platform, configuration, extra_args=""):
         def reverse_enumerate(iterable):
             return zip(reversed(range(len(iterable))), reversed(iterable))
 
-        pCompileError = re.compile('^ +[^(]+\(\d+\): .*?error C\d+:')
+        pCompileError = re.compile('^ +[^(]+\(\d+\): .*?error R?C\d+:')
         for index, line in reverse_enumerate(lines):
             line = line.rstrip()
             if line in ('Build FAILED.', '生成失败。'):
@@ -86,8 +86,8 @@ def build(return_output, project, platform, configuration, extra_args=""):
             pass
 
 
-def compile(return_output, project, platform, configuration, file):
-    return build(return_output, project, platform, configuration, '/t:clcompile /p:selectedfiles=%s' % file)
+def compile(return_output, project, platform, configuration, f):
+    return build(return_output, project, platform, configuration, '/t:{} /p:selectedfiles={}'.format(*f))
 
 
 if __name__ == '__main__':

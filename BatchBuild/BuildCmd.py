@@ -65,13 +65,13 @@ def main():
     print(os.path.dirname(project_file))
     if args.file:
         file_name  = os.path.basename(args.file)
-        for ff in BuildUtils.get_project_files(project_file):
+        for target, ff in BuildUtils.get_project_files(project_file):
             if os.path.basename(ff).lower() == file_name.lower():
                 print(BuildUtils.compile(not args.all_output,
                                          project_file,
                                          args.platform,
                                          args.configuration,
-                                         ff))
+                                         (target, ff)))
                 break
         else:
             raise ValueError('{} cannot be found in project {}'
