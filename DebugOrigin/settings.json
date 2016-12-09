@@ -68,6 +68,12 @@
 			"IDE": "VS2012",
 			"Location": "D:\\C_93SR1\\Source",
 			"Project": ""
+		},
+		{
+			"Name": "Debug 9.4 SR0 (2017)",
+			"IDE": "VS2012",
+			"Location": "D:\\C_94SR0\\Source",
+			"Project": ""
 		}
 	]
 }
