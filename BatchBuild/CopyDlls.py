@@ -1,6 +1,7 @@
 import os
 import sys
-import BatchBuildUtils
+import json
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -13,6 +14,7 @@ def _updated(i, s):
 
 def _version():
     with open('settings.json') as f:
+        settings = json.load(f)
         MASTER = settings['master']
     return BatchBuildUtils.origin_version(dev_folder, MASTER)
 
