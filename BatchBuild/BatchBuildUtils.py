@@ -2,12 +2,14 @@ import os
 import re
 import shutil
 import json
+import subprocess
 from time import sleep
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 import folstools.win32.utils as win32utils
+from folstools import dir_temp_change
 
 
 class DllJobThread(QThread):
@@ -59,7 +61,7 @@ class DllJobThread(QThread):
     def version(self):
         if self._version:
             return self._version
-        return self.parent().version.text()
+        return self.parent().version
 
 
 class CopyDllThread(DllJobThread):
@@ -120,6 +122,21 @@ def get_origin_binaries(folder, win32, version):
                                 yield ff.replace(folder + '\\', '')
                     except:
                         pass
+
+
+def get_current_branch(dev_folder):
+    with dir_temp_change(dev_folder):
+        ret = subprocess.check_output('git branch').decode()
+    for s in ret.strip().split('\n'):
+        if s[0] == '*':
+            return s[2:]
+    return ''
+
+
+def origin_version(dev_folder, default):
+    current_branch = get_current_branch(dev_folder)
+    m = re.match('(\d+)_release', current_branch)
+    return m.group(1) if m else default
 
 
 if __name__ == '__main__':

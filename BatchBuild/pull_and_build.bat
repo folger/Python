@@ -37,7 +37,7 @@ popd
 
 for %%a in (%platforms%) do (
 	title Copying %%a dlls ...
-	python CopyDlls.py %1 %2 %%a
+	python CopyDlls.py %1 %%a
 )
 
 title Done (%date% %time%)

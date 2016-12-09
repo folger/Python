@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 import json
 import subprocess
 import winreg
@@ -17,6 +18,7 @@ with open('settings.json') as f:
     SOURCEPATH = settings['SourcePath']
     MSBUILD = settings['MsBuild']
     VSPATH = settings['VSPath']
+    MASTER = settings['master']
 
 
 class GitPullThread(QThread):
@@ -85,7 +87,6 @@ CHECK_32_RELEASE = 'check32Release'
 CHECK_32_DEBUG = 'check32Debug'
 CHECK_64_RELEASE = 'check64Release'
 CHECK_64_DEBUG = 'check64Debug'
-VERSION = 'version'
 CHECK_COPY_DLLS = 'copyDllsAfterBuild'
 
 
@@ -94,7 +95,7 @@ class BatchBuilder(QDialog):
         super().__init__(parent)
         self._devFolder = devFolder
         self.setWindowTitle(self.developFolder)
-        self.setFixedSize(250, 570)
+        self.setFixedSize(250, 550)
 
         icon = QIcon()
         icon.addPixmap(QPixmap('main.ico'))
@@ -120,7 +121,6 @@ class BatchBuilder(QDialog):
             (CHECK_32_DEBUG, settings_set_checked(self.check32Debug)),
             (CHECK_64_RELEASE, settings_set_checked(self.check64Release)),
             (CHECK_64_DEBUG, settings_set_checked(self.check64Debug)),
-            (VERSION, self.version.setText),
             (CHECK_COPY_DLLS, settings_set_checked(self.checkCopyAfterBuild)))
 
         self.onConfigurationChanged()
@@ -159,10 +159,6 @@ class BatchBuilder(QDialog):
         self.check64Debug = createCheck('6&4bit Debug', 1, 1)
         self.check32Release.setChecked(True)
 
-        layout.addWidget(QLabel('Version'), 2, 0)
-        version = '94'
-        self.version = QLineEdit(version)
-        layout.addWidget(self.version, 2, 1)
         return layout
 
     @create_group('Action')
@@ -292,7 +288,6 @@ class BatchBuilder(QDialog):
 
     def enableAll(self, enable):
         for btn in (self.slnOrigin, self.slnViewer, self.slnOrglab,
-                    self.version,
                     self.check32Release, self.check32Debug,
                     self.check64Release, self.check64Debug):
             btn.setEnabled(enable)
@@ -350,6 +345,10 @@ class BatchBuilder(QDialog):
         return self.getFolder('BuildOutDir', 'Out',
                               'Fail to detect Out folder')
 
+    @property
+    def version(self):
+        return BatchBuildUtils.origin_version(dev_folder, MASTER)
+
     def getFolder(self, subkey, subfolder, error):
         key = None
         try:
@@ -385,12 +384,7 @@ class BatchBuilder(QDialog):
         return buildConfigurations
 
     def updatePullLabel(self):
-        with dir_temp_change(dev_folder):
-            ret = subprocess.check_output('git branch').decode()
-        for s in ret.strip().split('\n'):
-            if s[0] == '*':
-                current_branch = s[2:]
-                break
+        current_branch = BatchBuildUtils.get_current_branch(dev_folder)
         if current_branch[0] != '(':
             current_branch = '({})'.format(current_branch)
         self.btnPull.setText('Pull from Git {}'.format(current_branch))
@@ -417,7 +411,6 @@ class BatchBuilder(QDialog):
                 (CHECK_32_DEBUG, self.check32Debug.isChecked()),
                 (CHECK_64_RELEASE, self.check64Release.isChecked()),
                 (CHECK_64_DEBUG, self.check64Debug.isChecked()),
-                (VERSION, self.version.text()),
                 (CHECK_COPY_DLLS, self.checkCopyAfterBuild.isChecked()))
 
 dev_folder = sys.argv[1] if len(sys.argv) > 1 else ''
