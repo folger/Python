@@ -15,8 +15,8 @@ def _updated(i, s):
 def _version():
     with open('settings.json') as f:
         settings = json.load(f)
-        MASTER = settings['master']
-    return BatchBuildUtils.origin_version(dev_folder, MASTER)
+        MASTER_VERSION = settings['MasterVersion']
+    return BatchBuildUtils.origin_version(dev_folder, MASTER_VERSION)
 
 
 dev_folder = sys.argv[1]

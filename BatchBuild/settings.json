@@ -2,5 +2,6 @@
 	"SourcePath": "",
 	"MsBuild": "",
 	"VSPath": "",
-	"master": "95"
+	"MasterVersion": "95",
+	"MasterUnicode": true
 }

@@ -133,6 +133,10 @@ def get_current_branch(dev_folder):
     return ''
 
 
+def is_master_branch(dev_folder):
+    return get_current_branch(dev_folder) == 'master'
+
+
 def origin_version(dev_folder, default):
     current_branch = get_current_branch(dev_folder)
     m = re.match('(\d+)_release', current_branch)

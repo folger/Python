@@ -18,7 +18,11 @@ with open('settings.json') as f:
     SOURCEPATH = settings['SourcePath']
     MSBUILD = settings['MsBuild']
     VSPATH = settings['VSPath']
-    MASTER = settings['master']
+    MASTER_VERSION = settings['MasterVersion']
+    MASTER_UNICODE = settings['MasterUnicode']
+
+
+UNICODE_PREFIX = 'Unicode'
 
 
 class GitPullThread(QThread):
@@ -51,15 +55,17 @@ class BuildThread(QThread):
         for slnfile in self.slnfiles:
             is_crashrpt = slnfile.find('CrashRpt') > 0
             ret = 0
-            for config in self.buildConfigurations:
-                skip = False
+            for conf in self.buildConfigurations:
+                config = conf[:]
                 if is_crashrpt:
-                    for c in config:
-                        if c.find('Debug') > 0:
-                            skip = True
-                            break
-                if skip:
-                    continue
+                    try:
+                        for i, c in enumerate(config):
+                            if c.find('Debug') > 0:
+                                raise ValueError
+                            if c.find(UNICODE_PREFIX) > 0:
+                                config[i] = c.replace(UNICODE_PREFIX, '')
+                    except ValueError:
+                        continue
                 os.system('title ' + str(config[2:] + [slnfile]))
                 ret = subprocess.call(config + [slnfile])
                 if ret != 0:
@@ -347,7 +353,7 @@ class BatchBuilder(QDialog):
 
     @property
     def version(self):
-        return BatchBuildUtils.origin_version(dev_folder, MASTER)
+        return BatchBuildUtils.origin_version(dev_folder, MASTER_VERSION)
 
     def getFolder(self, subkey, subfolder, error):
         key = None
@@ -373,11 +379,14 @@ class BatchBuilder(QDialog):
             (self.check32Debug, True, False),
             (self.check64Release, False, True),
             (self.check64Debug, False, False))
+        is_unicode = (MASTER_UNICODE and
+                      BatchBuildUtils.is_master_branch(dev_folder))
         for check, win32, release in configurations:
             if check.isChecked():
                 config = [MSBUILD, '/m']
-                config.append('/p:configuration={}'
-                              .format('Release' if release else 'Debug'))
+                config.append('/p:configuration={}{}'
+                              .format(UNICODE_PREFIX if is_unicode else '',
+                                      'Release' if release else 'Debug'))
                 config.append('/p:platform={}'
                               .format('Win32' if win32 else 'x64'))
                 buildConfigurations.append(config + extraOption)
