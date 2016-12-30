@@ -57,11 +57,13 @@ def find_project_file(proj):
 
 
 def main():
-    if args.project == 'xxx':
+    if args.project in ('xxx', 'zzz'):
         if not args.file:
             raise ValueError('Source file is not specified, '
                              'cannot guess project')
         project_file = guess_project_from_source_file(args.file)
+        if args.project == 'zzz':
+            args.file = None
     else:
         project_file = find_project_file(args.project)
     print(os.path.dirname(project_file))
