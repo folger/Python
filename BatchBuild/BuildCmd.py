@@ -47,6 +47,8 @@ def guess_project_from_source_file(f):
 
 
 def find_project_file(proj):
+    if os.path.isfile(proj):
+        return proj
     for project, project_file in BuildUtils.get_projects():
         if os.path.splitext(project)[0].lower() == proj.lower():
             return project_file
