@@ -1,7 +1,10 @@
 import sys
 import os
+import subprocess
 from argparse import ArgumentParser
 from datetime import datetime as DT
+
+from folstools import dir_temp_change
 import BuildUtils
 
 
@@ -40,7 +43,10 @@ def guess_project_from_source_file(f):
             if ff.endswith('.vcxproj'):
                 return os.path.join(path, ff)
     if proj_name:
-        return os.path.join(os.environ['Develop'],
+        with dir_temp_change(path):
+            dev = subprocess.check_output('git rev-parse --show-toplevel',
+                                          universal_newlines=True).strip()
+        return os.path.join(dev,
                             'Source',
                             proj_name) + '.vcxproj'
     raise ValueError('Failed to guess project from source file {}'.format(f))
@@ -68,7 +74,7 @@ def main():
         project_file = find_project_file(args.project)
     print(os.path.dirname(project_file))
     if args.file:
-        file_name  = os.path.basename(args.file)
+        file_name = os.path.basename(args.file)
         for target, ff in BuildUtils.get_project_files(project_file):
             if os.path.basename(ff).lower() == file_name.lower():
                 print(BuildUtils.compile(not args.all_output,
@@ -83,9 +89,9 @@ def main():
         return
 
     res = (BuildUtils.build(not args.all_output,
-                           project_file,
-                           args.platform,
-                           args.configuration))
+                            project_file,
+                            args.platform,
+                            args.configuration))
     if not args.all_output:
         print(res)
     else:
