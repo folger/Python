@@ -2,7 +2,10 @@
 
 pushd %~dp0
 
-pushd %1
+set devfolder=%1
+set config=%2
+pushd %devfolder%
+
 
 title Pulling from git ...
 
@@ -27,7 +30,7 @@ set platforms=Win32 x64
 
 for %%a in (%platforms%) do (
 	title Building %%a ...
-	msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=Release /p:Platform=%%a /m
+	msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=%config%Release /p:Platform=%%a /m
 	if not %errorlevel%==0 (
 		pause
 		exit /b
@@ -37,7 +40,7 @@ popd
 
 for %%a in (%platforms%) do (
 	title Copying %%a dlls ...
-	python CopyDlls.py %1 %%a
+	python CopyDlls.py %devfolder% %%a
 )
 
 title Done (%date% %time%)
