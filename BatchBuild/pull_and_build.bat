@@ -1,4 +1,5 @@
 @echo off
+setlocal enableextensions enabledelayedexpansion
 
 pushd %~dp0
 
@@ -26,12 +27,12 @@ if not %errorlevel%==0 (
 
 call "%VS110COMNTOOLS%..\..\VC\vcvarsall.bat"
 
-set platforms=Win32 x64
+set platforms=%3 %4
 
 for %%a in (%platforms%) do (
 	title Building %%a ...
-	msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=%config%Release /p:Platform=%%a /m
-	if not %errorlevel%==0 (
+	msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=%config% /p:Platform=%%a /m
+	if not !errorlevel!==0 (
 		pause
 		exit /b
 	)
