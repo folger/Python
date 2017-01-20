@@ -9,19 +9,17 @@ import BatchBuildUtils
 
 
 def _updated(i, s):
-    print('{} {}'.format(i + 1, s))
-
-
-def _version():
-    with open('settings.json') as f:
-        settings = json.load(f)
-        MASTER_VERSION = settings['MasterVersion']
-    return BatchBuildUtils.origin_version(dev_folder, MASTER_VERSION)
-
+    print('[{}] {} {}'.format(_version, i + 1, s))
 
 dev_folder = sys.argv[1]
+
+with open('settings.json') as f:
+    settings = json.load(f)
+    MASTER_VERSION = settings['MasterVersion']
+_version = BatchBuildUtils.origin_version(dev_folder, MASTER_VERSION)
+
 app = QApplication([])
-mt = BatchBuildUtils.CopyDllThread(None, _version(), app)
+mt = BatchBuildUtils.CopyDllThread(None, _version, app)
 mt.binfolder = os.path.join(dev_folder, 'Origin')
 mt.updated.connect(_updated)
 mt.win32 = False
