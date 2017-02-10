@@ -36,7 +36,7 @@ def guess_project_from_source_file(f):
         proj_name = r'vc32\okstatic\oks70'
     elif last_folder == 'modll':
         proj_name = r'MFC\OMocavc\omocavc'
-    elif last_folder == 'labutil':
+    elif last_folder in ('labutil', 'labmath', 'labtext'):
         proj_name = r'vc32\outl'
     else:
         for ff in os.listdir(path):
