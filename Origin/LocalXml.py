@@ -15,6 +15,7 @@ try:
                                                            settings['Languages'],
                                                            settings['Category'])
 
+    print('Generating XML ...')
     def get_tran(s, l):
         s = s.strip().replace('\r', '')
         try:
@@ -24,8 +25,9 @@ try:
             return s
 
     def write_xml(tree, path):
-        with open(os.path.join(path, 'Localization.xml'),
-                  'w', encoding='utf-8') as f:
+        fname = os.path.join(path, 'Localization.xml')
+        print(fname)
+        with open(fname, 'w', encoding='utf-8') as f:
             tree.write(f, encoding='unicode')
 
     GRAPHING = './Graphing'
