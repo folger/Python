@@ -1,3 +1,4 @@
+import sys
 import os
 import fnmatch
 import re
@@ -17,11 +18,11 @@ with open(os.path.join(current_dir, 'settings.json')) as f:
 @contextmanager
 def unload_proj_from_sln(sln, projs):
     try:
+        path = os.path.dirname(sln)
+        sln_new = os.path.join(path, 'new.sln')
+        sln_old = os.path.join(path, 'old.sln')
         if sln.lower().endswith('.sln'):
             _projs = ['"{}"'.format(p) for p in projs]
-            path = os.path.dirname(sln)
-            sln_new = os.path.join(path, 'new.sln')
-            sln_old = os.path.join(path, 'old.sln')
             with open(sln_new, 'w') as fw:
                 remove_next = False
                 with open(sln) as f:
@@ -69,7 +70,7 @@ def get_project_files(project):
                 yield (m.group(1), m.group(2))
 
 
-def build(return_output, project, platform, configuration, extra_args=""):
+def build(error_exit, return_output, project, platform, configuration, extra_args=""):
     os.environ['VisualStudioVersion'] = '11.0'
 
     args = ['/m']
@@ -122,13 +123,15 @@ def build(return_output, project, platform, configuration, extra_args=""):
         try:
             os.system('title ' + ' '.join(args[1:]))
             with unload_proj_from_sln(project, UNLOAD_PROJECTS):
-                subprocess.call([MSBUILD] + args, shell=True)
+                ret = subprocess.call([MSBUILD] + args, shell=True)
+                if ret != 0 and error_exit:
+                    sys.exit(1)
         except subprocess.CalledProcessError:
             pass
 
 
-def compile(return_output, project, platform, configuration, f):
-    return build(return_output, project, platform, configuration,
+def compile(error_exit, return_output, project, platform, configuration, f):
+    return build(error_exit, return_output, project, platform, configuration,
                  '/t:{} /p:selectedfiles={}'.format(*f))
 
 

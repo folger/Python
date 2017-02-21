@@ -33,7 +33,7 @@ set platforms=%3 %4
 
 for %%a in (%platforms%) do (
 	title Building %%a ...
-	python "%parent%\BuildCmd.py" "Source\vc32\orgmain\OriginAll.sln" --configuration=%config% --platform=%%a --all-output
+	python "%parent%\BuildCmd.py" "Source\vc32\orgmain\OriginAll.sln" --configuration=%config% --platform=%%a --all-output --error-exit
 	if not !errorlevel!==0 (
 		pause
 		exit /b
