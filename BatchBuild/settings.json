@@ -3,5 +3,7 @@
 	"MsBuild": "",
 	"VSPath": "",
 	"MasterVersion": "95",
-	"MasterUnicode": true
+	"MasterUnicode": true,
+	"UnloadProjects": [
+	]
 }

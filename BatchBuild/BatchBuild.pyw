@@ -11,6 +11,7 @@ from PyQt4.QtCore import *
 from folstools.qt.utils import *
 from folstools import dir_temp_change
 import BatchBuildUtils
+import BuildUtils
 
 
 with open('settings.json') as f:
@@ -20,6 +21,7 @@ with open('settings.json') as f:
     VSPATH = settings['VSPath']
     MASTER_VERSION = settings['MasterVersion']
     MASTER_UNICODE = settings['MasterUnicode']
+    UNLOAD_PROJECTS = settings.get('UnloadProjects', [])
 
 
 UNICODE_PREFIX = 'Unicode'
@@ -67,7 +69,9 @@ class BuildThread(QThread):
                     except ValueError:
                         continue
                 os.system('title ' + str(config[2:] + [slnfile]))
-                ret = subprocess.call(config + [slnfile])
+                with BuildUtils.unload_proj_from_sln(slnfile,
+                                                          UNLOAD_PROJECTS):
+                    ret = subprocess.call(config + [slnfile])
                 if ret != 0:
                     break
             if ret != 0:

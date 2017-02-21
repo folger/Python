@@ -4,12 +4,49 @@ import re
 import subprocess
 import json
 import inspect
+from contextlib import contextmanager
 
 current_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 with open(os.path.join(current_dir, 'settings.json')) as f:
     settings = json.load(f)
     MSBUILD = settings['MsBuild']
+    UNLOAD_PROJECTS = settings.get('UnloadProjects', [])
+
+
+@contextmanager
+def unload_proj_from_sln(sln, projs):
+    try:
+        if sln.lower().endswith('.sln'):
+            _projs = ['"{}"'.format(p) for p in projs]
+            path = os.path.dirname(sln)
+            sln_new = os.path.join(path, 'new.sln')
+            sln_old = os.path.join(path, 'old.sln')
+            with open(sln_new, 'w') as fw:
+                remove_next = False
+                with open(sln) as f:
+                    for line in f:
+                        if remove_next:
+                            remove_next = False
+                            continue
+                        line = line.rstrip('\n')
+                        for i, proj in enumerate(_projs):
+                            if line.find(proj) > 0:
+                                remove_next = True
+                                _projs.pop(i)
+                                break
+                        else:
+                            print(line, file=fw)
+            if len(_projs) != len(projs):
+                os.rename(sln, sln_old)
+                os.rename(sln_new, sln)
+            else:
+                os.remove(sln_new)
+        yield
+    finally:
+        if os.path.isfile(sln_old):
+            os.remove(sln)
+            os.rename(sln_old, sln)
 
 
 def get_projects():
@@ -84,7 +121,8 @@ def build(return_output, project, platform, configuration, extra_args=""):
     else:
         try:
             os.system('title ' + ' '.join(args[1:]))
-            subprocess.call([MSBUILD] + args, shell=True)
+            with unload_proj_from_sln(project, UNLOAD_PROJECTS):
+                subprocess.call([MSBUILD] + args, shell=True)
         except subprocess.CalledProcessError:
             pass
 

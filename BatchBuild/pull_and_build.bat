@@ -1,5 +1,7 @@
 @echo off
 setlocal enableextensions enabledelayedexpansion
+set me=%~n0
+set parent=%~dp0
 
 pushd %~dp0
 
@@ -31,7 +33,7 @@ set platforms=%3 %4
 
 for %%a in (%platforms%) do (
 	title Building %%a ...
-	msbuild  "Source\vc32\orgmain\OriginAll.sln" /p:Configuration=%config% /p:Platform=%%a /m
+	python "%parent%\BuildCmd.py" "Source\vc32\orgmain\OriginAll.sln" --configuration=%config% --platform=%%a --all-output
 	if not !errorlevel!==0 (
 		pause
 		exit /b
