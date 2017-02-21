@@ -5,8 +5,9 @@ import subprocess
 import json
 import inspect
 
+current_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
-with open(os.path.join(os.path.dirname(inspect.getfile(inspect.currentframe())), 'settings.json')) as f:
+with open(os.path.join(current_dir, 'settings.json')) as f:
     settings = json.load(f)
     MSBUILD = settings['MsBuild']
 
@@ -15,7 +16,8 @@ def get_projects():
     try:
         path = os.path.join(os.environ["develop"], 'Source')
         for dirpath, dirnames, files in os.walk(path):
-            for f in fnmatch.filter(files, '*.vcxproj') + fnmatch.filter(files, '*.sln'):
+            for f in (fnmatch.filter(files, '*.vcxproj') +
+                      fnmatch.filter(files, '*.sln')):
                 yield(f, os.path.join(dirpath, f))
     except KeyError:
         yield '', ''
@@ -44,7 +46,8 @@ def build(return_output, project, platform, configuration, extra_args=""):
         s = ''
         hasException = False
         try:
-            s = subprocess.check_output([MSBUILD] + args, shell=True, universal_newlines=True)
+            s = subprocess.check_output([MSBUILD] + args, shell=True,
+                                        universal_newlines=True)
         except subprocess.CalledProcessError as e:
             s = e.output
             hasException = True
@@ -65,7 +68,7 @@ def build(return_output, project, platform, configuration, extra_args=""):
         else:
             return ''
         # first check compile error
-        for line in lines[index+1:]:
+        for line in lines[index + 1:]:
             line = line.rstrip()
             if pCompileError.search(line):
                 errors.append(line)
@@ -73,7 +76,7 @@ def build(return_output, project, platform, configuration, extra_args=""):
         # exception, then must be linking error
         if len(errors) == 0 and hasException:
             pLinkingError = re.compile('^ +.+? : .*?error LNK\d+:')
-            for line in lines[index+1:]:
+            for line in lines[index + 1:]:
                 line = line.rstrip()
                 if pLinkingError.search(line):
                     errors.append(line)
@@ -87,7 +90,8 @@ def build(return_output, project, platform, configuration, extra_args=""):
 
 
 def compile(return_output, project, platform, configuration, f):
-    return build(return_output, project, platform, configuration, '/t:{} /p:selectedfiles={}'.format(*f))
+    return build(return_output, project, platform, configuration,
+                 '/t:{} /p:selectedfiles={}'.format(*f))
 
 
 if __name__ == '__main__':
