@@ -27,8 +27,6 @@ if not %errorlevel%==0 (
 	goto :startpull
 )
 
-call "%VS110COMNTOOLS%..\..\VC\vcvarsall.bat"
-
 set platforms=%3 %4
 
 for %%a in (%platforms%) do (
