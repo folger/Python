@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from argparse import ArgumentParser
 
 import BatchBuildUtils
 
@@ -8,21 +9,30 @@ import BatchBuildUtils
 def _updated(i, s):
     print('[{}] ({}) {}'.format(_version, i + 1, s))
 
-dev_folder = sys.argv[1]
+parser = ArgumentParser()
+parser.add_argument('devfolder',
+                    help='Develop Folder contains source files, '
+                    'where subfolder "Origin" contans output dlls')
+parser.add_argument('-w', '--Win32',
+                    help='Platform Win32',
+                    action='store_true')
+parser.add_argument('-x', '--x64',
+                    help='Platform x64',
+                    action='store_true')
+args = parser.parse_args()
 
 with open('settings.json') as f:
     settings = json.load(f)
     MASTER_VERSION = settings['MasterVersion']
-_version = BatchBuildUtils.origin_version(dev_folder, MASTER_VERSION)
+_version = BatchBuildUtils.origin_version(args.devfolder, MASTER_VERSION)
 
 platforms = []
-for c in sys.argv[2:]:
-    if c == 'Win32':
-        platforms.append(True)
-    elif c == 'x64':
-        platforms.append(False)
+if args.Win32:
+    platforms.append(True)
+if args.x64:
+    platforms.append(False)
 for p in platforms:
-    BatchBuildUtils.copy_dlls(os.path.join(dev_folder, 'Origin'),
+    BatchBuildUtils.copy_dlls(os.path.join(args.devfolder, 'Origin'),
                               p,
                               _version,
                               _updated)
