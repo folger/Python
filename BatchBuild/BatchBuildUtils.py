@@ -5,85 +5,8 @@ import json
 import subprocess
 from time import sleep
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-
 import folstools.win32.utils as win32utils
 from folstools import dir_temp_change
-
-
-class DllJobThread(QThread):
-    setrange = pyqtSignal(int, int)
-    updated = pyqtSignal(int, str)
-    enabled = pyqtSignal(bool)
-    error = pyqtSignal(str)
-    getStatus = pyqtSignal(list)
-    updateStatus = pyqtSignal(str)
-
-    def __init__(self, parent=None, version=None, app=None):
-        super().__init__(parent)
-        if parent:
-            self.setrange.connect(parent.setProgressRange)
-            self.updated.connect(parent.updateProgress)
-            self.enabled.connect(parent.enableAll)
-            self.error.connect(parent.errorReport)
-            self.getStatus.connect(parent.getStatus)
-            self.updateStatus.connect(parent.updateStatus)
-        self._version = version
-        self._app = app
-
-    def run(self):
-        self.enabled.emit(False)
-        try:
-            if self.win32:
-                self.doJobs(True)
-            if self.x64:
-                self.doJobs(False)
-        except WindowsError as e:
-            self.error.emit(str(e))
-        self.enabled.emit(True)
-        if self._app:
-            self._app.quit()
-
-    def doJobs(self, win32):
-        dlls = list(get_origin_binaries(self.binfolder, win32, self.version()))
-        self.setrange.emit(0, len(dlls) - 1)
-        self.beforeDoJobs(win32)
-        oldstatus = []
-        self.getStatus.emit(oldstatus)
-        for i, dll in enumerate(dlls):
-            self.updated.emit(i, dll)
-            self.doJob(dll)
-        self.setrange.emit(0, 0)
-        if oldstatus:
-            self.updateStatus.emit(oldstatus[0])
-
-    def version(self):
-        if self._version:
-            return self._version
-        return self.parent().version
-
-
-class CopyDllThread(DllJobThread):
-    def beforeDoJobs(self, win32):
-        self.path = before_copy_dlls(win32, self.version())
-
-    def doJob(self, dll):
-        shutil.copyfile(os.path.join(self.binfolder, dll),
-                        os.path.join(self.path, dll))
-
-
-class DeleteDllThread(DllJobThread):
-    def beforeDoJobs(self, win32):
-        pass
-
-    def doJob(self, dll):
-        if dll.lower().endswith('dbghelp.dll'):
-            return
-        try:
-            os.remove(os.path.join(self.binfolder, dll))
-        except FileNotFoundError:
-            pass
 
 
 def get_origin_binaries(folder, win32, version):
@@ -130,7 +53,7 @@ def before_copy_dlls(win32, version):
     path = os.path.join(r'\\fs1\Dev\{}_dlls'
                         .format(version),
                         'win32' if win32 else 'x64')
-    print('Deleting dlls on {} ...'.format(path))
+    print('Deleting dlls on {} ...'.format(path), end='', flush=True)
     if not os.path.isdir(path):
         os.makedirs(path)
     for the_file in os.listdir(path):
@@ -146,6 +69,7 @@ def before_copy_dlls(win32, version):
     os.makedirs(os.path.join(path, platformpath, 'PyDLLs'))
     os.makedirs(os.path.join(path, platformpath, 'Py27DLLs'))
     os.makedirs(os.path.join(path, r'OriginC\Originlab'))
+    print('  Done')
     return path
 
 

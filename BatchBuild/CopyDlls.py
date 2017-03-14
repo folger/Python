@@ -3,7 +3,7 @@ import sys
 import json
 from argparse import ArgumentParser
 
-import BatchBuildUtils
+from BatchBuildUtils import origin_version, copy_dlls
 
 
 def _updated(i, s):
@@ -24,7 +24,7 @@ args = parser.parse_args()
 with open('settings.json') as f:
     settings = json.load(f)
     MASTER_VERSION = settings['MasterVersion']
-_version = BatchBuildUtils.origin_version(args.devfolder, MASTER_VERSION)
+_version = origin_version(args.devfolder, MASTER_VERSION)
 
 platforms = []
 if args.Win32:
@@ -32,7 +32,7 @@ if args.Win32:
 if args.x64:
     platforms.append(False)
 for p in platforms:
-    BatchBuildUtils.copy_dlls(os.path.join(args.devfolder, 'Origin'),
-                              p,
-                              _version,
-                              _updated)
+    copy_dlls(os.path.join(args.devfolder, 'Origin'),
+              p,
+              _version,
+              _updated)

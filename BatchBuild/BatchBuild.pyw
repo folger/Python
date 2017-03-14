@@ -27,6 +27,80 @@ with open('settings.json') as f:
 UNICODE_PREFIX = 'Unicode'
 
 
+class DllJobThread(QThread):
+    setrange = pyqtSignal(int, int)
+    updated = pyqtSignal(int, str)
+    enabled = pyqtSignal(bool)
+    error = pyqtSignal(str)
+    getStatus = pyqtSignal(list)
+    updateStatus = pyqtSignal(str)
+
+    def __init__(self, parent=None, version=None, app=None):
+        super().__init__(parent)
+        if parent:
+            self.setrange.connect(parent.setProgressRange)
+            self.updated.connect(parent.updateProgress)
+            self.enabled.connect(parent.enableAll)
+            self.error.connect(parent.errorReport)
+            self.getStatus.connect(parent.getStatus)
+            self.updateStatus.connect(parent.updateStatus)
+        self._version = version
+        self._app = app
+
+    def run(self):
+        self.enabled.emit(False)
+        try:
+            if self.win32:
+                self.doJobs(True)
+            if self.x64:
+                self.doJobs(False)
+        except WindowsError as e:
+            self.error.emit(str(e))
+        self.enabled.emit(True)
+        if self._app:
+            self._app.quit()
+
+    def doJobs(self, win32):
+        dlls = list(BatchBuildUtils.get_origin_binaries(self.binfolder, win32, self.version()))
+        self.setrange.emit(0, len(dlls) - 1)
+        self.beforeDoJobs(win32)
+        oldstatus = []
+        self.getStatus.emit(oldstatus)
+        for i, dll in enumerate(dlls):
+            self.updated.emit(i, dll)
+            self.doJob(dll)
+        self.setrange.emit(0, 0)
+        if oldstatus:
+            self.updateStatus.emit(oldstatus[0])
+
+    def version(self):
+        if self._version:
+            return self._version
+        return self.parent().version
+
+
+class CopyDllThread(DllJobThread):
+    def beforeDoJobs(self, win32):
+        self.path = BatchBuildUtils.before_copy_dlls(win32, self.version())
+
+    def doJob(self, dll):
+        shutil.copyfile(os.path.join(self.binfolder, dll),
+                        os.path.join(self.path, dll))
+
+
+class DeleteDllThread(DllJobThread):
+    def beforeDoJobs(self, win32):
+        pass
+
+    def doJob(self, dll):
+        if dll.lower().endswith('dbghelp.dll'):
+            return
+        try:
+            os.remove(os.path.join(self.binfolder, dll))
+        except FileNotFoundError:
+            pass
+
+
 class GitPullThread(QThread):
     enabled = pyqtSignal(bool)
     dummy = pyqtSignal()
@@ -70,7 +144,7 @@ class BuildThread(QThread):
                         continue
                 os.system('title ' + str(config[2:] + [slnfile]))
                 with BuildUtils.unload_proj_from_sln(slnfile,
-                                                          UNLOAD_PROJECTS):
+                                                     UNLOAD_PROJECTS):
                     ret = subprocess.call(config + [slnfile])
                 if ret != 0:
                     break
@@ -225,14 +299,14 @@ class BatchBuilder(QDialog):
     def copyToFS1(self):
         if not self.slnOrigin.isChecked():
             return
-        mt = BatchBuildUtils.CopyDllThread(self)
+        mt = CopyDllThread(self)
         mt.binfolder = self.binFolder
         mt.win32 = self.check32Release.isChecked()
         mt.x64 = self.check64Release.isChecked()
         mt.start()
 
     def deleteBin(self):
-        mt = BatchBuildUtils.DeleteDllThread(self)
+        mt = DeleteDllThread(self)
         mt.binfolder = self.binFolder
         mt.win32 = self.check32Release.isChecked()
         mt.x64 = self.check64Release.isChecked()
