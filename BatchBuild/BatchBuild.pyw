@@ -5,6 +5,7 @@ import json
 import subprocess
 import winreg
 import threading
+import shutil
 from datetime import datetime as DT
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
