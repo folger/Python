@@ -48,12 +48,12 @@ def origin_version(dev_folder, default):
     return m.group(1) if m else default
 
 
-def before_copy_dlls(win32, version):
+def before_copy_dlls(win32, version, updated):
     platformpath = '32bit' if win32 else '64bit'
     path = os.path.join(r'\\fs1\Dev\{}_dlls'
                         .format(version),
                         'win32' if win32 else 'x64')
-    print('Deleting dlls on {} ...'.format(path), end='', flush=True)
+    updated(-1, 'Delete dlls on {} ...'.format(path))
     if not os.path.isdir(path):
         os.makedirs(path)
     for the_file in os.listdir(path):
@@ -69,13 +69,12 @@ def before_copy_dlls(win32, version):
     os.makedirs(os.path.join(path, platformpath, 'PyDLLs'))
     os.makedirs(os.path.join(path, platformpath, 'Py27DLLs'))
     os.makedirs(os.path.join(path, r'OriginC\Originlab'))
-    print('  Done')
     return path
 
 
 def copy_dlls(binfolder, win32, version, updated):
     dlls = get_origin_binaries(binfolder, win32, version)
-    path = before_copy_dlls(win32, version)
+    path = before_copy_dlls(win32, version, updated)
     for i, dll in enumerate(dlls):
         updated(i, dll)
         shutil.copyfile(os.path.join(binfolder, dll),

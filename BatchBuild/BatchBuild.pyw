@@ -64,8 +64,8 @@ class DllJobThread(QThread):
     def doJobs(self, win32):
         dlls = list(BatchBuildUtils.get_origin_binaries(self.binfolder, win32, self.version()))
         self.setrange.emit(0, len(dlls) - 1)
-        self.beforeDoJobs(win32)
         oldstatus = []
+        self.beforeDoJobs(win32)
         self.getStatus.emit(oldstatus)
         for i, dll in enumerate(dlls):
             self.updated.emit(i, dll)
@@ -82,11 +82,14 @@ class DllJobThread(QThread):
 
 class CopyDllThread(DllJobThread):
     def beforeDoJobs(self, win32):
-        self.path = BatchBuildUtils.before_copy_dlls(win32, self.version())
+        self.path = BatchBuildUtils.before_copy_dlls(win32, self.version(), self.myupdated)
 
     def doJob(self, dll):
         shutil.copyfile(os.path.join(self.binfolder, dll),
                         os.path.join(self.path, dll))
+
+    def myupdated(self, i, s):
+        self.updated.emit(i, s)
 
 
 class DeleteDllThread(DllJobThread):
@@ -361,7 +364,8 @@ class BatchBuilder(QDialog):
         self.btnOpenSln.setEnabled(True)
 
     def updateProgress(self, val, name):
-        self.progress.setValue(val)
+        if val >= 0:
+            self.progress.setValue(val)
         self.labelStatus.setText(name)
 
     def setProgressRange(self, min, max):
