@@ -1,0 +1,98 @@
+import os
+import sys
+import json
+import queue
+import threading
+import tkinter as tk
+from tkinter import messagebox
+
+from BatchBuildUtils import origin_version, copy_dlls
+
+
+class Dlg(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        self.pack()
+        self.createWidgets()
+
+    def createWidgets(self):
+        self.win32 = tk.IntVar()
+        c1 = tk.Checkbutton(self, text='Win32', variable=self.win32)
+        self.x64 = tk.IntVar()
+        c2 = tk.Checkbutton(self, text='x64', variable=self.x64)
+
+        l1 = tk.Label(self, text='Develop Path')
+        self.path = tk.Entry(self, width=50)
+        self.copy = tk.Button(self, text='Copy', command=self.do_copy,
+                              width=20)
+        self.text = tk.Text(self, width=50, height=20)
+
+        l1.grid(row=0, column=0)
+        self.path.grid(row=0, column=1, columnspan=2)
+        c1.grid(row=1, column=0)
+        c2.grid(row=1, column=1)
+        self.copy.grid(row=1, column=2)
+        self.text.grid(row=2, columnspan=3)
+
+    def do_copy(self):
+        if not os.path.isdir(self.path.get()):
+            self.showError('Invalid Develop Path')
+            return
+        platforms = []
+        if self.win32.get():
+            platforms.append(True)
+        if self.x64.get():
+            platforms.append(False)
+        if not platforms:
+            self.showError('Please check Win32/x64')
+            return
+        self.queue = queue.Queue()
+        self.queue.put(platforms)
+        self.queue.put(self)
+        CopyTask(self.queue).start()
+
+    def showError(self, s):
+        messagebox.showinfo('Error', s)
+
+
+with open('settings.json') as f:
+    settings = json.load(f)
+    MASTER_VERSION = settings['MasterVersion']
+
+
+class CopyTask(threading.Thread):
+    def __init__(self, queue):
+        threading.Thread.__init__(self)
+        self.queue = queue
+
+    def run(self):
+        platforms = self.queue.get(0)
+        dlg = self.queue.get(0)
+        path = dlg.path.get()
+        copy = dlg.copy
+        self.text = dlg.text
+        self.version = origin_version(path, MASTER_VERSION)
+
+        copy['state'] = 'disabled'
+        for p in platforms:
+            copy_dlls(os.path.join(path, 'Origin'),
+                      p,
+                      self.version,
+                      self.updated)
+        copy['state'] = 'normal'
+
+    def updated(self, i, s):
+        if i < 0:
+            self.output(s)
+        else:
+            self.output('[{}] ({}) {}'.format(self.version, i + 1, s))
+
+    def output(self, s):
+        self.text.insert(tk.END, s + '\n')
+        self.text.see(tk.END)
+
+
+root = tk.Tk()
+root.title('Copy Dlls')
+app = Dlg(root)
+app.mainloop()
