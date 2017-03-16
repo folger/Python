@@ -1,17 +1,22 @@
 import os
 import sys
+import traceback
 import json
 import queue
 import threading
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox as MB
+from tkinter import filedialog as FD
 
+from folstools.myutils import notepad_messagebox
 from BatchBuildUtils import origin_version, copy_dlls
 
 
 class Dlg(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
+        master.title('Copy Dlls')
+        master.resizable(False, False)
         self.pack()
         self.createWidgets()
 
@@ -21,14 +26,16 @@ class Dlg(tk.Frame):
         self.x64 = tk.IntVar()
         c2 = tk.Checkbutton(self, text='x64', variable=self.x64)
 
-        l1 = tk.Label(self, text='Develop Path')
-        self.path = tk.Entry(self, width=50)
+        browse = tk.Button(self, text='Develop Path',
+                           command=self.ask_directory)
+        self.path = tk.StringVar()
+        path = tk.Entry(self, width=50, textvariable=self.path)
         self.copy = tk.Button(self, text='Copy', command=self.do_copy,
                               width=20)
         self.text = tk.Text(self, width=50, height=20)
 
-        l1.grid(row=0, column=0)
-        self.path.grid(row=0, column=1, columnspan=2)
+        browse.grid(row=0, column=0)
+        path.grid(row=0, column=1, columnspan=2)
         c1.grid(row=1, column=0)
         c2.grid(row=1, column=1)
         self.copy.grid(row=1, column=2)
@@ -51,13 +58,13 @@ class Dlg(tk.Frame):
         self.queue.put(self)
         CopyTask(self.queue).start()
 
+    def ask_directory(self):
+        path = FD.askdirectory()
+        if path:
+            self.path.set(path)
+
     def showError(self, s):
-        messagebox.showinfo('Error', s)
-
-
-with open('settings.json') as f:
-    settings = json.load(f)
-    MASTER_VERSION = settings['MasterVersion']
+        MB.showinfo('Error', s)
 
 
 class CopyTask(threading.Thread):
@@ -66,20 +73,23 @@ class CopyTask(threading.Thread):
         self.queue = queue
 
     def run(self):
-        platforms = self.queue.get(0)
-        dlg = self.queue.get(0)
-        path = dlg.path.get()
-        copy = dlg.copy
-        self.text = dlg.text
-        self.version = origin_version(path, MASTER_VERSION)
+        try:
+            platforms = self.queue.get(0)
+            dlg = self.queue.get(0)
+            path = dlg.path.get()
+            copy = dlg.copy
+            self.text = dlg.text
+            with open('settings.json') as f:
+                settings = json.load(f)
+            self.version = origin_version(path, settings['MasterVersion'])
 
-        copy['state'] = 'disabled'
-        for p in platforms:
-            copy_dlls(os.path.join(path, 'Origin'),
-                      p,
-                      self.version,
-                      self.updated)
-        copy['state'] = 'normal'
+            copy['state'] = 'disabled'
+            for p in platforms:
+                copy_dlls(os.path.join(path, 'Origin'), p,
+                          self.version, self.updated)
+            copy['state'] = 'normal'
+        except:
+            notepad_messagebox(traceback.format_exc())
 
     def updated(self, i, s):
         if i < 0:
@@ -93,6 +103,5 @@ class CopyTask(threading.Thread):
 
 
 root = tk.Tk()
-root.title('Copy Dlls')
 app = Dlg(root)
 app.mainloop()

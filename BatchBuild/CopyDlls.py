@@ -7,7 +7,10 @@ from BatchBuildUtils import origin_version, copy_dlls
 
 
 def _updated(i, s):
-    print('[{}] ({}) {}'.format(_version, i + 1, s))
+    if i < 0:
+        print(s)
+    else:
+        print('[{}] ({}) {}'.format(_version, i + 1, s))
 
 parser = ArgumentParser()
 parser.add_argument('devfolder',

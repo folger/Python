@@ -31,7 +31,9 @@ def get_origin_binaries(folder, win32, version):
 
 def get_current_branch(dev_folder):
     with dir_temp_change(dev_folder):
-        ret = subprocess.check_output('git branch').decode()
+        ret = subprocess.check_output('git branch',
+                                      stdin=subprocess.PIPE,
+                                      stderr=subprocess.PIPE).decode()
     for s in ret.strip().split('\n'):
         if s[0] == '*':
             return s[2:]
