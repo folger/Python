@@ -14,7 +14,7 @@ from BatchBuildUtils import origin_version, copy_dlls
 
 class Dlg(tk.Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master)
+        super().__init__(master)
         master.title('Copy Dlls')
         master.resizable(False, False)
         self.pack()
@@ -30,15 +30,14 @@ class Dlg(tk.Frame):
                            command=self.ask_directory)
         self.path = tk.StringVar()
         path = tk.Entry(self, width=50, textvariable=self.path)
-        self.copy = tk.Button(self, text='Copy', command=self.do_copy,
-                              width=20)
+        self.copy = tk.Button(self, text='Copy', command=self.do_copy)
         self.text = tk.Text(self, width=50, height=20)
 
-        browse.grid(row=0, column=0)
+        browse.grid(row=0, column=0, sticky=tk.W + tk.E)
         path.grid(row=0, column=1, columnspan=2)
-        c1.grid(row=1, column=0)
-        c2.grid(row=1, column=1)
-        self.copy.grid(row=1, column=2)
+        c1.grid(row=1, column=0, sticky=tk.W)
+        c2.grid(row=1, column=1, sticky=tk.W)
+        self.copy.grid(row=1, column=2, sticky=tk.W + tk.E)
         self.text.grid(row=2, columnspan=3)
 
     def do_copy(self):
