@@ -21,24 +21,29 @@ class Dlg(tk.Frame):
         self.createWidgets()
 
     def createWidgets(self):
-        self.win32 = tk.IntVar()
-        c1 = tk.Checkbutton(self, text='Win32', variable=self.win32)
-        self.x64 = tk.IntVar()
-        c2 = tk.Checkbutton(self, text='x64', variable=self.x64)
-
-        browse = tk.Button(self, text='Develop Path',
-                           command=self.ask_directory)
+        path_group = tk.Frame(self)
+        path_group.pack()
+        l1 = tk.Label(path_group, text='Develop Path')
+        l1.pack(side=tk.LEFT)
         self.path = tk.StringVar()
-        path = tk.Entry(self, width=50, textvariable=self.path)
-        self.copy = tk.Button(self, text='Copy', command=self.do_copy)
-        self.text = tk.Text(self, width=50, height=20)
+        path = tk.Entry(path_group, width=40, textvariable=self.path)
+        path.pack(side=tk.LEFT)
+        browse = tk.Button(path_group, text=' ... ',
+                           command=self.browse_folder)
+        browse.pack(side=tk.LEFT)
 
-        browse.grid(row=0, column=0, sticky=tk.W + tk.E)
-        path.grid(row=0, column=1, columnspan=2)
-        c1.grid(row=1, column=0, sticky=tk.W)
-        c2.grid(row=1, column=1, sticky=tk.W)
-        self.copy.grid(row=1, column=2, sticky=tk.W + tk.E)
-        self.text.grid(row=2, columnspan=3)
+        self.win32 = tk.IntVar()
+        c1 = tk.Checkbutton(path_group, text='Win32', variable=self.win32)
+        c1.pack(side=tk.LEFT)
+        self.x64 = tk.IntVar()
+        c2 = tk.Checkbutton(path_group, text='x64', variable=self.x64)
+        c2.pack(side=tk.LEFT)
+        self.copy = tk.Button(path_group, text=' Copy ', command=self.do_copy)
+        self.copy.pack(side=tk.LEFT)
+
+        self.text = tk.Text(self, width=40, height=20)
+        self.text['state'] = 'disabled'
+        self.text.pack(fill=tk.BOTH)
 
     def do_copy(self):
         if not os.path.isdir(self.path.get()):
@@ -57,7 +62,7 @@ class Dlg(tk.Frame):
         self.queue.put(self)
         CopyTask(self.queue).start()
 
-    def ask_directory(self):
+    def browse_folder(self):
         path = FD.askdirectory()
         if path:
             self.path.set(path)
@@ -87,6 +92,7 @@ class CopyTask(threading.Thread):
                 copy_dlls(os.path.join(path, 'Origin'), p,
                           self.version, self.updated)
             copy['state'] = 'normal'
+            self.output('Done ~~~')
         except:
             notepad_messagebox(traceback.format_exc())
 
@@ -97,8 +103,10 @@ class CopyTask(threading.Thread):
             self.output('[{}] ({}) {}'.format(self.version, i + 1, s))
 
     def output(self, s):
+        self.text['state'] = 'normal'
         self.text.insert(tk.END, s + '\n')
         self.text.see(tk.END)
+        self.text['state'] = 'disabled'
 
 
 root = tk.Tk()

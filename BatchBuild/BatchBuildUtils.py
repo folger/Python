@@ -33,7 +33,8 @@ def get_current_branch(dev_folder):
     with dir_temp_change(dev_folder):
         ret = subprocess.check_output('git branch',
                                       stdin=subprocess.PIPE,
-                                      stderr=subprocess.PIPE).decode()
+                                      stderr=subprocess.PIPE,
+                                      shell=True).decode()
     for s in ret.strip().split('\n'):
         if s[0] == '*':
             return s[2:]
