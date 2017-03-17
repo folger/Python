@@ -21,29 +21,26 @@ class Dlg(tk.Frame):
         self.createWidgets()
 
     def createWidgets(self):
-        path_group = tk.Frame(self)
-        path_group.pack()
-        l1 = tk.Label(path_group, text='Develop Path')
-        l1.pack(side=tk.LEFT)
+        l1 = tk.Label(self, text='Develop Path')
         self.path = tk.StringVar()
-        path = tk.Entry(path_group, width=40, textvariable=self.path)
-        path.pack(side=tk.LEFT)
-        browse = tk.Button(path_group, text=' ... ',
+        path = tk.Entry(self, width=40, textvariable=self.path)
+        browse = tk.Button(self, text=' ... ',
                            command=self.browse_folder)
-        browse.pack(side=tk.LEFT)
-
         self.win32 = tk.IntVar()
-        c1 = tk.Checkbutton(path_group, text='Win32', variable=self.win32)
-        c1.pack(side=tk.LEFT)
+        c1 = tk.Checkbutton(self, text='Win32', variable=self.win32)
         self.x64 = tk.IntVar()
-        c2 = tk.Checkbutton(path_group, text='x64', variable=self.x64)
-        c2.pack(side=tk.LEFT)
-        self.copy = tk.Button(path_group, text=' Copy ', command=self.do_copy)
-        self.copy.pack(side=tk.LEFT)
-
+        c2 = tk.Checkbutton(self, text='x64', variable=self.x64)
+        self.copy = tk.Button(self, text=' Copy ', command=self.do_copy)
         self.text = tk.Text(self, width=40, height=20)
         self.text['state'] = 'disabled'
-        self.text.pack(fill=tk.BOTH)
+
+        l1.grid()
+        path.grid(row=0, column=1)
+        browse.grid(row=0, column=2)
+        c1.grid(row=0, column=3)
+        c2.grid(row=0, column=4)
+        self.copy.grid(row=0, column=5)
+        self.text.grid(row=1, columnspan=6, sticky=tk.W + tk.E + tk.N + tk.S)
 
     def do_copy(self):
         if not os.path.isdir(self.path.get()):
