@@ -18,9 +18,9 @@ class Dlg(tk.Frame):
         master.title('Copy Dlls')
         master.resizable(False, False)
         self.pack()
-        self.createWidgets()
+        self.initUI()
 
-    def createWidgets(self):
+    def initUI(self):
         l1 = tk.Label(self, text='Develop Path')
         self.path = tk.StringVar()
         path = tk.Entry(self, width=40, textvariable=self.path)
@@ -31,16 +31,22 @@ class Dlg(tk.Frame):
         self.x64 = tk.IntVar()
         c2 = tk.Checkbutton(self, text='x64', variable=self.x64)
         self.copy = tk.Button(self, text=' Copy ', command=self.do_copy)
-        self.text = tk.Text(self, width=40, height=20)
+        self.text = tk.Text(self, width=40, height=15)
         self.text['state'] = 'disabled'
 
-        l1.grid()
-        path.grid(row=0, column=1)
-        browse.grid(row=0, column=2)
-        c1.grid(row=0, column=3)
-        c2.grid(row=0, column=4)
-        self.copy.grid(row=0, column=5)
-        self.text.grid(row=1, columnspan=6, sticky=tk.W + tk.E + tk.N + tk.S)
+        self.columnconfigure(3, pad=7)
+        self.rowconfigure(0, pad=7)
+        self.rowconfigure(5, weight=1)
+
+        l1.grid(padx=5)
+        path.grid(row=0, column=1, columnspan=2)
+        browse.grid(row=0, column=3, padx=5, sticky=tk.W + tk.E)
+        c1.grid(row=1, column=3, sticky=tk.W)
+        c2.grid(row=2, column=3, sticky=tk.W)
+        self.copy.grid(row=3, column=3, padx=5, sticky=tk.W + tk.E)
+        self.text.grid(row=1, rowspan=5, columnspan=3,
+                       padx=5, pady=5,
+                       sticky=tk.W + tk.E + tk.N + tk.S)
 
     def do_copy(self):
         if not os.path.isdir(self.path.get()):
