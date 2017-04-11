@@ -191,19 +191,18 @@ class MyHTMLParser:
                     tds = tr('td')
                     if len(tds) != 2:
                         continue
-                    result = []
 
-                    a = tds[0].a
-                    result.append('http://www.originlab.com' + a['href'].strip())
-                    result.append(('nlf_' if fitfunc else '') + a.text.strip())
-                    description = str(tds[1]).strip()
-                    description = description.replace('\xa0', ' ')
-                    description = (description.replace('<td>', '')
-                                              .replace('</td>', '')
-                                              .replace('\n', ''))
-                    result.append(polishDescription(description))
-
-                    self.results.append((10 * '\t').join(result))
+                    for a in tds[0]('a'):
+                        result = []
+                        result.append('http://www.originlab.com' + a['href'].strip())
+                        result.append(('nlf_' if fitfunc else '') + a.text.strip())
+                        description = str(tds[1]).strip()
+                        description = description.replace('\xa0', ' ')
+                        description = (description.replace('<td>', '')
+                                                  .replace('</td>', '')
+                                                  .replace('\n', ''))
+                        result.append(polishDescription(description))
+                        self.results.append((10 * '\t').join(result))
 
 
 if __name__ == "__main__":

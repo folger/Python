@@ -21,6 +21,8 @@ class GenerateHTML:
             if fitfunc:
                 if htmlType == HTMLType.NLFIT and fitfunc_categoryname in ('Implicit', 'PFW', 'Surface Fitting'):
                     return True
+                if htmlType == HTMLType.SCV and fitfunc_categoryname in ('Multiple Variables',):
+                    return True
             else:
                 if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
                     return True
@@ -33,9 +35,8 @@ class GenerateHTML:
                 funcs_done.clear()
                 fitfunc = func.startswith(fitting_function_prefixs[self.lang])
                 if fitfunc:
-                    if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
-                        fitfunc_categoryname = func.split('-')[1].lstrip()
-                        func = fitfunc_categoryname
+                    fitfunc_categoryname = func.split('-')[1].lstrip()
+                    func = fitfunc_categoryname
                 if check_htmlType_continue():
                     continue
                 if len(s):
