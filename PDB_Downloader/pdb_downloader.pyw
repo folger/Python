@@ -188,7 +188,6 @@ class PDBDownloader(QDialog):
             "OLTmsg9",
             "omail9",
             "omat9",
-            "ONAG_ex9",
             "ONAG9",
             "ONLSF9",
             "OODBC9",
