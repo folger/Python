@@ -13,10 +13,10 @@ from BatchBuildUtils import origin_version, copy_dlls
 
 
 class Dlg(tk.Frame):
-    def __init__(self, master):
-        super().__init__(master)
-        master.title('Copy Dlls')
-        master.resizable(False, False)
+    def __init__(self, root):
+        super().__init__(root)
+        root.title('Copy Dlls')
+        root.resizable(False, False)
         self.pack()
         self.initUI()
 
