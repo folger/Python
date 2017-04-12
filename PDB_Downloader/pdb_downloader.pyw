@@ -7,6 +7,7 @@ import traceback
 import tempfile
 from functools import partial
 from subprocess import check_call, CalledProcessError, Popen
+import socket
 from urllib.request import urlretrieve
 from urllib.error import URLError
 from PyQt4.QtGui import *
@@ -217,7 +218,6 @@ class PDBDownloader(QDialog):
             "nlsfWiz9",
             "OImgProc",
             "OImage",
-            "libgif",
             "ORserve9",
         ]
 
@@ -419,6 +419,7 @@ class DownloadThread(QThread):
             self.setfilename.emit(os.path.basename(filename))
             self.setrange.emit(0, 0)
             try:
+                socket.setdefaulttimeout(30)
                 urlretrieve(ftp, filename, reporthook=self.progressHook)
             except StopFetch:
                 os.remove(filename)
