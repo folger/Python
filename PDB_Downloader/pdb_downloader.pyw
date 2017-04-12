@@ -353,6 +353,7 @@ class PDBDownloader(QDialog):
             yield moduleItems.item(i, 0)
 
     def enableGUI(self, enable):
+        self.buildPrefix.setEnabled(enable)
         self.buildNum.setEnabled(enable)
         self.checkLatest.setEnabled(enable)
         self.pdb.setEnabled(enable)
@@ -361,6 +362,8 @@ class PDBDownloader(QDialog):
         self.x64.setEnabled(enable)
         self.view.setEnabled(enable)
         self.checkAll.setEnabled(enable)
+        self.unCheckAll.setEnabled(enable)
+        self.showAddresses.setEnabled(enable)
         if enable:
             self.start.setText('&Start')
             if self.selfclose:
