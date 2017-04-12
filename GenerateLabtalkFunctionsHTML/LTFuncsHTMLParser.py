@@ -20,10 +20,11 @@ def get_http_prefix(lang):
 
 
 lang_map = {'E': 'en', 'J': 'ja', 'G': 'de'}
+image_map = {'E': 'en', 'J': 'ja', 'G': 'en'}
 
 
 def get_image_path(lang):
-    return image_path.format(lang_map[lang])
+    return image_path.format(image_map[lang])
 
 
 def get_page_source(lang):
