@@ -1,73 +1,60 @@
-#! /usr/bin/python
-
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-
 import sys
+import threading
+import tkinter as tk
+from tkinter import messagebox as MB
 
 import GeneratePolishedHTML
 import DownloadImage
 from GenerateLTFuncHTML import HTMLType
 
 
-class GenerateHTMLDlg(QDialog):
-    def __init__(self, parent=None):
-        super(GenerateHTMLDlg, self).__init__(parent)
+class GenerateHTMLDlg(tk.Frame):
+    def __init__(self, root):
+        super().__init__(root)
+        root.title('Generate Labtalk Functions HTML')
+        root.resizable(False, False)
+        self.pack()
+        self.initUI()
 
-        self.setWindowTitle("Generate Labtalk Functions HTML")
+    def initUI(self):
+        lang_group = tk.LabelFrame(self, text=' Language ', padx=5, pady=5)
+        self._langs = []
+        lang = tk.IntVar()
+        self._langs.append((lang, tk.Checkbutton(lang_group, text='E',
+                                                 variable=lang)))
+        lang = tk.IntVar()
+        self._langs.append((lang, tk.Checkbutton(lang_group, text='G',
+                                                 variable=lang)))
+        lang = tk.IntVar()
+        self._langs.append((lang, tk.Checkbutton(lang_group, text='J',
+                                                 variable=lang)))
+        self.generate_html = tk.Button(lang_group, text=' Generate HTML ',
+                                       command=self.generateHTML)
+        for lang in self._langs:
+            lang[1].pack(side=tk.LEFT)
+        self.generate_html.pack(side=tk.LEFT, padx=5)
 
-        generateBtn = QPushButton("Generate HTML")
-        downloadImageBtn = QPushButton("Download Images")
+        self.generate_xml = tk.Button(self, text='     Generate XML    ',
+                                      command=self.generateXML)
+        self.download_images = tk.Button(self, text=' Download Images ',
+                                         command=self.downloadImages)
 
-        layout = QVBoxLayout()
-        layout.addLayout(self.createLanguageGroup())
-        #layout.addWidget(self.createHTMLGroup())
-        layout.addWidget(generateBtn)
-        layout.addWidget(downloadImageBtn)
-
-        self.setLayout(layout)
-
-        self.connect(generateBtn, SIGNAL("clicked()"), self.generateHTML)
-        self.connect(downloadImageBtn, SIGNAL("clicked()"), self.downloadImages)
-
-    def createLanguageGroup(self):
-        langLabel = QLabel("Language")
-        self.langCombo = QComboBox()
-        self.langCombo.addItems(["E", "G", "J", "All"])
-
-        layout = QHBoxLayout()
-        layout.addWidget(langLabel)
-        layout.addWidget(self.langCombo)
-        return layout
-
-    def createHTMLGroup(self):
-        self.radioGeneral = QRadioButton('SCV')
-        self.radioFO = QRadioButton('FO')
-        self.radioNLFIT = QRadioButton('NLFIT')
-        self.radioGeneral.setChecked(True)
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.radioGeneral)
-        layout.addWidget(self.radioFO)
-        layout.addWidget(self.radioNLFIT)
-        group = QGroupBox('HTML Type')
-        group.setLayout(layout)
-        return group
+        lang_group.grid(rowspan=2, padx=5, pady=5)
+        self.generate_xml.grid(row=0, column=1, padx=5, pady=5)
+        self.download_images.grid(row=1, column=1, padx=5, pady=(0, 5))
 
     def generateHTML(self):
-        #htmlType = HTMLType.SCV
-        #if self.radioFO.isChecked():
-            #htmlType = HTMLType.FO
-        #elif self.radioNLFIT.isChecked():
-            #htmlType = HTMLType.NLFIT
-        #result = GeneratePolishedHTML.generate_HTML(self.langCombo.currentText(), htmlType)
-        #self.reportResult(result)
-        language = self.langCombo.currentText()
-        languages = ('E', 'G', 'J') if language == "All" else (language,)
+        languages = []
+        for lang in self._langs:
+            if lang[0].get():
+                languages.append(lang[1]['text'])
         for language in languages:
             for htmlType in (HTMLType.SCV, HTMLType.FO, HTMLType.NLFIT):
                 GeneratePolishedHTML.generate_HTML(language, htmlType)
         self.reportResult((True, 'Done'))
+
+    def generateXML(self):
+        pass
 
     def downloadImages(self):
         result = DownloadImage.download_images('E')
@@ -75,11 +62,10 @@ class GenerateHTMLDlg(QDialog):
 
     def reportResult(self, result):
         if result[0]:
-            QMessageBox.information(self, "Attention", result[1], QMessageBox.Ok)
+            MB.showinfo('Attention', result[1])
         else:
-            QMessageBox.critical(self, "Error", result[1], QMessageBox.Ok)
+            MB.showerror('Error', result[1])
 
-app = QApplication(sys.argv)
-bp = GenerateHTMLDlg()
-bp.show()
-app.exec_()
+root = tk.Tk()
+app = GenerateHTMLDlg(root)
+app.mainloop()
