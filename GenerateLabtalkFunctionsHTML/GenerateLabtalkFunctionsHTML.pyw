@@ -5,7 +5,7 @@ from tkinter import messagebox as MB
 
 import GeneratePolishedHTML
 import DownloadImage
-from GenerateLTFuncHTML import HTMLType
+from GenerateLTFuncHTML import GenerateXML
 
 
 class GenerateHTMLDlg(tk.Frame):
@@ -49,15 +49,16 @@ class GenerateHTMLDlg(tk.Frame):
             if lang[0].get():
                 languages.append(lang[1]['text'])
         for language in languages:
-            for htmlType in (HTMLType.SCV, HTMLType.FO, HTMLType.NLFIT):
-                GeneratePolishedHTML.generate_HTML(language, htmlType)
+            GeneratePolishedHTML.generate_HTML(language)
         self.reportResult((True, 'Done'))
 
     def generateXML(self):
-        pass
+        generate = GenerateXML()
+        generate.Exec()
+        self.reportResult((True, 'Done'))
 
     def downloadImages(self):
-        result = DownloadImage.download_images('E')
+        result = DownloadImage.download_images()
         self.reportResult(result)
 
     def reportResult(self, result):

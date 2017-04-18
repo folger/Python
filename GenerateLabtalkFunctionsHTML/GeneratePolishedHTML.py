@@ -7,8 +7,17 @@ from GenerateLTFuncHTML import GenerateHTML, HTMLType
 import inspect
 currentpath = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
+def generate_HTML(lang):
+    parser = LTFuncsHTMLParser.MyHTMLParser()
+    parser.feed(LTFuncsHTMLParser.get_page_source(lang))
 
-def generate_HTML(lang, htmlType):
+    # print('\n'.join(parser.results))
+    generate = GenerateHTML(lang, parser.results)
+
+    for htmlType in (HTMLType.SCV, HTMLType.FO, HTMLType.NLFIT):
+        _generate_HTML(lang, htmlType, generate)
+
+def _generate_HTML(lang, htmlType, generate):
     def htmlfile():
         if htmlType == HTMLType.SCV:
             return os.path.join(currentpath, 'SCV_%s.html' % lang)
@@ -25,12 +34,6 @@ def generate_HTML(lang, htmlType):
             'J': 'DefaultJ.html',
         }
         return htmls[lang]
-
-    parser = LTFuncsHTMLParser.MyHTMLParser()
-    parser.feed(LTFuncsHTMLParser.get_page_source(lang))
-
-    # print('\n'.join(parser.results))
-    generate = GenerateHTML(lang, parser.results)
 
     with open(os.path.join(currentpath, basicHTML()), encoding='utf-8-sig') as fr:
         s = fr.read()

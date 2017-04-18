@@ -6,6 +6,8 @@ from urllib.request import urlretrieve
 import urllib.error
 from shutil import rmtree
 from time import sleep
+from xml.etree import ElementTree as ET
+
 import bs4
 import LTFuncsHTMLParser
 
@@ -15,11 +17,11 @@ if not currentpath:
     currentpath = os.getcwd()
 
 
-def download_images(lang):
-    htmlfile = os.path.join(currentpath, 'SCV_%s.html' % lang)
+def download_images():
+    xmlfile = os.path.join(currentpath, 'Functions.xml')
 
-    if not os.path.isfile(htmlfile):
-        return (False, "%s is needed to download images" % htmlfile)
+    if not os.path.isfile(xmlfile):
+        return (False, "%s is needed to download images" % xmlfile)
 
     imagelang = 'images'
     imagefolder = os.path.join(currentpath, imagelang)
@@ -33,10 +35,9 @@ def download_images(lang):
     os.mkdir(imagefolder)
 
     def download(images, imagesfail):
+        httpprefix = LTFuncsHTMLParser.get_http_prefix('E')
         for image in images:
-            image = image.replace('./{}/'.format(imagelang),
-                                  (LTFuncsHTMLParser.get_http_prefix(lang) +
-                                   LTFuncsHTMLParser.get_image_path(lang)))
+            image = httpprefix + image
             slash = image.rfind('/')
             imagename = image[slash + 1:]
 
@@ -47,21 +48,23 @@ def download_images(lang):
 
         return (True, "All images downloaded")
 
-    with open(htmlfile, encoding='utf-8-sig') as fr:
-        s = fr.read()
-        soup = bs4.BeautifulSoup(s, 'html.parser')
-        images = list(set(img['src'] for img in soup('img')))
+    images = []
+    tree = ET.parse(xmlfile)
+    for elem in tree.iter():
+        imgs = elem.get('images')
+        if imgs:
+            images += imgs.split('|')
 
-        subprocess.Popen(r'explorer %s' % imagefolder)
+    subprocess.Popen(r'explorer %s' % imagefolder)
 
-        imagesfail = []
-        while True:
-            result = download(images, imagesfail)
-            if not result[0] or len(imagesfail) == 0:
-                return result
+    imagesfail = []
+    while True:
+        result = download(images, imagesfail)
+        if not result[0] or len(imagesfail) == 0:
+            return result
 
-            images = imagesfail[:]
-            imagesfail.clear()
+        images = imagesfail[:]
+        imagesfail.clear()
 
 
 if __name__ == "__main__":
