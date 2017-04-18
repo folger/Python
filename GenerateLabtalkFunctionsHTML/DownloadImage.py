@@ -55,6 +55,7 @@ def download_images():
         if imgs:
             images += imgs.split('|')
 
+    images = list(set(images))
     subprocess.Popen(r'explorer %s' % imagefolder)
 
     imagesfail = []
@@ -65,7 +66,6 @@ def download_images():
 
         images = imagesfail[:]
         imagesfail.clear()
-
 
 if __name__ == "__main__":
     result = download_images(sys.argv[1])
