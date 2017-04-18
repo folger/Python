@@ -79,10 +79,11 @@ class GenerateHTML:
 class GenerateXML:
     def __init__(self):
         self.lang = 'E'
-        # parser = LTFuncsHTMLParser.MyHTMLParser()
-        # parser.feed(LTFuncsHTMLParser.get_page_source(self.lang))
-        with open('parse_results_{}.txt'.format(self.lang), encoding='utf-8') as f:
-            self.funcs = f.readlines()
+        parser = LTFuncsHTMLParser.MyHTMLParser()
+        parser.feed(LTFuncsHTMLParser.get_page_source(self.lang))
+        self.funcs = parser.results
+        # with open('parse_results_{}.txt'.format(self.lang), encoding='utf-8') as f:
+            # self.funcs = f.readlines()
 
     def Exec(self):
         imagepath = LTFuncsHTMLParser.get_image_path(self.lang).replace('\\', '\\\\')
