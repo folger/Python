@@ -28,7 +28,7 @@ def get_image_path(lang):
 
 
 def get_page_source(lang):
-    r = requests.get(get_url(lang))
+    r = requests.get(get_url(lang), timeout=30)
     soup = bs4.BeautifulSoup(r.text, 'html.parser')
     hiddens = soup('input', type='hidden')
 
