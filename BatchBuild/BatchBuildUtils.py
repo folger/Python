@@ -56,7 +56,7 @@ def before_copy_dlls(win32, version, updated):
     path = os.path.join(r'\\fs1\Dev\{}_dlls'
                         .format(version),
                         'win32' if win32 else 'x64')
-    updated(-1, 'Delete dlls on {} ...'.format(path))
+    updated(-1, 'Deleting dlls on {} ...'.format(path))
     if not os.path.isdir(path):
         os.makedirs(path)
     for the_file in os.listdir(path):

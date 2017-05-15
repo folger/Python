@@ -65,8 +65,8 @@ class DllJobThread(QThread):
         dlls = list(BatchBuildUtils.get_origin_binaries(self.binfolder, win32, self.version()))
         self.setrange.emit(0, len(dlls) - 1)
         oldstatus = []
-        self.beforeDoJobs(win32)
         self.getStatus.emit(oldstatus)
+        self.beforeDoJobs(win32)
         for i, dll in enumerate(dlls):
             self.updated.emit(i, dll)
             self.doJob(dll)
