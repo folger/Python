@@ -5,28 +5,8 @@ import json
 import subprocess
 from time import sleep
 
-import folstools.win32.utils as win32utils
 from folstools import dir_temp_change
-
-
-def get_origin_binaries(folder, win32, version):
-    for root, dirs, files in os.walk(folder):
-        for f in files:
-            if os.path.splitext(f)[1].lower() in ('.exe', '.dll', '.pyd'):
-                ff = os.path.join(root, f)
-                itype = win32utils.get_image_file_type(ff)
-                if (win32 and itype == win32utils.IMAGE_FILE_MACHINE_I386 or
-                   not win32 and itype == win32utils.IMAGE_FILE_MACHINE_AMD64):
-                    props = win32utils.get_file_properties(ff)
-                    try:
-                        sI = props['StringFileInfo']
-                        if sI['CompanyName'] == 'OriginLab Corporation':
-                            v = sI['ProductVersion'].replace('.', '')
-                            fileflags = props['FixedFileInfo']['FileFlags']
-                            if v == version and (fileflags & 1) == 0:
-                                yield ff.replace(folder + '\\', '')
-                    except:
-                        pass
+from folstools.orglab.release import get_origin_binaries
 
 
 def get_current_branch(dev_folder):
