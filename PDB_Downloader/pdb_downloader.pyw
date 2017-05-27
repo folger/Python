@@ -14,11 +14,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from folstools.qt.utils import *
 import sip
-try:
-    import ctypes
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
-except Exception:
-    pass
+
+from folstools.orglab.release import get_origin_binaries
 
 
 BUILDPREFIX = 'BuildPrefix'
@@ -38,7 +35,7 @@ class PDBDownloader(QDialog):
 
         self.build_prefix = QSettings().value(BUILDPREFIX)
         if not self.build_prefix:
-            self.build_prefix = 'Ir94Sr0_'
+            self.build_prefix = 'Ir95Sr0_'
 
         with open('settings.json') as fr:
             settings = json.load(fr)
@@ -46,6 +43,7 @@ class PDBDownloader(QDialog):
             if not self.downloadPath:
                 self.downloadPath = os.path.join(os.environ['home'], 'Desktop')
             self.buildPath = settings['BuildPath']
+            self.exepath = settings['ExePath']
             self.ftp = settings['FTP']
             self.username = settings['Username']
             self.password = settings['Password']
@@ -140,91 +138,13 @@ class PDBDownloader(QDialog):
 
     @create_group('Modules')
     def createModulesGroup(self):
-        modules = [
-            ORIGIN,
-            "ok9",
-            "okUtil9",
-            "Outl9",
-            "ou9",
-            "od9",
-            "O3DGL9",
-            "OK3DGL9",
-            "OCntrls9",
-            "ogrid9",
-            "OKXF9",
-            "omocavc9",
-            "OCompiler9",
-            "ocMath9",
-            "octree_Utils9",
-            "ocUtils9",
-            "gsodbc9",
-            "libapr",
-            "libsie",
-            "MOCABaseTypes9",
-            "nlsf9",
-            "oc3dx9",
-            "OCcontour9",
-            "ocim9",
-            "ocmath29",
-            "ocmathsp9",
-            "OCMmLink9",
-            "ocStatEx9",
-            "OCTree9",
-            "ocuv9",
-            "OCVImg",
-            "odbc9",
-            "odcfl9",
-            "oExtFile9",
-            "offt9",
-            "OFFTW9",
-            "ofgp9",
-            "ofio9",
-            "ohtmlhelp9",
-            "ohttp9",
-            "OIFileDlg9",
-            "oimg9",
-            "OImgLT9",
-            "OlbtEdit9",
-            "OLTmsg9",
-            "omail9",
-            "omat9",
-            "ONAG9",
-            "ONLSF9",
-            "OODBC9",
-            "OODR9",
-            "ooff60",
-            "OPack9",
-            "OPattern_Utils9",
-            "opencv_core",
-            "opencv_highgui",
-            "opencv_imgproc",
-            "opfm9",
-            "OPFMFuncs9",
-            "orespr9",
-            "OStat",
-            "Osts9",
-            "otext9",
-            "OTools",
-            "OTreeEditor9",
-            "oTreeGrid9",
-            "OUim9",
-            "OVideoReader9",
-            "OVideoWriter9",
-            "owxGrid9",
-            "wxbase28",
-            "wxmsw28_core",
-            "oErrMsg",
-            "nlsfWiz9",
-            "OImgProc",
-            "OImage",
-            "ORserve9",
-        ]
+        modules = list(c.split('\\')[-1] for c in get_origin_binaries(self.exepath, True, self.curVer()))
 
         self.view = QListView()
         moduleItems = QStandardItemModel(self.view)
         for i, m in enumerate(modules):
             item = QStandardItem(m)
-            item.setCheckState(Qt.Checked if i < 8 else Qt.Unchecked)
+            # item.setCheckState(Qt.Checked if i < 8 else Qt.Unchecked)
             item.setCheckable(True)
             moduleItems.appendRow(item)
         self.view.setModel(moduleItems)
