@@ -35,7 +35,7 @@ class PDBDownloader(QDialog):
 
         self.build_prefix = QSettings().value(BUILDPREFIX)
         if not self.build_prefix:
-            self.build_prefix = 'Ir95Sr0_'
+            self.build_prefix = settings['DefaultBuildPrefix']
 
         with open('settings.json') as fr:
             settings = json.load(fr)
@@ -138,7 +138,11 @@ class PDBDownloader(QDialog):
 
     @create_group('Modules')
     def createModulesGroup(self):
-        modules = list(c.split('\\')[-1] for c in get_origin_binaries(self.exepath, True, self.curVer()))
+        modules = []
+        for c in get_origin_binaries(self.exepath, False, self.curVer()):
+            if c.find('\\') > 0:
+                continue
+            modules.append(c[:-7])  # _64.dll
 
         self.view = QListView()
         moduleItems = QStandardItemModel(self.view)
@@ -173,13 +177,18 @@ class PDBDownloader(QDialog):
         def latest_build_num():
             if not self.buildPath:
                 return ''
+
+            def one_build():
+                for build in os.listdir(localBuildPath):
+                    m = re.match(r'Ir\d+Sr\d_(\d+)(\w)?', build)
+                    if m:
+                        yield int(m.group(1)), m.group(2)
+
             try:
                 localBuildPath = os.path.join(self.buildPath,
                                               self.curVer(), 'I')
-                latestBuild = max(build for build in
-                                  os.listdir(localBuildPath)
-                                  if build.startswith('Ir'))
-                return re.match(r'Ir\d+Sr\d_([0-9a-z]+)', latestBuild).group(1)
+                build_num, suffix = max(one_build())
+                return ''.join([str(build_num), '' if suffix is None else suffix])
             except Exception:
                 report_error()
         self.buildNum.setText(latest_build_num())
