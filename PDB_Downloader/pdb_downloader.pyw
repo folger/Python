@@ -182,13 +182,13 @@ class PDBDownloader(QDialog):
                 for build in os.listdir(localBuildPath):
                     m = re.match(r'Ir\d+Sr\d_(\d+)(\w)?', build)
                     if m:
-                        yield int(m.group(1)), m.group(2)
+                        yield int(m.group(1)), m.group(2) if m.group(2) else ''
 
             try:
                 localBuildPath = os.path.join(self.buildPath,
                                               self.curVer(), 'I')
                 build_num, suffix = max(one_build())
-                return ''.join([str(build_num), '' if suffix is None else suffix])
+                return ''.join([str(build_num), suffix])
             except Exception:
                 report_error()
         self.buildNum.setText(latest_build_num())
