@@ -23,9 +23,9 @@ def unload_proj_from_sln(sln, projs):
         sln_old = os.path.join(path, 'old.sln')
         if sln.lower().endswith('.sln'):
             _projs = ['"{}"'.format(p) for p in projs]
-            with open(sln_new, 'w') as fw:
+            with open(sln_new, 'w', encoding='utf-8') as fw:
                 remove_next = False
-                with open(sln) as f:
+                with open(sln, encoding='utf-8') as f:
                     for line in f:
                         if remove_next:
                             remove_next = False
