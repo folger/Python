@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import traceback
 from argparse import ArgumentParser
 from datetime import datetime as DT
 
@@ -109,4 +110,5 @@ try:
 except SystemExit:
     raise
 except Exception as e:
-    print(e)
+    traceback.print_exc()
+    os.system('pause')
