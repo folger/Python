@@ -31,6 +31,9 @@ if args.configuration is None:
     args.configuration = 'Debug'
 
 
+class MyValueError(ValueError):
+    pass
+
 def guess_project_from_source_file(f):
     path = os.path.dirname(f)
     paths = path.split('/')
@@ -53,7 +56,7 @@ def guess_project_from_source_file(f):
         return os.path.join(dev,
                             'Source',
                             proj_name) + '.vcxproj'
-    raise ValueError('Failed to guess project from source file {}'.format(f))
+    raise MyValueError('Failed to guess project from source file {}'.format(f))
 
 
 def find_project_file(proj):
@@ -62,14 +65,14 @@ def find_project_file(proj):
     for project, project_file in BuildUtils.get_projects():
         if os.path.splitext(project)[0].lower() == proj.lower():
             return project_file
-    raise ValueError('Failed to find project file from project name {}'
+    raise MyValueError('Failed to find project file from project name {}'
                      .format(proj))
 
 
 def main():
     if args.project in ('xxx', 'zzz'):
         if not args.file:
-            raise ValueError('Source file is not specified, '
+            raise MyValueError('Source file is not specified, '
                              'cannot guess project')
         project_file = guess_project_from_source_file(args.file)
         if args.project == 'zzz':
@@ -89,7 +92,7 @@ def main():
                                          (target, ff)))
                 break
         else:
-            raise ValueError('{} cannot be found in project {}'
+            raise MyValueError('{} cannot be found in project {}'
                              .format(file_name, args.project))
         return
 
@@ -109,6 +112,8 @@ try:
         os.system('pause')
 except SystemExit:
     raise
+except MyValueError as e:
+    print(e)
 except Exception as e:
     traceback.print_exc()
     os.system('pause')
