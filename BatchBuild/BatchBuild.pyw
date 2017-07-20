@@ -62,7 +62,10 @@ class DllJobThread(QThread):
             self._app.quit()
 
     def doJobs(self, win32):
-        dlls = list(BatchBuildUtils.get_origin_binaries(self.binfolder, win32, self.version()))
+        dlls = list(BatchBuildUtils.get_origin_binaries(self.binfolder,
+                                                        win32,
+                                                        self.version(),
+                                                        self.sln))
         self.setrange.emit(0, len(dlls) - 1)
         oldstatus = []
         self.getStatus.emit(oldstatus)
@@ -305,6 +308,7 @@ class BatchBuilder(QDialog):
             return
         mt = CopyDllThread(self)
         mt.binfolder = self.binFolder
+        mt.sln = self.solutionFiles[1]
         mt.win32 = self.check32Release.isChecked()
         mt.x64 = self.check64Release.isChecked()
         mt.start()
@@ -312,6 +316,7 @@ class BatchBuilder(QDialog):
     def deleteBin(self):
         mt = DeleteDllThread(self)
         mt.binfolder = self.binFolder
+        mt.sln = self.solutionFiles[1]
         mt.win32 = self.check32Release.isChecked()
         mt.x64 = self.check64Release.isChecked()
         mt.start()
