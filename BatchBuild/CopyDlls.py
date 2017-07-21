@@ -38,4 +38,5 @@ for p in platforms:
     copy_dlls(os.path.join(args.devfolder, 'Origin'),
               p,
               _version,
-              _updated)
+              _updated,
+              os.path.join(args.devfolder, 'Source/vc32/orgmain/OriginAll.sln'),)

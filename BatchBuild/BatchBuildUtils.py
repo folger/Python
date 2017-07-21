@@ -55,8 +55,8 @@ def before_copy_dlls(win32, version, updated):
     return path
 
 
-def copy_dlls(binfolder, win32, version, updated):
-    dlls = get_origin_binaries(binfolder, win32, version)
+def copy_dlls(binfolder, win32, version, updated, sln=None):
+    dlls = get_origin_binaries(binfolder, win32, version, sln)
     path = before_copy_dlls(win32, version, updated)
     for i, dll in enumerate(dlls):
         updated(i, dll)
