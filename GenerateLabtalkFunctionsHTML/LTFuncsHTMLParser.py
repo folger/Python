@@ -10,6 +10,8 @@ url = 'http://zaphod-w/doc/LabTalk/guide/LT-Supported-Functions'
 http_prefix = 'http://zaphod-w'
 image_path = r'/doc\{}/LabTalk/images/LabTalk-Supported_Functions/'
 
+http_originlab = 'https://www.originlab.com'
+
 
 def get_url(lang):
     return url
@@ -98,8 +100,8 @@ class MyHTMLParserOld(HTMLParser):
                     for attr in attrs:
                         if attr[0] == 'href':
                             funclink = attr[1]
-                            if not funclink.startswith('http://'):
-                                funclink = 'http://www.originlab.com' + funclink
+                            if not funclink.startswith('http'):
+                                funclink = http_originlab + funclink
                             self.description += funclink
                             self.description += "\t" * 10
                             break
@@ -195,7 +197,7 @@ class MyHTMLParser:
 
                     for a in tds[0]('a'):
                         result = []
-                        result.append('http://www.originlab.com' + a['href'].strip())
+                        result.append(http_originlab + a['href'].strip())
                         result.append(('nlf_' if fitfunc else '') + a.text.strip())
                         description = str(tds[1]).strip()
                         description = description.replace('\xa0', ' ')
