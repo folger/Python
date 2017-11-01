@@ -45,7 +45,8 @@ class GenerateHTML:
                 fitfunc = func.startswith(fitting_function_prefixs[self.lang])
                 if fitfunc:
                     fitfunc_categoryname = func.split('-')[1].lstrip()
-                    func = fitfunc_categoryname
+                    if htmlType != HTMLType.SCV:
+                        func = fitfunc_categoryname
                 if check_htmlType_continue():
                     continue
                 if len(s):
