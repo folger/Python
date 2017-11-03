@@ -68,6 +68,7 @@ class GenerateHTML:
                     funcs_done.add(funcnametest)
                     if not funclink.startswith('http'):
                         funclink = 'http://wikis' + funclink
+                    description = description.replace('href="/doc', 'href="{}/doc'.format(LTFuncsHTMLParser.http_originlab))
                     s += '    <tr>\n        <td><a href="%s" fprefix="%s">%s</a></td>\n        <td>%s</td>\n    </tr>\n' \
                         % (funclink, "nlf_" if fitfunc else "", funcname[len("nlf_"):] if fitfunc else funcname, description)
 

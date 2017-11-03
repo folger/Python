@@ -239,7 +239,7 @@
                 li.find("small .doc-link").click(function (event) {
                     event.stopPropagation();
                     setTimeout(function () {
-                        navigate("//doc:" + data.fprefix + data.label);
+                        navigate("//doc:" + data.link.substring(8));
                     }, 0);
                 });
                 return li.appendTo(ul);
