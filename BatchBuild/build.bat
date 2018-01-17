@@ -42,9 +42,11 @@ for %%a in (%platforms%) do (
 )
 popd
 
-for %%a in (%platforms%) do (
-	title Copying %%a dlls ...
-	python CopyDlls.py %devfolder% --%%a
+if "%solution%"=="OriginAll.sln" (
+	for %%a in (%platforms%) do (
+		title Copying %%a dlls ...
+		python CopyDlls.py %devfolder% --%%a
+	)
 )
 
 title Done (%date% %time%)
