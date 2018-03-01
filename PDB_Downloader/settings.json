@@ -1,8 +1,8 @@
 {
 	"DownloadPath": "\\\\fs1\\dev\\PDBs",
 	"BuildPath": "\\\\fs1\\Builds",
-	"ExePath": "G:\\F_C_VC32_95",
-	"DefaultBuildPrefix": "Ir95Sr0_",
+	"ExePath": "",
+	"DefaultBuildPrefix": "Ir95bSr0_",
 	"FTP": "",
 	"Username": "",
 	"Password": ""

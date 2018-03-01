@@ -33,10 +33,6 @@ class PDBDownloader(QDialog):
         super().__init__(parent)
         self.selfclose = False
 
-        self.build_prefix = QSettings().value(BUILDPREFIX)
-        if not self.build_prefix:
-            self.build_prefix = settings['DefaultBuildPrefix']
-
         with open('settings.json') as fr:
             settings = json.load(fr)
             self.downloadPath = settings['DownloadPath']
@@ -47,6 +43,10 @@ class PDBDownloader(QDialog):
             self.ftp = settings['FTP']
             self.username = settings['Username']
             self.password = settings['Password']
+
+        self.build_prefix = QSettings().value(BUILDPREFIX)
+        if not self.build_prefix:
+            self.build_prefix = settings['DefaultBuildPrefix']
 
         self.setFixedWidth(250)
 
@@ -180,7 +180,7 @@ class PDBDownloader(QDialog):
 
             def one_build():
                 for build in os.listdir(localBuildPath):
-                    m = re.match(r'Ir\d+Sr\d_(\d+)(\w)?', build)
+                    m = re.match(r'Ir\d+\w?Sr\d_(\d+)(\w)?', build)
                     if m:
                         yield int(m.group(1)), m.group(2) if m.group(2) else ''
 
