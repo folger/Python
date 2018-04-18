@@ -27,7 +27,7 @@ def is_master_branch(dev_folder):
 
 def origin_version(dev_folder, default):
     current_branch = get_current_branch(dev_folder)
-    m = re.match('(\d+)_release', current_branch)
+    m = re.match('(\d+)b?_release', current_branch)
     return m.group(1) if m else default
 
 
