@@ -467,8 +467,9 @@ class BatchBuilder(QDialog):
             (self.check32Debug, True, False),
             (self.check64Release, False, True),
             (self.check64Debug, False, False))
-        is_unicode = (MASTER_UNICODE and
-                      BatchBuildUtils.is_master_branch(dev_folder))
+        # is_unicode = (MASTER_UNICODE and
+                      # BatchBuildUtils.is_master_branch(dev_folder))
+        is_unicode = True
         for check, win32, release in configurations:
             if check.isChecked():
                 config = [MSBUILD, '/m']
