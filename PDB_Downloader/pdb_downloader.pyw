@@ -5,6 +5,7 @@ import json
 import zipfile
 import traceback
 import tempfile
+import urllib
 from functools import partial
 from subprocess import check_call, CalledProcessError, Popen
 import socket
@@ -138,11 +139,14 @@ class PDBDownloader(QDialog):
 
     @create_group('Modules')
     def createModulesGroup(self):
+        suffix = '_64.dll'
         modules = []
         for c in get_origin_binaries(self.exepath, False, self.curVer()):
             if c.find('\\') > 0:
                 continue
-            modules.append(c[:-7])  # _64.dll
+            if c.find(suffix) < 0:
+                continue
+            modules.append(c.replace(suffix, ''))
 
         self.view = QListView()
         moduleItems = QStandardItemModel(self.view)
@@ -339,6 +343,7 @@ class DownloadThread(QThread):
     def run(self):
         folder = ''
         self.enable.emit(False)
+        ftp_errors = []
         for ftp, filename in self.all_files():
             if not folder:
                 folder = os.path.dirname(filename)
@@ -352,13 +357,18 @@ class DownloadThread(QThread):
             except StopFetch:
                 os.remove(filename)
                 break
+            except urllib.error.URLError as e:
+                ftp_errors.append(str(e))
+                continue
             except Exception:
                 report_error()
-                continue
+                break
             if os.path.isfile(filename):
                 with zipfile.ZipFile(filename, 'r') as zf:
                     zf.extractall(os.path.dirname(filename))
                 os.remove(filename)
+        if ftp_errors:
+            report_error('\n'.join(ftp_errors))
         if folder:
             if os.listdir(folder):
                 try:
@@ -382,10 +392,10 @@ class DownloadThread(QThread):
         self.stop = True
 
 
-def report_error():
+def report_error(s=None):
     error_file = 'error.txt'
     with open(error_file, 'w', encoding='utf-8-sig') as fw:
-        print(traceback.format_exc(), file=fw)
+        print(s if s is not None else traceback.format_exc(), file=fw)
     Popen(['notepad', error_file])
 
 
