@@ -7,6 +7,8 @@ import json
 import inspect
 from contextlib import contextmanager
 
+import BatchBuildUtils
+
 current_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 with open(os.path.join(current_dir, 'settings.json')) as f:
@@ -121,7 +123,7 @@ def build(error_exit, return_output, project, platform, configuration, extra_arg
         return '\n'.join(errors)
     else:
         try:
-            os.system('title ' + ' '.join(args[1:]))
+            os.system('title ' + ' ^| '.join([BatchBuildUtils.get_current_branch(os.path.dirname(project))] + args[1:]))
             with unload_proj_from_sln(project, UNLOAD_PROJECTS):
                 ret = subprocess.call([MSBUILD] + args, shell=True)
                 if ret != 0 and error_exit:
