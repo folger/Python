@@ -184,7 +184,7 @@ class PDBDownloader(QDialog):
 
             def one_build():
                 for build in os.listdir(localBuildPath):
-                    m = re.match(r'Ir\d+\w?Sr\d_(\d+)(\w)?', build)
+                    m = re.match(r'Ir\d+\w?Sr\d_(\d+)([a-z])?', build)
                     if m:
                         yield int(m.group(1)), m.group(2) if m.group(2) else ''
 
