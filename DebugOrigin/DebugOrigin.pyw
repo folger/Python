@@ -7,6 +7,18 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from folstools.qt.utils import *
 
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
 with open('settings.json') as f:
     settings = json.load(f)
     VS6PATH = settings['VS6Path']
@@ -21,7 +33,7 @@ class DebugOrigin(QDialog):
         self.setWindowTitle('Debug Origin')
 
         icon = QIcon()
-        icon.addPixmap(QPixmap('main.ico'))
+        icon.addPixmap(QPixmap(resource_path('main.ico')))
         self.setWindowIcon(icon)
 
         self.setFixedWidth(200)
@@ -74,6 +86,7 @@ class DebugOrigin(QDialog):
 
     def closeEvent(self, event):
         save_settings((MAIN_WINDOW_GEOMETRY, self.saveGeometry()))
+
 
 app = QApplication(sys.argv)
 app.setOrganizationDomain('originlab.com')
