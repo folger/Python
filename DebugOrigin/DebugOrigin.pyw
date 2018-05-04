@@ -2,10 +2,14 @@ import sys
 import os
 import json
 import subprocess
+import traceback
 from functools import partial
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from folstools.qt.utils import *
+
+
+from folstools import notepad_messagebox
 
 
 def resource_path(relative_path):
@@ -54,23 +58,32 @@ class DebugOrigin(QDialog):
         return layout
 
     def VS6(self, source_path, dsw):
-        self.removeLinkFolder(r'C:\C')
-        self.removeLinkFolder(r'C:\FlexLM')
-        self.removeLinkFolder(r'D:\buildtmp')
-        os.symlink(os.path.join(source_path, 'C'), r'C:\C', True)
-        os.symlink(os.path.join(source_path, 'FlexLM'), r'C:\FlexLM', True)
-        os.symlink(os.path.join(source_path, 'buildtmp'), r'D:\buildtmp', True)
-        self.run(VS6PATH, os.path.join(r'C:\C\Vc32\orgmain', dsw))
+        try:
+            self.removeLinkFolder(r'C:\C')
+            self.removeLinkFolder(r'C:\FlexLM')
+            self.removeLinkFolder(r'D:\buildtmp')
+            os.symlink(os.path.join(source_path, 'C'), r'C:\C', True)
+            os.symlink(os.path.join(source_path, 'FlexLM'), r'C:\FlexLM', True)
+            os.symlink(os.path.join(source_path, 'buildtmp'), r'D:\buildtmp', True)
+            self.run(VS6PATH, os.path.join(r'C:\C\Vc32\orgmain', dsw))
+        except Exception:
+            notepad_messagebox(traceback.format_exc())
 
     def VS2010(self, source_path, sln):
-        self.removeLinkFolder(r'C:\C')
-        os.symlink(source_path, r'C:\C', True)
-        self.run(VS2010PATH, os.path.join(r'C:\C\Vc32\orgmain', sln))
+        try:
+            self.removeLinkFolder(r'C:\C')
+            os.symlink(source_path, r'C:\C', True)
+            self.run(VS2010PATH, os.path.join(r'C:\C\Vc32\orgmain', sln))
+        except Exception:
+            notepad_messagebox(traceback.format_exc())
 
     def VS2012(self, source_path, sln):
-        if not sln:
-            sln = "OriginAll.sln"
-        self.run(VS2012PATH, os.path.join(source_path, r'vc32\orgmain', sln))
+        try:
+            if not sln:
+                sln = "OriginAll.sln"
+            self.run(VS2012PATH, os.path.join(source_path, r'vc32\orgmain', sln))
+        except Exception:
+            notepad_messagebox(traceback.format_exc())
 
     def run(self, exe, sln):
         subprocess.Popen([exe, sln])
