@@ -8,7 +8,8 @@ import bs4
 # image_path = '/images/ltwiki/math/'
 url = 'http://zaphod-w/doc/LabTalk/guide/LT-Supported-Functions'
 http_prefix = 'http://zaphod-w'
-image_path = r'/doc\{}/LabTalk/images/LabTalk-Supported_Functions/'
+image_path = r'/doc/{}/LabTalk/images/LabTalk-Supported_Functions/'
+image_path_suffix = r'?v=0'
 
 http_originlab = 'https://www.originlab.com'
 

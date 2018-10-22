@@ -74,7 +74,7 @@ class GenerateHTML:
 
         if len(s):
             s += '</table>'
-        s = s.replace(LTFuncsHTMLParser.get_image_path(self.lang), './images/')
+        s = s.replace(LTFuncsHTMLParser.get_image_path(self.lang), './images/').replace(LTFuncsHTMLParser.image_path_suffix, '')
         return s
 
 
@@ -89,7 +89,7 @@ class GenerateXML:
 
     def Exec(self):
         imagepath = LTFuncsHTMLParser.get_image_path(self.lang).replace('\\', '\\\\')
-        p_imagepath = re.compile(r'src="({}.+?\.png)"'.format(imagepath))
+        p_imagepath = re.compile(r'src="({}.+?\.png)\?v=0"'.format(imagepath))
         root = ET.Element('Root')
         tree = ET.ElementTree(root)
         for entries in _func_entries(self.funcs):

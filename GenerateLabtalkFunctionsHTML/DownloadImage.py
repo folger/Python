@@ -40,6 +40,7 @@ def download_images():
             image = httpprefix + image
             slash = image.rfind('/')
             imagename = image[slash + 1:]
+            imagename.replace(LTFuncsHTMLParser.image_path_suffix, '')
 
             try:
                 urlretrieve(image, os.path.join(imagefolder, imagename))
@@ -64,6 +65,7 @@ def download_images():
         if not result[0] or len(imagesfail) == 0:
             return result
 
+        print(imagesfail)
         images = imagesfail[:]
         imagesfail.clear()
 
