@@ -141,7 +141,7 @@ class PDBDownloader(QDialog):
     def createModulesGroup(self):
         suffix = '_64.dll'
         modules = []
-        for c in get_origin_binaries(self.exepath, False, self.curVer()):
+        for c in get_origin_binaries(self.exepath, False, self.curExeVer()):
             if c.find('\\') > 0:
                 continue
             if c.find(suffix) < 0:
@@ -171,8 +171,11 @@ class PDBDownloader(QDialog):
         return layout
 
     def curVer(self):
-        m = re.match(r'Ir(\d+)', self.buildPrefix.text())
+        m = re.match(r'Ir(\d+b?)', self.buildPrefix.text())
         return m.group(1) if m else ''
+
+    def curExeVer(self):
+        return self.curVer().replace('b', '')
 
     def updateWindowTitle(self):
         self.setWindowTitle('PDB Downloader({})'.format(self.curVer()))
@@ -236,7 +239,7 @@ class PDBDownloader(QDialog):
                 if module.checkState() == Qt.Checked:
                     mtext = module.text()
                     if mtext == ORIGIN:
-                        mtext = mtext + self.curVer()
+                        mtext = mtext + self.curExeVer()
                     for f in files(mtext):
                         filename = os.path.join(localPath, f)
                         ftp = ('ftp://{}:{}@{}/Builds/{}/'
