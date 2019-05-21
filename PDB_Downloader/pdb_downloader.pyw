@@ -139,7 +139,7 @@ class PDBDownloader(QDialog):
 
     @create_group('Modules')
     def createModulesGroup(self):
-        suffix = '_64.dll'
+        suffix = '.dll'
         modules = []
         for c in get_origin_binaries(self.exepath, False, self.curExeVer()):
             if c.find('\\') > 0:
@@ -219,14 +219,14 @@ class PDBDownloader(QDialog):
                 return fm.format(module)
             if self.pdb.isChecked():
                 if self.win32.isChecked():
-                    yield _format('{}.pdb.zip')
+                    yield _format('{}_32.pdb.zip')
                 if self.x64.isChecked():
-                    yield _format('{}_64.pdb.zip')
+                    yield _format('{}.pdb.zip')
             if self.map.isChecked():
                 if self.win32.isChecked():
-                    yield _format('{}.map.zip')
+                    yield _format('{}_32.map.zip')
                 if self.x64.isChecked():
-                    yield _format('{}_64.map.zip')
+                    yield _format('{}.map.zip')
 
         def all_files():
             buildFolder = self.buildPrefix.text() + self.buildNum.text()
