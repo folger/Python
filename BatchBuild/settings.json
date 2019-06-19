@@ -1,9 +1,10 @@
 {
 	"SourcePath": "",
-	"MsBuild": "",
-	"VSPath": "",
-	"MasterVersion": "95",
+	"MsBuild": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\MSBuild\\Current\\Bin\\msbuild.exe",
+	"VSPath": "C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\Common7\\IDE\\devenv.exe",
+	"MasterVersion": "97",
 	"MasterUnicode": true,
 	"UnloadProjects": [
-	]
+	],
+	"PorjSubffix": "_19"
 }

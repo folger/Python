@@ -27,6 +27,7 @@ args = parser.parse_args()
 with open('settings.json') as f:
     settings = json.load(f)
     MASTER_VERSION = settings['MasterVersion']
+    PROJ_SUFFIX = settings.get('PorjSubffix', '')
 _version = origin_version(args.devfolder, MASTER_VERSION)
 
 platforms = []
@@ -39,4 +40,4 @@ for p in platforms:
               p,
               _version,
               _updated,
-              os.path.join(args.devfolder, 'Source/vc32/orgmain/OriginAll.sln'),)
+              os.path.join(args.devfolder, 'Source/vc32/orgmain/OriginAll{}.sln'.format(PROJ_SUFFIX)),)

@@ -33,7 +33,8 @@ def origin_version(dev_folder, default):
 
 def before_copy_dlls(win32, version, updated):
     platformpath = '32bit' if win32 else '64bit'
-    path = os.path.join(r'\\fs1\Dev\{}_dlls'
+    #path = os.path.join(r'\\fs1\Dev\{}_dlls'
+    path = os.path.join(r'E:\Dev\{}_dlls'
                         .format(version),
                         'win32' if win32 else 'x64')
     updated(-1, 'Deleting dlls on {} ...'.format(path))
@@ -65,7 +66,8 @@ def copy_dlls(binfolder, win32, version, updated, sln=None):
 
 
 if __name__ == '__main__':
-    for f in get_origin_binaries(os.path.join(os.getenv('Develop'), 'Origin'),
-                                 True,
-                                 '95'):
+    for f in get_origin_binaries(os.path.join('E:/Dev', 'Origin'),
+                                 False,
+                                 '96',
+								 'E:/Dev/Source/vc32/orgmain/OriginAll.sln'):
         print(f)

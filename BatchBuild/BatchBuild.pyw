@@ -23,6 +23,7 @@ with open('settings.json') as f:
     MASTER_VERSION = settings['MasterVersion']
     MASTER_UNICODE = settings['MasterUnicode']
     UNLOAD_PROJECTS = settings.get('UnloadProjects', [])
+    PROJ_SUFFIX = settings.get('PorjSubffix', '')
 
 
 UNICODE_PREFIX = 'Unicode'
@@ -425,13 +426,13 @@ class BatchBuilder(QDialog):
 
         def getSln():
             if self.slnOrigin.isChecked():
-                return 'OriginAll.sln'
+                return 'OriginAll{}.sln'.format(PROJ_SUFFIX)
             if self.slnViewer.isChecked():
                 return 'OrgViewer.sln'
             if self.slnOrglab.isChecked():
                 return 'OrgLab.sln'
         return [os.path.join(getSourceFolder(), *args)
-                for args in ((r'CrashRpt\CrashRpt.sln',),
+                for args in ((r'CrashRpt\CrashRpt{}.sln'.format(PROJ_SUFFIX),),
                              (r'vc32\orgmain', getSln()))]
 
     @property
