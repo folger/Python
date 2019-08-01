@@ -28,6 +28,7 @@ with open('settings.json') as f:
     VS6PATH = settings['VS6Path']
     VS2010PATH = settings['VS2010Path']
     VS2012PATH = settings['VS2012Path']
+    VS2019PATH = settings['VS2019Path']
     BUILDS = settings["Builds"]
 
 
@@ -82,6 +83,14 @@ class DebugOrigin(QDialog):
             if not sln:
                 sln = "OriginAll.sln"
             self.run(VS2012PATH, os.path.join(source_path, r'vc32\orgmain', sln))
+        except Exception:
+            notepad_messagebox(traceback.format_exc())
+
+    def VS2019(self, source_path, sln):
+        try:
+            if not sln:
+                sln = "OriginAll.sln"
+            self.run(VS2019PATH, os.path.join(source_path, sln))
         except Exception:
             notepad_messagebox(traceback.format_exc())
 
