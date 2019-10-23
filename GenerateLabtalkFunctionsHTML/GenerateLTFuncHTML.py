@@ -28,16 +28,16 @@ class GenerateHTML:
 
         def check_htmlType_continue():
             if fitfunc:
-                if htmlType == HTMLType.NLFIT and fitfunc_categoryname in ('Implicit', 'PFW', 'Surface Fitting'):
+                if htmlType == HTMLType.NLFIT and fitfunc_categoryname in ('Implicit', 'PFW', 'Surface Fitting', 'Oberflächenanpassung'):
                     return True
-                if htmlType == HTMLType.SCV and fitfunc_categoryname in ('Multiple Variables',):
+                if htmlType == HTMLType.SCV and fitfunc_categoryname in ('Multiple Variables', '複数の変数', 'Mehrere Variablen'):
                     return True
             else:
                 if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
                     return True
             return False
 
-        fitting_function_prefixs = {'E': 'Fitting Functions', 'J': 'フィット関数', 'G': 'Fitting Functions'}
+        fitting_function_prefixs = {'E': 'Fitting Functions', 'J': 'フィット関数', 'G': 'Anpassungsfunktionen'}
         for entries in _func_entries(self.funcs):
             if len(entries) == 1:  # category
                 func = entries[0]
