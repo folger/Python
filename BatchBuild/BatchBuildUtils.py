@@ -28,7 +28,16 @@ def is_master_branch(dev_folder):
 def origin_version(dev_folder, default):
     current_branch = get_current_branch(dev_folder)
     m = re.match('(\d+)b?_release', current_branch)
-    return m.group(1) if m else default
+    if m:
+        version = m.group(1)
+        versions_map = {
+            "2020": "97",
+        }
+        try:
+            return versions_map[version]
+        except:
+            return version
+    return default
 
 
 def before_copy_dlls(win32, version, updated):
