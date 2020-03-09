@@ -36,8 +36,8 @@ def download_images():
 
     def download(images, imagesfail):
         httpprefix = LTFuncsHTMLParser.get_http_prefix('E')
-        for image in images:
-            image = httpprefix + image
+        for image1 in images:
+            image = httpprefix + image1
             slash = image.rfind('/')
             imagename = image[slash + 1:]
             imagename.replace(LTFuncsHTMLParser.image_path_suffix, '')
@@ -45,7 +45,8 @@ def download_images():
             try:
                 urlretrieve(image, os.path.join(imagefolder, imagename))
             except Exception as e:
-                imagesfail.append(image)
+                print("Failed: " + image1)
+                imagesfail.append(image1)
 
         return (True, "All images downloaded")
 
@@ -60,15 +61,15 @@ def download_images():
     subprocess.Popen(r'explorer %s' % imagefolder)
 
     imagesfail = []
+    print("Total images: " + str(len(images)))
     while True:
         result = download(images, imagesfail)
         if not result[0] or len(imagesfail) == 0:
             return result
 
-        print(imagesfail)
         images = imagesfail[:]
         imagesfail.clear()
 
 if __name__ == "__main__":
-    result = download_images(sys.argv[1])
+    result = download_images()
     print(result[1])
