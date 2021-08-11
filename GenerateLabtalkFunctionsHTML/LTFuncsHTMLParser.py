@@ -23,7 +23,7 @@ def get_http_prefix(lang):
 
 
 lang_map = {'E': 'en', 'J': 'ja', 'G': 'de'}
-image_map = {'E': 'en', 'J': 'ja', 'G': 'en'}
+image_map = {'E': 'en', 'J': 'ja', 'G': 'de'}
 
 
 def get_image_path(lang):

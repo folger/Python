@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 from urllib.request import urlopen
 import LTFuncsHTMLParser
 from GenerateLTFuncHTML import GenerateHTML, HTMLType
@@ -39,6 +40,9 @@ def _generate_HTML(lang, htmlType, generate):
         s = fr.read()
         if htmlType == HTMLType.FO or htmlType == HTMLType.NLFIT:
             s = s.replace('navigate("//select:" + ui.item.fprefix + ui.item.label);', 'navigate("//select:" + ui.item.category + "|" + ui.item.label);')
+        else:
+            s = re.sub(r'<a title=.+?</a>', '', s)
+            s = re.sub(r'(<div style="display: none" id="emptySearchResultNotice">).+?(</div>)', r'\1\2', s)
         gs = generate.Exec(htmlType).replace('/images/docwiki/math', './images')
         s = s.replace('<div style="display: none" id="labtalkFunctions"></div>',
                       '<div style="display: none" id="labtalkFunctions">' + gs + '</div>')
